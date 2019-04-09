@@ -1493,14 +1493,15 @@ bool CharacterController::updateWeaponState(CharacterState& idle)
 
                     const ESM::Static* castStatic = MWBase::Environment::get().getWorld()->getStore().get<ESM::Static>().find ("VFX_Hands");
 
-                    for (size_t iter = 0; iter < spell->mEffects.mList.size(); ++iter) // play hands vfx for each effect
-                    {
-                        if (mAnimation->getNode("Bip01 L Hand"))
-                            mAnimation->addEffect("meshes\\" + castStatic->mModel, -1, false, "Bip01 L Hand", effect->mParticle);
+					if (Settings::Manager::getBool("spellcast vfx", "General"))
+						for (size_t iter = 0; iter < spell->mEffects.mList.size(); ++iter) // play hands vfx for each effect
+						{
+							if (mAnimation->getNode("Bip01 L Hand"))
+								mAnimation->addEffect("meshes\\" + castStatic->mModel, -1, false, "Bip01 L Hand", effect->mParticle);
 
-                        if (mAnimation->getNode("Bip01 R Hand"))
-                            mAnimation->addEffect("meshes\\" + castStatic->mModel, -1, false, "Bip01 R Hand", effect->mParticle);
-                    }
+							if (mAnimation->getNode("Bip01 R Hand"))
+								mAnimation->addEffect("meshes\\" + castStatic->mModel, -1, false, "Bip01 R Hand", effect->mParticle);
+						}
 
                     const ESM::ENAMstruct &firstEffect = spell->mEffects.mList.at(0); // first effect used for casting animation
 

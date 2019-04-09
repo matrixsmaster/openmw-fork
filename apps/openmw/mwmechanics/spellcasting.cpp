@@ -667,7 +667,7 @@ namespace MWMechanics
                     bool loop = (magicEffect->mData.mFlags & ESM::MagicEffect::ContinuousVfx) != 0;
                     // Note: in case of non actor, a free effect should be fine as well
                     MWRender::Animation* anim = MWBase::Environment::get().getWorld()->getAnimation(target);
-                    if (anim)
+                    if (anim && Settings::Manager::getBool("spellcast vfx", "General"))
                         anim->addEffect("meshes\\" + castStatic->mModel, magicEffect->mIndex, loop, "", texture);
                 }
             }
@@ -1051,6 +1051,10 @@ namespace MWMechanics
     {
         const MWWorld::ESMStore& store = MWBase::Environment::get().getWorld()->getStore();
         const ESM::Spell *spell = store.get<ESM::Spell>().find(spellid);
+        if (!Settings::Manager::getBool("spellcast vfx", "General")) {
+			puts("Spellcasting VFX disabled");
+			return;
+		}
 
         std::vector<std::string> addedEffects;
 
