@@ -1,3 +1,4 @@
+#include <stdio.h> //just want a simple printf()
 #include <components/debug/debuglog.hpp>
 
 #include <components/sceneutil/positionattitudetransform.hpp>
@@ -548,6 +549,46 @@ namespace MWScript
                 }
         };
 
+        template<class R, bool offset>
+        class OpPositionAt : public Interpreter::Opcode0
+		{
+		public:
+
+        	virtual void execute (Interpreter::Runtime& runtime)
+        	{
+        		MWWorld::Ptr ptr = R()(runtime);
+                if (ptr.getContainerStore()) {
+                	printf("getContainerStore() is not NULL\n");
+                    return;
+                }
+
+        		MWWorld::Ptr actor = MWMechanics::getPlayer();
+        		if (ptr == actor) {
+        			printf("Couldn't teleport the PC to herself\n");
+        			return;
+        		}
+
+        		if (offset) {
+        			Interpreter::Type_Integer direction = runtime[0].mInteger;
+        			runtime.pop();
+        			Interpreter::Type_Float distance = runtime[0].mFloat;
+        			runtime.pop();
+
+        			printf("Not yet implemented\n");
+        			return;
+        		}
+
+                MWWorld::Ptr base = ptr;
+                float ax = actor.getRefData().getPosition().pos[0];
+                float ay = actor.getRefData().getPosition().pos[1];
+                float az = actor.getRefData().getPosition().pos[2];
+                ptr = MWBase::Environment::get().getWorld()->moveObject(ptr,actor.getCell(),ax,ay,az);
+                dynamic_cast<MWScript::InterpreterContext&>(runtime.getContext()).updatePtr(base,ptr);
+
+                ptr.getClass().adjustPosition(ptr,false);
+        	}
+		};
+
         template<class R>
         class OpRotate : public Interpreter::Opcode0
         {
@@ -783,6 +824,11 @@ namespace MWScript
             interpreter.installSegment5(Compiler::Transformation::opcodeGetStartingAngleExplicit, new OpGetStartingAngle<ExplicitRef>);
             interpreter.installSegment5(Compiler::Transformation::opcodeResetActors, new OpResetActors);
             interpreter.installSegment5(Compiler::Transformation::opcodeFixme, new OpFixme);
+
+            interpreter.installSegment5(Compiler::Transformation::opcodeBring,new OpPositionAt<ImplicitRef, false>);
+            interpreter.installSegment5(Compiler::Transformation::opcodeBringExplicit,new OpPositionAt<ExplicitRef, false>);
+            interpreter.installSegment5(Compiler::Transformation::opcodePositionAtPc,new OpPositionAt<ImplicitRef, true>);
+            interpreter.installSegment5(Compiler::Transformation::opcodePositionAtPcExplicit,new OpPositionAt<ExplicitRef, true>);
         }
     }
 }

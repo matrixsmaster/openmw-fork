@@ -548,6 +548,9 @@ namespace Compiler
             extensions.registerInstruction("resetactors","",opcodeResetActors);
             extensions.registerInstruction("fixme","",opcodeFixme);
             extensions.registerInstruction("ra","",opcodeResetActors);
+
+            extensions.registerInstruction("bring","",opcodeBring,opcodeBringExplicit);
+            extensions.registerInstruction("positionatpc","lf",opcodePositionAtPc,opcodePositionAtPcExplicit);
         }
     }
 
