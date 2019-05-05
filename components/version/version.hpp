@@ -8,9 +8,10 @@ namespace Version
 
     struct Version
     {
-        std::string mVersion;
-        std::string mCommitHash;
-        std::string mTagHash;
+    	// I have to hard-code it because the version resource file in my setup is too volatile
+    	// and could completely be out of sync with the current ELF file being executed
+        const std::string mVersion = "0.46.0-pre";
+        const std::string mCommitHash = "9f7f88af193d6e77ab0569e741b25d99b905a3fa"; // this would point to the PREVIOUS commit
 
         std::string describe();
     };

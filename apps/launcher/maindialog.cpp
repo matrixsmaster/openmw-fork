@@ -187,6 +187,8 @@ Launcher::FirstRunDialogResult Launcher::MainDialog::showFirstRunDialog()
 
 void Launcher::MainDialog::setVersionLabel()
 {
+	// That's of no use for me ;)
+#if 0
     // Add version information to bottom of the window
     Version::Version v = Version::getOpenmwVersion(mGameSettings.value("resources").toUtf8().constData());
 
@@ -204,6 +206,7 @@ void Launcher::MainDialog::setVersionLabel()
                                                                                     QLatin1String("MMM d yyyy")).toString(Qt::SystemLocaleLongDate),
                                                          QLocale(QLocale::C).toTime(QString(__TIME__).simplified(),
                                                                                     QLatin1String("hh:mm:ss")).toString(Qt::SystemLocaleShortDate)));
+#endif
 }
 
 bool Launcher::MainDialog::setup()
