@@ -13,4 +13,4 @@ So far it does:
 
 Notes:
  * I don't recommend it to use this branch by anyone except me :)
- * This branch is designed to break compatibility with mac and droid (probably win as well, as I'm a Linux-only user)
+ * This branch is deliberately breaks compatibility with mac and droid (probably win as well, as I'm a Linux-only user)

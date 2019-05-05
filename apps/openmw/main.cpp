@@ -199,7 +199,7 @@ bool parseOptions (int argc, char** argv, OMW::Engine& engine, Files::Configurat
     return true;
 }
 
-int runApplication(int argc, char *argv[])
+int main(int argc, char**argv)
 {
     Files::ConfigurationManager cfgMgr;
     std::unique_ptr<OMW::Engine> engine;
@@ -211,10 +211,4 @@ int runApplication(int argc, char *argv[])
     }
 
     return 0;
-}
-
-int main(int argc, char**argv)
-{
-//    return wrapApplication(&runApplication, argc, argv, "OpenMW");
-	return runApplication(argc,argv);
 }

@@ -12,10 +12,6 @@
 #include "model/doc/messages.hpp"
 #include "model/world/universalid.hpp"
 
-#ifdef Q_OS_MAC
-#include <QDir>
-#endif
-
 Q_DECLARE_METATYPE (std::string)
 
 class Application : public QApplication
@@ -30,7 +26,7 @@ class Application : public QApplication
             }
             catch (const std::exception& exception)
             {
-                Log(Debug::Error) << "An exception has been caught: " << exception.what();
+            	Log(Debug::Error) << "An exception has been caught: " << exception.what();
             }
 
             return false;
@@ -41,12 +37,8 @@ class Application : public QApplication
         Application (int& argc, char *argv[]) : QApplication (argc, argv) {}
 };
 
-int runApplication(int argc, char *argv[])
+int main(int argc, char *argv[])
 {
-#ifdef Q_OS_MAC
-    setenv("OSG_GL_TEXTURE_STORAGE", "OFF", 0);
-#endif
-
     // To allow background thread drawing in OSG
     QApplication::setAttribute(Qt::AA_X11InitThreads, true);
 
@@ -57,11 +49,6 @@ int runApplication(int argc, char *argv[])
     qRegisterMetaType<CSMDoc::Message> ("CSMDoc::Message");
 
     Application application (argc, argv);
-
-#ifdef Q_OS_MAC
-    QDir dir(QCoreApplication::applicationDirPath());
-    QDir::setCurrent(dir.absolutePath());
-#endif
 
     application.setWindowIcon (QIcon (":./openmw-cs.png"));
 
@@ -74,10 +61,4 @@ int runApplication(int argc, char *argv[])
     }
 
     return editor.run();
-}
-
-
-int main(int argc, char *argv[])
-{
-    return wrapApplication(&runApplication, argc, argv, "OpenMW-CS");
 }
