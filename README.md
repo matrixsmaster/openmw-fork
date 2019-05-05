@@ -10,3 +10,7 @@ So far it does:
 4) Removes CI
 5) Most important: fixed system memory leak (a lot of infinitely hanging dead openmw processes still in RAM) by a kludge: crashcatcher is not installed anymore
 6) Skpped mandatory log file generation (part of the reasoning: see i.3)
+
+Notes:
+ * I don't recommend it to use this branch by anyone except me :)
+ * This branch is designed to break compatibility with mac and droid (probably win as well, as I'm a Linux-only user)
