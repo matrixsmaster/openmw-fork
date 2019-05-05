@@ -50,6 +50,9 @@ namespace Debug
     }
 }
 
+// Note: this function causes the infinite hang after the error trapping (CrashCatcher stuff is to blame)
+// + I'm not specifically interested in the logs (I prefer to use tee myself and I'm using the wrapper scripts anyway,
+// so that's a no-brainer for me :)
 int wrapApplication(int (*innerApplication)(int argc, char *argv[]), int argc, char *argv[], const std::string& appName)
 {
     // Some objects used to redirect cout and cerr

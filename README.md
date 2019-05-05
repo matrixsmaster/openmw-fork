@@ -8,3 +8,5 @@ So far it does:
 2) Adds "bring" script command to be able to easily bring companions after teleportation
 3) Removes version information read from "resources/version" file. Switched to hard-coded implementation (I have too many versions of ELF, and only one environment, so they all reported the same version, which is definitely not what I want)
 4) Removes CI
+5) Most important: fixed system memory leak (a lot of infinitely hanging dead openmw processes still in RAM) by a kludge: crashcatcher is not installed anymore
+6) Skpped mandatory log file generation (part of the reasoning: see i.3)

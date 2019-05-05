@@ -262,7 +262,8 @@ extern "C" int SDL_main(int argc, char**argv)
 int main(int argc, char**argv)
 #endif
 {
-    return wrapApplication(&runApplication, argc, argv, "OpenMW");
+//    return wrapApplication(&runApplication, argc, argv, "OpenMW");
+	return runApplication(argc,argv);
 }
 
 // Platform specific for Windows when there is no console built into the executable.
