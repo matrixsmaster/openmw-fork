@@ -3553,12 +3553,12 @@ namespace MWWorld
 
             if (effectIt->mArea <= 0)
             {
-                if (effectInfo.mRange == ESM::RT_Target && Settings::Manager::getBool("spellcast vfx", "General"))
+                if (effectIt->mRange == ESM::RT_Target && Settings::Manager::getBool("spellcast vfx", "General"))
                     mRendering->spawnEffect("meshes\\" + areaStatic->mModel, texture, origin, 1.0f);
                 continue;
             }
             else if (Settings::Manager::getBool("spellcast vfx", "General"))
-                mRendering->spawnEffect("meshes\\" + areaStatic->mModel, texture, origin, static_cast<float>(effectInfo.mArea * 2));
+                mRendering->spawnEffect("meshes\\" + areaStatic->mModel, texture, origin, static_cast<float>(effectIt->mArea * 2));
 
             // Play explosion sound (make sure to use NoTrack, since we will delete the projectile now)
             static const std::string schools[] = {
