@@ -156,10 +156,13 @@ namespace
         "SummonBear",
         "SummonBonewolf",
         "SummonCreature04",
-        "SummonCreature05"
+        "SummonCreature05",
+
+        // MSM
+        "TransferInventory",
     };
 
-    const int NumberOfHardcodedFlags = 143;
+    const int NumberOfHardcodedFlags = ESM::MagicEffect::Length;
     const int HardcodedFlags[NumberOfHardcodedFlags] = {
         0x11c8, 0x11c0, 0x11c8, 0x11e0, 0x11e0, 0x11e0, 0x11e0, 0x11d0,
         0x11c0, 0x11c0, 0x11e0, 0x11c0, 0x11184, 0x11184, 0x1f0, 0x1f0,
@@ -178,7 +181,7 @@ namespace
         0x9048, 0x9048, 0x9048, 0x9048, 0x9048, 0x11c0, 0x1180, 0x1180,
         0x5048, 0x5048, 0x5048, 0x5048, 0x5048, 0x5048, 0x1188, 0x5048,
         0x5048, 0x5048, 0x5048, 0x5048, 0x1048, 0x104c, 0x1048, 0x40,
-        0x11c8, 0x1048, 0x1048, 0x1048, 0x1048, 0x1048, 0x1048
+        0x11c8, 0x1048, 0x1048, 0x1048, 0x1048, 0x1048, 0x1048, 0x10194
     };
 }
 
@@ -518,6 +521,9 @@ static std::map<short,std::string> genNameMap()
 
     // tribunal
     names[137] ="sEffectSummonFabricant";
+
+    // MSM
+    names[143] = "sTransferInventory";
 
     return names;
 }

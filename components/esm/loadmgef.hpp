@@ -252,6 +252,9 @@ struct MagicEffect
         SummonCreature04 = 141,
         SummonCreature05 = 142,
 
+        // MSM-added effects
+        TransferInventory = 143,
+
         Length
     };
 

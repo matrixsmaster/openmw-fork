@@ -1622,7 +1622,8 @@ const char * CSMWorld::DefaultGmsts::OptionalStrings[CSMWorld::DefaultGmsts::Opt
     "sWerewolfAlarmMessage",
     "sWerewolfPopup",
     "sWerewolfRefusal",
-    "sWerewolfRestMessage"
+    "sWerewolfRestMessage",
+    "sTransferInventory"
 };
 
 const float CSMWorld::DefaultGmsts::FloatsDefaultValues[CSMWorld::DefaultGmsts::FloatCount] =

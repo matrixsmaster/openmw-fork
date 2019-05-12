@@ -1,5 +1,6 @@
 #include "projectilemanager.hpp"
 
+#include <cstdio>
 #include <iomanip>
 
 #include <osg/PositionAttitudeTransform>

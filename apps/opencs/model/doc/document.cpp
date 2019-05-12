@@ -101,7 +101,7 @@ void CSMDoc::Document::addOptionalGlobals()
 
 void CSMDoc::Document::addOptionalMagicEffects()
 {
-    for (int i=ESM::MagicEffect::SummonFabricant; i<=ESM::MagicEffect::SummonCreature05; ++i)
+    for (int i=ESM::MagicEffect::SummonFabricant; i<=ESM::MagicEffect::TransferInventory; ++i)
     {
         ESM::MagicEffect effect;
         effect.mIndex = i;

@@ -12,7 +12,7 @@ namespace CSMWorld {
         
         const size_t OptionalFloatCount = 42;
         const size_t OptionalIntCount = 4;
-        const size_t OptionalStringCount = 26;
+        const size_t OptionalStringCount = 27;
         
         extern const char* Floats[];
         extern const char * Ints[];

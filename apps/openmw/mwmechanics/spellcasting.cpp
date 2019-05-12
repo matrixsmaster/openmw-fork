@@ -1,5 +1,6 @@
 #include "spellcasting.hpp"
 
+#include <cstdio>
 #include <cfloat>
 #include <limits>
 #include <iomanip>
@@ -324,6 +325,38 @@ namespace MWMechanics
         return true;
     }
 
+    bool transferInventory (const MWWorld::Ptr & donor, const MWWorld::Ptr & recipient)
+    {
+        if (!recipient.getClass().hasInventoryStore(recipient)) return false;
+
+        MWWorld::InventoryStore & inv_to = recipient.getClass().getInventoryStore(recipient);
+
+        if (donor.getClass().hasInventoryStore(donor)) {
+            MWWorld::InventoryStore & inv_from = donor.getClass().getInventoryStore(donor);
+
+            inv_from.unequipAll(donor);
+
+            for (auto it = inv_from.begin(); it != inv_from.end(); ++it) {
+                int cnt = it->getRefData().getCount();
+                inv_to.add(*it, cnt, recipient, true);
+                inv_from.remove(*it, cnt, donor);
+                printf("Transferred %d of %s\n", cnt, it->getClass().getName(*it).c_str());
+            }
+
+        } else {
+            MWWorld::ContainerStore & inv_from = donor.getClass().getContainerStore(donor);
+
+            for (auto it = inv_from.begin(); it != inv_from.end(); ++it) {
+                int cnt = it->getRefData().getCount();
+                inv_to.add(*it, cnt, recipient, true);
+                inv_from.remove(*it, cnt, donor);
+                printf("Transferred %d of %s\n", cnt, it->getClass().getName(*it).c_str());
+            }
+        }
+
+        return true;
+    }
+
     class GetAbsorptionProbability : public MWMechanics::EffectSourceVisitor
     {
     public:
@@ -397,8 +430,7 @@ namespace MWMechanics
                 break;
             }
         }
-        if (!found)
-            return;
+        if (!found) return;
 
         const ESM::Spell* spell = MWBase::Environment::get().getWorld()->getStore().get<ESM::Spell>().search (mId);
         if (spell && !target.isEmpty() && (spell->mData.mType == ESM::Spell::ST_Disease || spell->mData.mType == ESM::Spell::ST_Blight))
@@ -598,6 +630,11 @@ namespace MWMechanics
                             store.unequipAll(target);
                         }
 
+                        // Process Inventory Transfer
+                        if (effectIt->mEffectID == ESM::MagicEffect::TransferInventory) {
+                            transferInventory(target, caster);
+                        }
+
                         // Command spells should have their effect, including taking the target out of combat, each time the spell successfully affects the target
                         if (((effectIt->mEffectID == ESM::MagicEffect::CommandHumanoid && target.getClass().isNpc())
                         || (effectIt->mEffectID == ESM::MagicEffect::CommandCreature && target.getTypeName() == typeid(ESM::Creature).name()))
@@ -694,6 +731,7 @@ namespace MWMechanics
     bool CastSpell::applyInstantEffect(const MWWorld::Ptr &target, const MWWorld::Ptr &caster, const MWMechanics::EffectKey& effect, float magnitude)
     {
         short effectId = effect.mId;
+
         if (target.getClass().canLock(target))
         {
             if (effectId == ESM::MagicEffect::Lock)
@@ -734,6 +772,12 @@ namespace MWMechanics
                 }
                 else
                     MWBase::Environment::get().getSoundManager()->playSound3D(target, "Open Lock Fail", 1.f, 1.f);
+                return true;
+            }
+            else if (effectId == ESM::MagicEffect::TransferInventory) {
+                // Process Inventory Transfer
+                printf("Instant Transfer %s -> %s\n\n", target.getClass().getName(target).c_str(), caster.getClass().getName(caster).c_str());
+                transferInventory(target, caster);
                 return true;
             }
         }

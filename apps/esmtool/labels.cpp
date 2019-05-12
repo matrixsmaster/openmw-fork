@@ -395,7 +395,8 @@ std::string magicEffectLabel(int idx)
             "sEffectSummonCreature02",
             "sEffectSummonCreature03",
             "sEffectSummonCreature04",
-            "sEffectSummonCreature05"
+            "sEffectSummonCreature05",
+            "Transfer Inventory"
         };
         return magicEffectLabels[idx];
     }

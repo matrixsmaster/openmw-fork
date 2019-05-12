@@ -540,7 +540,7 @@ namespace
         "BoundLongbow", "ExtraSpell", "BoundCuirass", "BoundHelm", "BoundBoots",
         "BoundShield", "BoundGloves", "Corprus", "Vampirism", "SummonCenturionSphere",
         "SunDamage", "StuntedMagicka", "SummonFabricant", "SummonWolf", "SummonBear",
-        "SummonBonewolf", "SummonCreature04", "SummonCreature05", 0
+        "SummonBonewolf", "SummonCreature04", "SummonCreature05", "TransferInventory", 0
     };
 
     // see ESM::PartReferenceType in <component/esm/loadarmo.hpp>

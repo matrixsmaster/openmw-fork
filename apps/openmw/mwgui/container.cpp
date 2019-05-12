@@ -187,10 +187,8 @@ namespace MWGui
             for (size_t i=0; i<mModel->getItemCount(); ++i)
             {
                 const ItemStack& item = mModel->getItem(i);
-                if (invStore.isEquipped(item.mBase) == false)
-                    continue;
-
-                invStore.unequipItem(item.mBase, mPtr);
+                if (invStore.isEquipped(item.mBase))
+                    invStore.unequipItem(item.mBase, mPtr);
             }
         }
 

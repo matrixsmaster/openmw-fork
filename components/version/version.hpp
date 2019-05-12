@@ -11,7 +11,7 @@ namespace Version
     	// I have to hard-code it because the version resource file in my setup is too volatile
     	// and could completely be out of sync with the current ELF file being executed
         const std::string mVersion = "0.45.0";
-        const std::string mCommitHash = "e9bd44c9d2df32ae890c36be26a738137141796b"; // this would point to the PREVIOUS commit
+        const std::string mCommitHash = "14e1f39a08a5cfebc93815529c19db1677057bc1"; // this would point to the PREVIOUS commit
 
         std::string describe();
     };
