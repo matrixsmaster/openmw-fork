@@ -264,7 +264,7 @@ namespace MWClass
         return ref->mBase->mEnchant;
     }
 
-    std::string Armor::applyEnchantment(const MWWorld::ConstPtr &ptr, const std::string& enchId, int enchCharge, const std::string& newName) const
+    std::string Armor::applyEnchantment(const MWWorld::ConstPtr &ptr, const std::string& enchId, int enchCharge, const std::string& newName, int newPrice) const
     {
         const MWWorld::LiveCellRef<ESM::Armor> *ref = ptr.get<ESM::Armor>();
 
@@ -273,6 +273,7 @@ namespace MWClass
         newItem.mName=newName;
         newItem.mData.mEnchant=enchCharge;
         newItem.mEnchant=enchId;
+        newItem.mData.mValue = newPrice;
         const ESM::Armor *record = MWBase::Environment::get().getWorld()->createRecord (newItem);
         return record->mId;
     }

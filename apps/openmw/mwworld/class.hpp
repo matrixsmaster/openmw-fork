@@ -279,7 +279,7 @@ namespace MWWorld
             virtual void getModelsToPreload(const MWWorld::Ptr& ptr, std::vector<std::string>& models) const;
             ///< Get a list of models to preload that this object may use (directly or indirectly). default implementation: list getModel().
 
-            virtual std::string applyEnchantment(const MWWorld::ConstPtr &ptr, const std::string& enchId, int enchCharge, const std::string& newName) const;
+            virtual std::string applyEnchantment(const MWWorld::ConstPtr &ptr, const std::string& enchId, int enchCharge, const std::string& newName, int newPrice) const;
             ///< Creates a new record using \a ptr as template, with the given name and the given enchantment applied to it.
 
             virtual std::pair<int, std::string> canBeEquipped(const MWWorld::ConstPtr &ptr, const MWWorld::Ptr &npc) const;

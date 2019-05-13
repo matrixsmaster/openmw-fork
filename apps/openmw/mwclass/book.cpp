@@ -148,7 +148,7 @@ namespace MWClass
         return ref->mBase->mEnchant;
     }
 
-    std::string Book::applyEnchantment(const MWWorld::ConstPtr &ptr, const std::string& enchId, int enchCharge, const std::string& newName) const
+    std::string Book::applyEnchantment(const MWWorld::ConstPtr &ptr, const std::string& enchId, int enchCharge, const std::string& newName, int newPrice) const
     {
         const MWWorld::LiveCellRef<ESM::Book> *ref = ptr.get<ESM::Book>();
 
@@ -158,6 +158,7 @@ namespace MWClass
         newItem.mData.mIsScroll = 1;
         newItem.mData.mEnchant=enchCharge;
         newItem.mEnchant=enchId;
+        newItem.mData.mValue = newPrice;
         const ESM::Book *record = MWBase::Environment::get().getWorld()->createRecord (newItem);
         return record->mId;
     }

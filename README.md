@@ -11,6 +11,7 @@ So far it does:
 5) Most important: fixed system memory leak (a lot of infinitely hanging dead openmw processes still in RAM) by a kludge: crashcatcher is not installed anymore
 6) Skpped mandatory log file generation (part of the reasoning: see i.3)
 7) Adds "inventory transfer" magic effect
+8) Enchantment is a serious business now (added item's gold value modification based on enchantment cost)
 
 Notes:
  * I don't recommend it to use this branch by anyone except me :)

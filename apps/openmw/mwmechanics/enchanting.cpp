@@ -83,9 +83,12 @@ namespace MWMechanics
         }
         enchantment.mEffects = mEffectList;
 
+        float priceMultipler = MWBase::Environment::get().getWorld()->getStore().get<ESM::GameSetting>().find ("fEnchantmentValueMult")->mValue.getFloat();
+        int mNewPrice = ceil(static_cast<float>(getEnchantPoints()) * priceMultipler) + mOldItemPtr.getClass().getValue(mOldItemPtr);
+
         // Apply the enchantment
         const ESM::Enchantment *enchantmentPtr = MWBase::Environment::get().getWorld()->createRecord (enchantment);
-        std::string newItemId = mOldItemPtr.getClass().applyEnchantment(mOldItemPtr, enchantmentPtr->mId, getGemCharge(), mNewItemName);
+        std::string newItemId = mOldItemPtr.getClass().applyEnchantment(mOldItemPtr, enchantmentPtr->mId, getGemCharge(), mNewItemName, mNewPrice);
 
         // Add the new item to player inventory and remove the old one
         store.remove(mOldItemPtr, 1, player);
