@@ -215,12 +215,11 @@ bool MWWorld::InventoryStore::canActorAutoEquip(const MWWorld::Ptr& actor, const
 
     // Only autoEquip if we are the original owner of the item.
     // This stops merchants from auto equipping anything you sell to them.
-    // ...unless this is a companion, he should always equip items given to him.
-    if (!Misc::StringUtils::ciEqual(item.getCellRef().getOwner(), actor.getCellRef().getRefId()) &&
-            (actor.getClass().getScript(actor).empty() ||
-            !actor.getRefData().getLocals().getIntVar(actor.getClass().getScript(actor), "companion"))
-            && !actor.getClass().getCreatureStats(actor).isDead() // Corpses can be dressed up by the player as desired
-            )
+    // ...unless this is a companion, he should always equip items given to her.
+    bool owned = Misc::StringUtils::ciEqual(item.getCellRef().getOwner(), actor.getCellRef().getRefId());
+    bool companion = actor.getClass().isNpc() && actor.getClass().getNpcStats(actor).isCompanion(actor);
+    bool dead = actor.getClass().getCreatureStats(actor).isDead();
+    if (!owned && !companion && !dead) // Corpses can be dressed up by the player as desired
     {
         return false;
     }

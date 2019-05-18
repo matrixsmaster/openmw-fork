@@ -21,6 +21,7 @@
 #include "../mwworld/esmstore.hpp"
 
 #include "../mwmechanics/creaturestats.hpp"
+#include "../mwmechanics/npcstats.hpp"
 #include "../mwmechanics/actorutil.hpp"
 
 #include "bookpage.hpp"
@@ -375,8 +376,8 @@ namespace MWGui
         const std::string sServiceTrainingTitle = gmst.find("sServiceTrainingTitle")->mValue.getString();
         const std::string sRepair = gmst.find("sRepair")->mValue.getString();
 
-        if (topic != sPersuasion && topic != sCompanionShare && topic != sBarter 
-         && topic != sSpells && topic != sTravel && topic != sSpellMakingMenuTitle 
+        if (topic != sPersuasion && topic != sCompanionShare && topic != sBarter
+         && topic != sSpells && topic != sTravel && topic != sSpellMakingMenuTitle
          && topic != sEnchanting && topic != sServiceTrainingTitle && topic != sRepair)
         {
             onTopicActivated(topic);
@@ -740,8 +741,7 @@ namespace MWGui
 
     bool DialogueWindow::isCompanion(const MWWorld::Ptr& actor)
     {
-        return !actor.getClass().getScript(actor).empty()
-                && actor.getRefData().getLocals().getIntVar(actor.getClass().getScript(actor), "companion");
+        return actor.getClass().getNpcStats(actor).isCompanion(actor);
     }
 
 }

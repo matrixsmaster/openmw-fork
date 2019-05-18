@@ -644,8 +644,9 @@ namespace MWMechanics
                             target.getClass().getCreatureStats(target).getAiSequence().stack(package, target);
 
                             // MSM Edit: add possibility to make a temporary companion
-                            if (magnitude >= 100) { // 100 pts Command spell
+                            if (target.getClass().isNpc() && caster == getPlayer() && magnitude >= 100) { // 100 pts Command spell
                                 printf("Making a temporary companion\n");
+                                target.getClass().getNpcStats(target).setCompanionOverride(true);
                             }
                         }
 

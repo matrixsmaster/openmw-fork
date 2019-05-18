@@ -1,5 +1,6 @@
 #include "actors.hpp"
 
+#include <cstdio>
 #include <typeinfo>
 #include <iostream>
 #include <components/esm/esmreader.hpp>
@@ -121,8 +122,15 @@ void adjustCommandedActor (const MWWorld::Ptr& actor)
         }
     }
 
-    if (!check.mCommanded && hasCommandPackage)
+    if (!check.mCommanded && hasCommandPackage) {
         stats.getAiSequence().erase(it);
+
+        // Remove companion override
+        if (actor.getClass().isNpc()) {
+            actor.getClass().getNpcStats(actor).setCompanionOverride(false);
+            printf("Removing a temporary companion\n");
+        }
+    }
 }
 
 void getRestorationPerHourOfSleep (const MWWorld::Ptr& ptr, float& health, float& magicka)
@@ -390,7 +398,7 @@ namespace MWMechanics
                 // Also set the same hit attempt actor. Otherwise, if fighting the player, they may stop combat
                 // if the player gets out of reach, while the ally would continue combat with the player
                 creatureStats1.setHitAttemptActorId(it->getClass().getCreatureStats(*it).getHitAttemptActorId());
-                return;             
+                return;
             }
 
             // If there's been no attack attempt yet but an ally of actor1 is in combat with actor2, become aggressive to actor2
@@ -404,7 +412,7 @@ namespace MWMechanics
         bool isPlayerFollowerOrEscorter = playerAllies.find(actor1) != playerAllies.end();
 
         // If actor2 and at least one actor2 are in combat with actor1, actor1 and its allies start combat with them
-        // Doesn't apply for player followers/escorters        
+        // Doesn't apply for player followers/escorters
         if (!aggressive && !isPlayerFollowerOrEscorter)
         {
             // Check that actor2 is in combat with actor1
@@ -1863,7 +1871,7 @@ namespace MWMechanics
             if (stats.isDead())
                 continue;
 
-            // An actor counts as following if AiFollow is the current AiPackage, 
+            // An actor counts as following if AiFollow is the current AiPackage,
             // or there are only Combat and Wander packages before the AiFollow package
             for (auto package = stats.getAiSequence().begin(); package != stats.getAiSequence().end(); ++package)
             {

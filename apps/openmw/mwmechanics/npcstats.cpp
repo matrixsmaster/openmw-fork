@@ -16,17 +16,18 @@
 #include "../mwbase/world.hpp"
 #include "../mwbase/windowmanager.hpp"
 
-MWMechanics::NpcStats::NpcStats()
-    : mDisposition (0)
-, mReputation(0)
-, mCrimeId(-1)
-, mBounty(0)
-, mWerewolfKills (0)
-, mLevelProgress(0)
-, mTimeToStartDrowning(-1.0) // set breath to special value, it will be replaced during actor update
-    , mIsWerewolf(false)
+MWMechanics::NpcStats::NpcStats() :
+    mDisposition (0),
+    mReputation(0),
+    mCrimeId(-1),
+    mBounty(0),
+    mWerewolfKills(0),
+    mLevelProgress(0),
+    mTimeToStartDrowning(-1.0), // set breath to special value, it will be replaced during actor update
+    mIsWerewolf(false),
+    mIsCompanion(false)
 {
-    mSkillIncreases.resize (ESM::Attribute::Length, 0);
+    mSkillIncreases.resize(ESM::Attribute::Length, 0);
     mSpecIncreases.resize(3, 0);
 }
 
@@ -263,7 +264,7 @@ void MWMechanics::NpcStats::increaseSkill(int skillIndex, const ESM::Class &clas
     message << boost::format(MWBase::Environment::get().getWindowManager ()->getGameSettingString ("sNotifyMessage39", ""))
                % std::string("#{" + ESM::Skill::sSkillNameIds[skillIndex] + "}")
                % static_cast<int> (base);
-    
+
     MWBase::Environment::get().getWindowManager ()->messageBox(message.str(), MWGui::ShowInDialogueMode_Never);
 
     if (mLevelProgress >= gmst.find("iLevelUpTotal")->mValue.getInteger())
@@ -531,4 +532,17 @@ void MWMechanics::NpcStats::readState (const ESM::NpcStats& state)
             mUsedIds.insert (*iter);
 
     mTimeToStartDrowning = state.mTimeToStartDrowning;
+}
+
+void MWMechanics::NpcStats::setCompanionOverride(bool on)
+{
+    mIsCompanion = on;
+}
+
+bool MWMechanics::NpcStats::isCompanion(const MWWorld::Ptr& actor) const
+{
+    if (mIsCompanion) return true; // overriden
+
+    if (actor.getClass().getScript(actor).empty()) return false;
+    return actor.getRefData().getLocals().getIntVar(actor.getClass().getScript(actor), "companion");
 }

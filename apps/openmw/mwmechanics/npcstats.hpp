@@ -34,8 +34,8 @@ namespace MWMechanics
             std::set<std::string> mExpelled;
             std::map<std::string, int> mFactionReputation;
             int mLevelProgress; // 0-10
-            std::vector<int> mSkillIncreases; // number of skill increases for each attribute (resets after leveling up)
-            std::vector<int> mSpecIncreases; // number of skill increases for each specialization (accumulates throughout the entire game)
+            std::vector<int> mSkillIncreases; // number of skill increases for each attribute(resets after leveling up)
+            std::vector<int> mSpecIncreases; // number of skill increases for each specialization(accumulates throughout the entire game)
             std::set<std::string> mUsedIds;
             // ---------------------------------------------------------------------------
 
@@ -43,6 +43,7 @@ namespace MWMechanics
             float mTimeToStartDrowning;
 
             bool mIsWerewolf;
+            bool mIsCompanion;
 
         public:
 
@@ -57,11 +58,12 @@ namespace MWMechanics
             int getCrimeId() const;
             void setCrimeId(int id);
 
-            const SkillValue& getSkill (int index) const;
-            SkillValue& getSkill (int index);
+            const SkillValue& getSkill(int index) const;
+            SkillValue& getSkill(int index);
             void setSkill(int index, const SkillValue& value);
 
             const std::map<std::string, int>& getFactionRanks() const;
+
             /// Increase the rank in this faction by 1, if such a rank exists.
             void raiseRank(const std::string& faction);
             /// Lower the rank in this faction by 1, if such a rank exists.
@@ -74,14 +76,14 @@ namespace MWMechanics
             void expell(const std::string& factionID);
             void clearExpelled(const std::string& factionID);
 
-            bool isInFaction (const std::string& faction) const;
+            bool isInFaction(const std::string& faction) const;
 
-            float getSkillProgressRequirement (int skillIndex, const ESM::Class& class_) const;
+            float getSkillProgressRequirement(int skillIndex, const ESM::Class& class_) const;
 
-            void useSkill (int skillIndex, const ESM::Class& class_, int usageType = -1, float extraFactor=1.f);
             ///< Increase skill by usage.
+            void useSkill(int skillIndex, const ESM::Class& class_, int usageType = -1, float extraFactor=1.f);
 
-            void increaseSkill (int skillIndex, const ESM::Class& class_, bool preserveProgress, bool readBook = false);
+            void increaseSkill(int skillIndex, const ESM::Class& class_, bool preserveProgress, bool readBook = false);
 
             int getLevelProgress() const;
 
@@ -91,25 +93,25 @@ namespace MWMechanics
 
             void levelUp();
 
-            void updateHealth();
             ///< Calculate health based on endurance and strength.
             ///  Called at character creation.
+            void updateHealth();
 
-            void flagAsUsed (const std::string& id);
             ///< @note Id must be lower-case
+            void flagAsUsed(const std::string& id);
 
-            bool hasBeenUsed (const std::string& id) const;
             ///< @note Id must be lower-case
+            bool hasBeenUsed(const std::string& id) const;
 
             int getBounty() const;
 
-            void setBounty (int bounty);
+            void setBounty(int bounty);
 
-            int getFactionReputation (const std::string& faction) const;
+            int getFactionReputation(const std::string& faction) const;
 
-            void setFactionReputation (const std::string& faction, int value);
+            void setFactionReputation(const std::string& faction, int value);
 
-            bool hasSkillsForRank (const std::string& factionId, int rank) const;
+            bool hasSkillsForRank(const std::string& factionId, int rank) const;
 
             bool isWerewolf() const;
 
@@ -121,13 +123,18 @@ namespace MWMechanics
             void addWerewolfKill();
 
             float getTimeToStartDrowning() const;
+
             /// Sets time left for the creature to drown if it stays underwater.
             /// @param time value from [0,20]
             void setTimeToStartDrowning(float time);
 
-            void writeState (ESM::NpcStats& state) const;
+            void writeState(ESM::NpcStats& state) const;
 
-            void readState (const ESM::NpcStats& state);
+            void readState(const ESM::NpcStats& state);
+
+            void setCompanionOverride(bool on);
+
+            bool isCompanion(const MWWorld::Ptr& actor) const;
     };
 }
 
