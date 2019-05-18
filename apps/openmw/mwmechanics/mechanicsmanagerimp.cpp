@@ -1187,8 +1187,7 @@ namespace MWMechanics
         // NOTE: victim may be empty
 
         // Only player can commit crime
-        if (player != getPlayer())
-            return false;
+        if (player != getPlayer()) return false;
 
         // Find all the actors within the alarm radius
         std::vector<MWWorld::Ptr> neighbors;
@@ -1207,12 +1206,16 @@ namespace MWMechanics
         std::set<MWWorld::Ptr> playerFollowers;
         getActorsSidingWith(player, playerFollowers);
 
-        // Did anyone see it?
+        // Did anyone saw it?
         bool crimeSeen = false;
-        for (std::vector<MWWorld::Ptr>::iterator it = neighbors.begin(); it != neighbors.end(); ++it)
-        {
+        for (std::vector<MWWorld::Ptr>::iterator it = neighbors.begin(); it != neighbors.end(); ++it) {
             if (*it == player)
                 continue; // skip player
+
+            // Crime reporting only applies to NPCs
+            if (!it->getClass().isNpc())
+                continue;
+
             if (it->getClass().getCreatureStats(*it).isDead())
                 continue;
 
@@ -1220,23 +1223,15 @@ namespace MWMechanics
             if (it->getClass().getCreatureStats(*it).getKnockedDown())
                 continue;
 
-            if ((*it == victim && victimAware)
-                    || (MWBase::Environment::get().getWorld()->getLOS(player, *it) && awarenessCheck(player, *it) )
-                    // Murder crime can be reported even if no one saw it (hearing is enough, I guess).
-                    // TODO: Add mod support for stealth executions!
-                    || (type == OT_Murder && *it != victim))
-            {
-                // Crime reporting only applies to NPCs
-                if (!it->getClass().isNpc())
-                    continue;
-
+            // MSM fix: don't report unseen crimes (who said I want 100% vanilla compatibility? :)
+            if ((*it == victim && victimAware) || (MWBase::Environment::get().getWorld()->getLOS(player, *it) && awarenessCheck(player, *it))) {
                 if (it->getClass().getCreatureStats(*it).getAiSequence().isInCombat(victim))
                     continue;
 
                 if (playerFollowers.find(*it) != playerFollowers.end())
                     continue;
 
-                // NPC will complain about theft even if he will do nothing about it
+                // NPC will complain about theft even if she will do nothing about it
                 if (type == OT_Theft || type == OT_Pickpocket)
                     MWBase::Environment::get().getDialogueManager()->say(*it, "thief");
 
@@ -1246,16 +1241,16 @@ namespace MWMechanics
 
         if (crimeSeen)
             reportCrime(player, victim, type, arg);
-        else if (type == OT_Assault && !victim.isEmpty())
-        {
+
+        else if (type == OT_Assault && !victim.isEmpty()) {
             bool reported = false;
-            if (victim.getClass().isClass(victim, "guard")
-                && !victim.getClass().getCreatureStats(victim).getAiSequence().hasPackage(AiPackage::TypeIdPursue))
+            if (victim.getClass().isClass(victim, "guard") && !victim.getClass().getCreatureStats(victim).getAiSequence().hasPackage(AiPackage::TypeIdPursue))
                 reported = reportCrime(player, victim, type, arg);
 
             if (!reported)
                 startCombat(victim, player); // TODO: combat should be started with an "unaware" flag, which makes the victim flee?
         }
+
         return crimeSeen;
     }
 
@@ -1443,7 +1438,7 @@ namespace MWMechanics
             player.getClass().getNpcStats(player).setBounty(player.getClass().getNpcStats(player).getBounty()
                                                       + arg);
 
-            // If committing a crime against a faction member, expell from the faction
+            // If committing a crime against a faction member, expel from the faction
             if (!victim.isEmpty() && victim.getClass().isNpc())
             {
                 std::string factionID = victim.getClass().getPrimaryFaction(victim);
