@@ -159,7 +159,7 @@ namespace MWMechanics
         {
             MWWorld::InventoryStore& store = actor.getClass().getInventoryStore(actor);
 
-            // Creatures can not wear armor/clothing, so allow creatures to use non-equipped items, 
+            // Creatures can not wear armor/clothing, so allow creatures to use non-equipped items,
             if (actor.getClass().isNpc() && !store.isEquipped(ptr))
                 return 0.f;
 
@@ -230,6 +230,7 @@ namespace MWMechanics
         case ESM::MagicEffect::RemoveCurse:
         case ESM::MagicEffect::CommandCreature:
         case ESM::MagicEffect::CommandHumanoid:
+        case ESM::MagicEffect::TransferInventory:
             return 0.f;
 
         case ESM::MagicEffect::Blind:

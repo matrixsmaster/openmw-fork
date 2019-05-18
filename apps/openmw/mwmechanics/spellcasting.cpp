@@ -466,7 +466,7 @@ namespace MWMechanics
             targetSpells = target.getClass().getCreatureStats(target).getActiveSpells();
 
         bool canCastAnEffect = false;    // For bound equipment.If this remains false
-                                         // throughout the iteration of this spell's 
+                                         // throughout the iteration of this spell's
                                          // effects, we display a "can't re-cast" message
 
         for (std::vector<ESM::ENAMstruct>::const_iterator effectIt (effects.mList.begin());
@@ -642,6 +642,11 @@ namespace MWMechanics
                         {
                             MWMechanics::AiFollow package(caster, true);
                             target.getClass().getCreatureStats(target).getAiSequence().stack(package, target);
+
+                            // MSM Edit: add possibility to make a temporary companion
+                            if (magnitude >= 100) { // 100 pts Command spell
+                                printf("Making a temporary companion\n");
+                            }
                         }
 
                         // For absorb effects, also apply the effect to the caster - but with a negative
@@ -979,7 +984,7 @@ namespace MWMechanics
                 const float normalizedEncumbrance = mCaster.getClass().getNormalizedEncumbrance(mCaster);
 
                 float fatigueLoss = spell->mData.mCost * (fFatigueSpellBase + normalizedEncumbrance * fFatigueSpellMult);
-                fatigue.setCurrent(fatigue.getCurrent() - fatigueLoss); 
+                fatigue.setCurrent(fatigue.getCurrent() - fatigueLoss);
                 stats.setFatigue(fatigue);
 
                 bool fail = false;
@@ -1014,7 +1019,7 @@ namespace MWMechanics
         if (mCaster == getPlayer() && spellIncreasesSkill())
             mCaster.getClass().skillUsageSucceeded(mCaster,
                 spellSchoolToSkill(school), 0);
-    
+
         // A non-actor doesn't play its spell cast effects from a character controller, so play them here
         if (!mCaster.getClass().isActor())
             playSpellCastingEffects(mId);
