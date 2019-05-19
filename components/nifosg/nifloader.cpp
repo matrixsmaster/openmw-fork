@@ -305,10 +305,10 @@ namespace NifOsg
                     else if (props[i].getPtr()->recType == Nif::RC_NiTexturingProperty)
                     {
                         if (props[i].getPtr()->recIndex == mFirstRootTextureIndex)
-                            applyTo->setUserValue("overrideFx", 1);                
+                            applyTo->setUserValue("overrideFx", 1);
                     }
                     handleProperty(props[i].getPtr(), applyTo, composite, imageManager, boundTextures, animflags);
-                }              
+                }
             }
         }
 
@@ -727,6 +727,7 @@ namespace NifOsg
                         }
 
                         osg::ref_ptr<osg::Texture2D> texture (new osg::Texture2D(handleSourceTexture(st.getPtr(), imageManager)));
+                        texture->setName(st.getPtr()->filename);
                         texture->setWrap(osg::Texture::WRAP_S, wrapS);
                         texture->setWrap(osg::Texture::WRAP_T, wrapT);
                         textures.push_back(texture);

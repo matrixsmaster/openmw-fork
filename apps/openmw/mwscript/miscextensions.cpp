@@ -12,6 +12,8 @@
 #include <osg/PositionAttitudeTransform>
 #include <osgParticle/ParticleSystem>
 #include <osgParticle/ParticleSystemUpdater>
+#include <osg/Geode>
+#include <osg/ShapeDrawable>
 
 #include <components/misc/rng.hpp>
 #include <components/nifosg/controller.hpp>
@@ -1361,15 +1363,32 @@ namespace MWScript
                     tex2->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP);
                     tex2->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP);
                     rsys->getSceneManager()->applyFilterSettings(tex2);
+                    tex2->setName(texname.str());
                     textures.push_back(tex2);
                     printf("-> %u\n",tex2->getImage()->getImageSizeInBytes());
                 }
 
                 SceneUtil::PositionAttitudeTransform* ptr = obj.getRefData().getBaseNode();
-//                osg::ref_ptr<NifOsg::FlipController> controller (new NifOsg::FlipController(1, 1.f/float(num), textures));
-//                controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
-//                ptr->addUpdateCallback(controller);
 #if 1
+                osg::ref_ptr<osg::Geode> myNode = new osg::Geode();
+//                myNode->addDrawable(new osg::ShapeDrawable(new osg::Sphere(osg::Vec3f(0.0f,0.0f,0.0f),50.f)));
+                myNode->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3f(0.0f,0.0f,0.0f),50.f)));
+                ptr->addChild(myNode.get());
+                osg::StateSet* stateset = myNode->getOrCreateStateSet();
+//                osg::ref_ptr<osg::TexGen> texGen(new osg::TexGen());
+//                texGen->setPlane(osg::TexGen::S, osg::Plane(0.1, 0.0, 0.0, 1));
+//                texGen->setPlane(osg::TexGen::T, osg::Plane(0.0, 0.1, 0.0, 1));
+//                stateset->setTextureAttributeAndModes(0, texGen, osg::StateAttribute::ON);
+                osg::TexEnv* pTexEnv = new osg::TexEnv();
+                pTexEnv->setMode(osg::TexEnv::REPLACE);
+                stateset->setTextureAttributeAndModes(0, pTexEnv, osg::StateAttribute::ON);
+                stateset->setTextureAttributeAndModes(0, textures[1].get(), osg::StateAttribute::ON);
+                osg::ref_ptr<NifOsg::FlipController> controller (new NifOsg::FlipController(0, 4.f/float(num), textures));
+                controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
+                myNode->setUpdateCallback(controller);
+#endif
+
+#if 0
                 if (ptr->getStateSet()) {
                     printf("Num lists: %u\n",ptr->getStateSet()->getNumTextureAttributeLists());
                     for (auto &i : ptr->getStateSet()->getTextureAttributeList()) {
@@ -1377,20 +1396,26 @@ namespace MWScript
                 } else
                     printf("No texture set!\n");
 #endif
-#if 1
+#if 0
+//                rsys->getSceneManager()->clearCache();
+
 //                osg::ref_ptr<osg::StateSet> stateset (new osg::StateSet);
                 osg::StateSet* stateset = ptr->getOrCreateStateSet();
+                for (int i = 0; i < 8; i++)
+                    stateset->setTextureMode(i, GL_TEXTURE_2D, osg::StateAttribute::OFF);
 //                stateset->setMode(GL_BLEND, osg::StateAttribute::OFF);
 //                stateset->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
 //                stateset->setTextureAttributeAndModes(1, textures[0], osg::StateAttribute::ON);
-                stateset->setTextureAttributeAndModes(0, textures[0]);
                 osg::ref_ptr<osg::TexGen> texGen(new osg::TexGen());
-                texGen->setPlane(osg::TexGen::S, osg::Plane(0.075, 0.0, 0.0, 0.5));
-                texGen->setPlane(osg::TexGen::T, osg::Plane(0.0, 0.035, 0.0, 0.3));
-                stateset->setTextureAttributeAndModes(0, texGen);
+                texGen->setPlane(osg::TexGen::S, osg::Plane(0.05, 0.0, 0.0, 1));
+                texGen->setPlane(osg::TexGen::T, osg::Plane(0.0, 0.05, 0.0, 1));
+                stateset->setTextureAttributeAndModes(0, texGen, osg::StateAttribute::ON);
                 osg::TexEnv* pTexEnv = new osg::TexEnv();
                 pTexEnv->setMode(osg::TexEnv::REPLACE);
                 stateset->setTextureAttributeAndModes(0, pTexEnv, osg::StateAttribute::ON);
+                stateset->setTextureAttributeAndModes(0, textures[0], osg::StateAttribute::ON);
+
+//                rsys->getSceneManager()->clearCache();
 
 //                osg::ref_ptr<osg::Depth> depth (new osg::Depth);
 //                depth->setWriteMask(false);
@@ -1412,6 +1437,11 @@ namespace MWScript
 //                stateset->setAttributeAndModes(mat, osg::StateAttribute::ON);
 
 //                ptr->setStateSet(stateset);
+#endif
+#if 0
+                osg::ref_ptr<NifOsg::FlipController> controller (new NifOsg::FlipController(0, 1.f/float(num), textures));
+                controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
+                ptr->addUpdateCallback(controller);
 #endif
             }
         };
