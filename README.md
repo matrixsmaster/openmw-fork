@@ -3,7 +3,7 @@ OpenMW-Fork
 
 Disclaimer
 ----------
- * I don't recommend using this branch to anyone! I'm dead serious.
+ * I don't recommend using this branch to anyone! Proceed at your own risk.
  * This branch is __NOT__ designed to be pulled into the main project, it's just a __personal__ "having fun" branch
  * This branch is deliberately breaks compatibility with mac and droid (probably win32 as well, as I'm a Linux-only user)
  * This branch _could_ possibly be incompatible with upstream (maybe I will try to avoid that, though)
