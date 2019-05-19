@@ -1,6 +1,24 @@
 #include "miscextensions.hpp"
 
+#include <cstdio>
 #include <cstdlib>
+
+#include <osg/PolygonOffset>
+#include <osg/Texture2D>
+#include <osg/TexGen>
+#include <osg/TexEnv>
+#include <osg/Material>
+#include <osg/Depth>
+#include <osg/PositionAttitudeTransform>
+#include <osgParticle/ParticleSystem>
+#include <osgParticle/ParticleSystemUpdater>
+
+#include <components/misc/rng.hpp>
+#include <components/nifosg/controller.hpp>
+#include <components/resource/imagemanager.hpp>
+#include <components/resource/resourcesystem.hpp>
+#include <components/resource/scenemanager.hpp>
+#include <components/fallback/fallback.hpp>
 
 #include <components/compiler/extensions.hpp>
 #include <components/compiler/opcodes.hpp>
@@ -12,6 +30,11 @@
 
 #include <components/esm/loadmgef.hpp>
 #include <components/esm/loadcrea.hpp>
+
+#include <components/nifosg/controller.hpp>
+#include <components/sceneutil/controller.hpp>
+#include <components/sceneutil/positionattitudetransform.hpp>
+
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/windowmanager.hpp"
@@ -1317,6 +1340,82 @@ namespace MWScript
             }
         };
 
+        template <class R>
+        class OpEnableVMO : public Interpreter::Opcode0
+        {
+        public:
+            virtual void execute(Interpreter::Runtime &runtime)
+            {
+                MWWorld::Ptr obj = R()(runtime);
+                Resource::ResourceSystem* rsys = MWBase::Environment::get().getWorld()->getResourceSystem();
+
+                int num = 51;
+                std::vector<osg::ref_ptr<osg::Texture2D> > textures;
+                for (int i=0; i<num; ++i)
+                {
+                    std::ostringstream texname;
+                    texname << "textures/0_DELETE_ME/anim-" << i << ".png";
+                    printf("Loading up %s\n",texname.str().c_str());
+
+                    osg::ref_ptr<osg::Texture2D> tex2 (new osg::Texture2D(rsys->getImageManager()->getImage(texname.str())));
+                    tex2->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP);
+                    tex2->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP);
+                    rsys->getSceneManager()->applyFilterSettings(tex2);
+                    textures.push_back(tex2);
+                    printf("-> %u\n",tex2->getImage()->getImageSizeInBytes());
+                }
+
+                SceneUtil::PositionAttitudeTransform* ptr = obj.getRefData().getBaseNode();
+//                osg::ref_ptr<NifOsg::FlipController> controller (new NifOsg::FlipController(1, 1.f/float(num), textures));
+//                controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
+//                ptr->addUpdateCallback(controller);
+#if 1
+                if (ptr->getStateSet()) {
+                    printf("Num lists: %u\n",ptr->getStateSet()->getNumTextureAttributeLists());
+                    for (auto &i : ptr->getStateSet()->getTextureAttributeList()) {
+                    }
+                } else
+                    printf("No texture set!\n");
+#endif
+#if 1
+//                osg::ref_ptr<osg::StateSet> stateset (new osg::StateSet);
+                osg::StateSet* stateset = ptr->getOrCreateStateSet();
+//                stateset->setMode(GL_BLEND, osg::StateAttribute::OFF);
+//                stateset->setMode(GL_CULL_FACE, osg::StateAttribute::OFF);
+//                stateset->setTextureAttributeAndModes(1, textures[0], osg::StateAttribute::ON);
+                stateset->setTextureAttributeAndModes(0, textures[0]);
+                osg::ref_ptr<osg::TexGen> texGen(new osg::TexGen());
+                texGen->setPlane(osg::TexGen::S, osg::Plane(0.075, 0.0, 0.0, 0.5));
+                texGen->setPlane(osg::TexGen::T, osg::Plane(0.0, 0.035, 0.0, 0.3));
+                stateset->setTextureAttributeAndModes(0, texGen);
+                osg::TexEnv* pTexEnv = new osg::TexEnv();
+                pTexEnv->setMode(osg::TexEnv::REPLACE);
+                stateset->setTextureAttributeAndModes(0, pTexEnv, osg::StateAttribute::ON);
+
+//                osg::ref_ptr<osg::Depth> depth (new osg::Depth);
+//                depth->setWriteMask(false);
+//                stateset->setAttributeAndModes(depth, osg::StateAttribute::ON);
+
+//                osg::ref_ptr<osg::PolygonOffset> polygonOffset (new osg::PolygonOffset);
+//                polygonOffset->setUnits(1);
+//                polygonOffset->setFactor(1);
+//                stateset->setAttributeAndModes(polygonOffset, osg::StateAttribute::ON);
+
+//                stateset->setRenderingHint(osg::StateSet::OPAQUE_BIN);
+
+//                osg::ref_ptr<osg::Material> mat (new osg::Material);
+//                mat->setDiffuse(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.f, 0.f, 0.f, 1.f));
+//                mat->setAmbient(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.f, 0.f, 0.f, 1.f));
+//                mat->setEmission(osg::Material::FRONT_AND_BACK, osg::Vec4f(1.f, 1.f, 1.f, 1.f));
+//                mat->setSpecular(osg::Material::FRONT_AND_BACK, osg::Vec4f(0.f, 0.f, 0.f, 0.f));
+//                mat->setColorMode(osg::Material::DIFFUSE);
+//                stateset->setAttributeAndModes(mat, osg::StateAttribute::ON);
+
+//                ptr->setStateSet(stateset);
+#endif
+            }
+        };
+
         void installOpcodes (Interpreter::Interpreter& interpreter)
         {
             interpreter.installSegment5 (Compiler::Misc::opcodeXBox, new OpXBox);
@@ -1417,6 +1516,8 @@ namespace MWScript
             interpreter.installSegment3 (Compiler::Misc::opcodeShowSceneGraph, new OpShowSceneGraph<ImplicitRef>);
             interpreter.installSegment3 (Compiler::Misc::opcodeShowSceneGraphExplicit, new OpShowSceneGraph<ExplicitRef>);
             interpreter.installSegment5 (Compiler::Misc::opcodeToggleBorders, new OpToggleBorders);
+            interpreter.installSegment5 (Compiler::Misc::opcodeEnableVMO, new OpEnableVMO<ImplicitRef>);
+            interpreter.installSegment5 (Compiler::Misc::opcodeEnableVMOExplicit, new OpEnableVMO<ExplicitRef>);
         }
     }
 }

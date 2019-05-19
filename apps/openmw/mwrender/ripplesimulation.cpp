@@ -28,7 +28,8 @@ namespace
 {
     void createWaterRippleStateSet(Resource::ResourceSystem* resourceSystem, const Fallback::Map* fallback, osg::Node* node)
     {
-        int rippleFrameCount = fallback->getFallbackInt("Water_RippleFrameCount");
+//        int rippleFrameCount = fallback->getFallbackInt("Water_RippleFrameCount");
+        int rippleFrameCount = 51;
         if (rippleFrameCount <= 0)
             return;
 
@@ -38,7 +39,8 @@ namespace
         for (int i=0; i<rippleFrameCount; ++i)
         {
             std::ostringstream texname;
-            texname << "textures/water/" << tex << std::setw(2) << std::setfill('0') << i << ".dds";
+//            texname << "textures/water/" << tex << std::setw(2) << std::setfill('0') << i << ".dds";
+            texname << "textures/0_DELETE_ME/anim-" << i << ".png";
             osg::ref_ptr<osg::Texture2D> tex2 (new osg::Texture2D(resourceSystem->getImageManager()->getImage(texname.str())));
             tex2->setWrap(osg::Texture::WRAP_S, osg::Texture::REPEAT);
             tex2->setWrap(osg::Texture::WRAP_T, osg::Texture::REPEAT);

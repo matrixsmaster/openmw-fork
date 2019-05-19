@@ -320,6 +320,7 @@ namespace Compiler
             extensions.registerInstruction ("removefromlevitem", "ccl", opcodeRemoveFromLevItem);
             extensions.registerInstruction ("tb", "", opcodeToggleBorders);
             extensions.registerInstruction ("toggleborders", "", opcodeToggleBorders);
+            extensions.registerInstruction ("enablevmo", "", opcodeEnableVMO, opcodeEnableVMOExplicit);
         }
     }
 

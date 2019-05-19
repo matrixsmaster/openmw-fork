@@ -296,6 +296,8 @@ namespace Compiler
         const int opcodeShowSceneGraph = 0x2002f;
         const int opcodeShowSceneGraphExplicit = 0x20030;
         const int opcodeToggleBorders = 0x2000307;
+        const int opcodeEnableVMO = 0x2000310;
+        const int opcodeEnableVMOExplicit = 0x2000311;
     }
 
     namespace Sky

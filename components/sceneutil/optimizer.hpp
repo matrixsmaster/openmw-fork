@@ -114,7 +114,7 @@ class Optimizer
                                 COPY_SHARED_NODES |
                                 TRISTRIP_GEOMETRY |
                                 OPTIMIZE_TEXTURE_SETTINGS |
-                                TEXTURE_ATLAS_BUILDER |
+//                                TEXTURE_ATLAS_BUILDER |
                                 STATIC_OBJECT_DETECTION
         };
 
