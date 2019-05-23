@@ -741,6 +741,7 @@ namespace MWGui
 
     bool DialogueWindow::isCompanion(const MWWorld::Ptr& actor)
     {
+        if (!actor.getClass().isNpc()) return false;
         return actor.getClass().getNpcStats(actor).isCompanion(actor);
     }
 
