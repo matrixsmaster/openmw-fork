@@ -6,11 +6,6 @@ set(GAME
     ${CMAKE_SOURCE_DIR}/files/windows/openmw.rc
 )
 
-if (ANDROID)
-    set(GAME ${GAME} android_commandLine.cpp)
-    set(GAME ${GAME} android_main.c)
-endif()
-
 set(GAME_HEADER
     engine.hpp
 )
@@ -134,89 +129,18 @@ target_link_libraries(openmw
     ${MyGUI_LIBRARIES}
     ${SDL2_LIBRARY}
     "osg-ffmpeg-videoplayer"
-    "oics"
     components
 )
 
-if (ANDROID)
-    set (OSG_PLUGINS
-        -Wl,--whole-archive
-    )
-    foreach(PLUGIN_NAME ${USED_OSG_PLUGINS})
-        set(OSG_PLUGINS ${OSG_PLUGINS} ${OSG_PLUGINS_DIR}/lib${PLUGIN_NAME}.a)
-    endforeach()
-
-    set (OSG_PLUGINS
-        ${OSG_PLUGINS} -Wl,--no-whole-archive
-    )
-
-    target_link_libraries(openmw
-        EGL
-        android
-        log
-        dl
-        z
-        ${OPENSCENEGRAPH_LIBRARIES}
-        freetype
-        jpeg
-    	png
-    )
-endif (ANDROID)
-
-if (USE_SYSTEM_TINYXML)
-    target_link_libraries(openmw ${TinyXML_LIBRARIES})
-endif()
+#if (USE_SYSTEM_TINYXML)
+#    target_link_libraries(openmw ${TinyXML_LIBRARIES})
+#endif()
 
 if (NOT UNIX)
-target_link_libraries(openmw ${SDL2MAIN_LIBRARY})
+	target_link_libraries(openmw ${SDL2MAIN_LIBRARY})
 endif()
 
 # Fix for not visible pthreads functions for linker with glibc 2.15
 if (UNIX AND NOT APPLE)
-target_link_libraries(openmw ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(openmw ${CMAKE_THREAD_LIBS_INIT})
 endif()
-
-if(APPLE)
-    set(BUNDLE_RESOURCES_DIR "${APP_BUNDLE_DIR}/Contents/Resources")
-
-    set(OPENMW_MYGUI_FILES_ROOT ${BUNDLE_RESOURCES_DIR})
-    set(OPENMW_SHADERS_ROOT ${BUNDLE_RESOURCES_DIR})
-
-    add_subdirectory(../../files/ ${CMAKE_CURRENT_BINARY_DIR}/files)
-
-    configure_file("${OpenMW_BINARY_DIR}/settings-default.cfg" ${BUNDLE_RESOURCES_DIR} COPYONLY)
-    configure_file("${OpenMW_BINARY_DIR}/openmw.cfg" ${BUNDLE_RESOURCES_DIR} COPYONLY)
-    configure_file("${OpenMW_BINARY_DIR}/gamecontrollerdb.txt" ${BUNDLE_RESOURCES_DIR} COPYONLY)
-    configure_file("${OpenMW_BINARY_DIR}/gamecontrollerdb_204.txt" ${BUNDLE_RESOURCES_DIR} COPYONLY)
-    configure_file("${OpenMW_BINARY_DIR}/gamecontrollerdb_205.txt" ${BUNDLE_RESOURCES_DIR} COPYONLY)
-
-    add_custom_command(TARGET openmw
-        POST_BUILD
-        COMMAND cp "${OpenMW_BINARY_DIR}/resources/version" "${BUNDLE_RESOURCES_DIR}/resources")
-
-    find_library(COCOA_FRAMEWORK Cocoa)
-    find_library(IOKIT_FRAMEWORK IOKit)
-    target_link_libraries(openmw ${COCOA_FRAMEWORK} ${IOKIT_FRAMEWORK})
-
-    if (FFmpeg_FOUND)
-        find_library(COREVIDEO_FRAMEWORK CoreVideo)
-        find_library(VDA_FRAMEWORK VideoDecodeAcceleration)
-        target_link_libraries(openmw z ${COREVIDEO_FRAMEWORK} ${VDA_FRAMEWORK})
-    endif()
-endif(APPLE)
-
-if (BUILD_WITH_CODE_COVERAGE)
-  add_definitions (--coverage)
-  target_link_libraries(openmw gcov)
-endif()
-
-if (MSVC)
-    # Debug version needs increased number of sections beyond 2^16
-    if (CMAKE_CL_64)
-        set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /bigobj")
-    endif (CMAKE_CL_64)
-endif (MSVC)
-
-if (WIN32)
-    INSTALL(TARGETS openmw RUNTIME DESTINATION ".")
-endif (WIN32)

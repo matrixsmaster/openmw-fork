@@ -269,20 +269,12 @@ namespace MWScript
     std::string InterpreterContext::getActionBinding(const std::string& action) const
     {
         MWBase::InputManager* input = MWBase::Environment::get().getInputManager();
-        std::vector<int> actions = input->getActionKeySorting ();
+        std::vector<int> actions = input->getActionKeySorting();
+
         for (std::vector<int>::const_iterator it = actions.begin(); it != actions.end(); ++it)
         {
-            std::string desc = input->getActionDescription (*it);
-            if(desc == "")
-                continue;
-
-            if(desc == action)
-            {
-                if(input->joystickLastUsed())
-                    return input->getActionControllerBindingName(*it);
-                else
-                    return input->getActionKeyBindingName (*it);
-            }
+            if (input->getActionDescription(*it) == action)
+                return input->getActionKeyBindingName(*it);
         }
 
         return "None";

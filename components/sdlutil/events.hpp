@@ -41,27 +41,6 @@ public:
     virtual void keyReleased(const SDL_KeyboardEvent &arg) = 0;
 };
 
-class ControllerListener
-{
-public:
-    virtual ~ControllerListener() {}
-    /** @remarks Joystick button down event */
-    virtual void buttonPressed(int deviceID, const SDL_ControllerButtonEvent &evt) = 0;
-
-    /** @remarks Joystick button up event */
-    virtual void buttonReleased(int deviceID, const SDL_ControllerButtonEvent &evt) = 0;
-
-    /** @remarks Joystick axis moved event */
-    virtual void axisMoved(int deviceID, const SDL_ControllerAxisEvent &arg) = 0;
-
-    /** @remarks Joystick Added **/
-    virtual void controllerAdded(int deviceID, const SDL_ControllerDeviceEvent &arg) = 0;
-
-    /** @remarks Joystick Removed **/
-    virtual void controllerRemoved(const SDL_ControllerDeviceEvent &arg) = 0;
-
-};
-
 class WindowListener
 {
 public:

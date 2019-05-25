@@ -37,9 +37,6 @@ namespace MWGui
             // controls
             MyGUI::ScrollView* mControlsBox;
             MyGUI::Button* mResetControlsButton;
-            MyGUI::Button* mKeyboardSwitch;
-            MyGUI::Button* mControllerSwitch;
-            bool mKeyboardMode; //if true, setting up the keyboard. Otherwise, it's controller
 
             void onTabChanged(MyGUI::TabControl* _sender, size_t index);
             void onOkButtonClicked(MyGUI::Widget* _sender);
@@ -57,8 +54,6 @@ namespace MWGui
             void onInputTabMouseWheel(MyGUI::Widget* _sender, int _rel);
             void onResetDefaultBindings(MyGUI::Widget* _sender);
             void onResetDefaultBindingsAccept ();
-            void onKeyboardSwitchClicked(MyGUI::Widget* _sender);
-            void onControllerSwitchClicked(MyGUI::Widget* _sender);
 
             void onWindowResize(MyGUI::Window* _sender);
 
@@ -68,7 +63,7 @@ namespace MWGui
             void updateSliderLabel(MyGUI::ScrollBar* scroller, const std::string& value);
 
             void layoutControlsBox();
-        
+
         private:
             void resetScrollbars();
     };

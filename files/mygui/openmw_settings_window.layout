@@ -199,14 +199,8 @@
             </Widget>
             <Widget type="TabItem" skin="" position="4 32 360 308">
                 <Property key="Caption" value="  #{sControls}  "/>
-                <Widget type="AutoSizedButton" skin="MW_Button" position="4 4 137 24" align="Left Top" name="KeyboardButton">
-                    <Property key="Caption" value="Mouse/Keyboard"/>
-                </Widget>
-                <Widget type="AutoSizedButton" skin="MW_Button" position="145 4 137 24" align="Left Top" name="ControllerButton">
-                    <Property key="Caption" value="Controller"/>
-                </Widget>
-                <Widget type="Widget" skin="MW_Box" position="4 34 352 154" align="Stretch">
-                    <Widget type="ScrollView" skin="MW_ScrollView" position="4 4 344 146" align="Stretch" name="ControlsBox">
+                <Widget type="Widget" skin="MW_Box" position="4 4 352 184" align="Stretch">
+                    <Widget type="ScrollView" skin="MW_ScrollView" position="4 4 344 176" align="Stretch" name="ControlsBox">
                         <Property key="CanvasAlign" value="Left Top"/>
                     </Widget>
                 </Widget>

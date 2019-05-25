@@ -3,11 +3,11 @@
 
 #include "../mwgui/mode.hpp"
 
+#include <map>
 #include <osg/ref_ptr>
 #include <osgViewer/ViewerEventHandlers>
 
-#include <extern/oics/ICSChannelListener.h>
-#include <extern/oics/ICSInputControlSystem.h>
+#include <SDL_version.h>
 
 #include <components/settings/settings.hpp>
 #include <components/files/configurationmanager.hpp>
@@ -23,11 +23,6 @@ namespace MWWorld
 namespace MWBase
 {
     class WindowManager;
-}
-
-namespace ICS
-{
-    class InputControlSystem;
 }
 
 namespace MyGUI
@@ -54,9 +49,12 @@ namespace osgViewer
 
 struct SDL_Window;
 
+#define OMWI_MOUSECODE_BASE (SDL_NUM_SCANCODES + 1)
+
+// TODO: remove non-existent methods
+
 namespace MWInput
 {
-
     /**
     * @brief Class that handles all input and key bindings for OpenMW.
     */
@@ -64,10 +62,7 @@ namespace MWInput
             public MWBase::InputManager,
             public SDLUtil::KeyListener,
             public SDLUtil::MouseListener,
-            public SDLUtil::WindowListener,
-            public SDLUtil::ControllerListener,
-            public ICS::ChannelListener,
-            public ICS::DetectingBindingListener
+            public SDLUtil::WindowListener
     {
     public:
         InputManager(
@@ -75,8 +70,7 @@ namespace MWInput
             osg::ref_ptr<osgViewer::Viewer> viewer,
             osg::ref_ptr<osgViewer::ScreenCaptureHandler> screenCaptureHandler,
             osgViewer::ScreenCaptureHandler::CaptureOperation *screenCaptureOperation,
-            const std::string& userFile, bool userFileExists,
-            const std::string& controllerBindingsFile, bool grab);
+            const std::string& userFile, bool userFileExists, bool grab);
 
         virtual ~InputManager();
 
@@ -87,7 +81,7 @@ namespace MWInput
 
         virtual void update(float dt, bool disableControls=false, bool disableEvents=false);
 
-        void setPlayer (MWWorld::Player* player) { mPlayer = player; }
+        void setPlayer(MWWorld::Player* player) { mPlayer = player; }
 
         virtual void changeInputMode(bool guiMode);
 
@@ -95,60 +89,29 @@ namespace MWInput
 
         virtual void setDragDrop(bool dragDrop);
 
-        virtual void toggleControlSwitch (const std::string& sw, bool value);
-        virtual bool getControlSwitch (const std::string& sw);
+        virtual void toggleControlSwitch(const std::string& sw, bool value);
+        virtual bool getControlSwitch(const std::string& sw);
 
-        virtual std::string getActionDescription (int action);
-        virtual std::string getActionKeyBindingName (int action);
-        virtual std::string getActionControllerBindingName (int action);
+        virtual std::string getActionDescription(int action);
+        virtual std::string getActionKeyBindingName(int action);
         virtual int getNumActions() { return A_Last; }
         virtual std::vector<int> getActionKeySorting();
-        virtual std::vector<int> getActionControllerSorting();
-        virtual void enableDetectingBindingMode (int action, bool keyboard);
+        virtual void enableDetectingBindingMode(int action);
         virtual void resetToDefaultKeyBindings();
-        virtual void resetToDefaultControllerBindings();
-
-        virtual bool joystickLastUsed() {return mJoystickLastUsed;}
 
     public:
         virtual void keyPressed(const SDL_KeyboardEvent &arg );
         virtual void keyReleased( const SDL_KeyboardEvent &arg );
-        virtual void textInput (const SDL_TextInputEvent &arg);
+        virtual void textInput(const SDL_TextInputEvent &arg);
 
         virtual void mousePressed( const SDL_MouseButtonEvent &arg, Uint8 id );
         virtual void mouseReleased( const SDL_MouseButtonEvent &arg, Uint8 id );
         virtual void mouseMoved( const SDLUtil::MouseMotionEvent &arg );
 
-        virtual void buttonPressed(int deviceID, const SDL_ControllerButtonEvent &arg);
-        virtual void buttonReleased(int deviceID, const SDL_ControllerButtonEvent &arg);
-        virtual void axisMoved(int deviceID, const SDL_ControllerAxisEvent &arg);
-        virtual void controllerAdded(int deviceID, const SDL_ControllerDeviceEvent &arg);
-        virtual void controllerRemoved(const SDL_ControllerDeviceEvent &arg);
-
         virtual void windowVisibilityChange( bool visible );
         virtual void windowFocusChange( bool have_focus );
-        virtual void windowResized (int x, int y);
-        virtual void windowClosed ();
-
-        virtual void channelChanged(ICS::Channel* channel, float currentValue, float previousValue);
-
-        virtual void mouseAxisBindingDetected(ICS::InputControlSystem* ICS, ICS::Control* control
-            , ICS::InputControlSystem::NamedAxis axis, ICS::Control::ControlChangingDirection direction);
-
-        virtual void keyBindingDetected(ICS::InputControlSystem* ICS, ICS::Control* control
-            , SDL_Scancode key, ICS::Control::ControlChangingDirection direction);
-
-        virtual void mouseButtonBindingDetected(ICS::InputControlSystem* ICS, ICS::Control* control
-            , unsigned int button, ICS::Control::ControlChangingDirection direction);
-
-        virtual void joystickAxisBindingDetected(ICS::InputControlSystem* ICS, int deviceID, ICS::Control* control
-            , int axis, ICS::Control::ControlChangingDirection direction);
-
-        virtual void joystickButtonBindingDetected(ICS::InputControlSystem* ICS, int deviceID, ICS::Control* control
-            , unsigned int button, ICS::Control::ControlChangingDirection direction);
-
-        void clearAllKeyBindings (ICS::Control* control);
-        void clearAllControllerBindings (ICS::Control* control);
+        virtual void windowResized(int x, int y);
+        virtual void windowClosed();
 
         virtual int countSavedGameRecords() const;
         virtual void write(ESM::ESMWriter& writer, Loading::Listener& progress);
@@ -161,10 +124,11 @@ namespace MWInput
         osg::ref_ptr<osgViewer::ScreenCaptureHandler> mScreenCaptureHandler;
         osgViewer::ScreenCaptureHandler::CaptureOperation *mScreenCaptureOperation;
 
-        bool mJoystickLastUsed;
         MWWorld::Player* mPlayer;
 
-        ICS::InputControlSystem* mInputBinder;
+        std::map<int, SDL_Scancode> mBinds;
+        std::map<int, bool> mBindsEnabled;
+        std::map<int, std::pair<int, int> > mBindsState;
 
         SDLUtil::InputWrapper* mInputManager;
         SDLUtil::VideoWrapper* mVideoWrapper;
@@ -187,7 +151,8 @@ namespace MWInput
         bool mMouseLookEnabled;
         bool mGuiCursorEnabled;
 
-        bool mDetectingKeyboard;
+        bool mNowDetecting;
+        int mDetectingAction;
 
         float mOverencumberedMessageDelay;
 
@@ -209,9 +174,6 @@ namespace MWInput
 
         MyGUI::MouseButton sdlButtonToMyGUI(Uint8 button);
 
-        virtual std::string sdlControllerAxisToString(int axis);
-        virtual std::string sdlControllerButtonToString(int button);
-
         void resetIdleTime();
         void updateIdleTime(float dt);
 
@@ -221,6 +183,12 @@ namespace MWInput
         void updateCursorMode();
 
         bool checkAllowedToUseItems() const;
+
+        void channelChanged(int action);
+        void keyBindingDetected(SDL_Scancode key);
+        void mouseButtonBindingDetected(unsigned int button);
+
+        void fireUpBind(SDL_Scancode key, int state);
 
     private:
         void toggleMainMenu();
@@ -238,13 +206,12 @@ namespace MWInput
         void quickLoad();
         void quickSave();
 
-        void quickKey (int index);
+        void quickKey(int index);
         void showQuickKeysMenu();
 
-        bool actionIsActive (int id);
+        bool actionIsActive(int id);
 
-        void loadKeyDefaults(bool force = false);
-        void loadControllerDefaults(bool force = false);
+        void loadKeyDefaults();
 
         int mFakeDeviceID; //As we only support one controller at a time, use a fake deviceID so we don't lose bindings when switching controllers
 
