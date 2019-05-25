@@ -7,9 +7,9 @@
 
 #include <QSortFilterProxyModel>
 
-#include "../filter/node.hpp"
-
 #include "columns.hpp"
+
+#include "../../model/world/idtablebase.hpp"
 
 namespace CSMWorld
 {
@@ -17,10 +17,9 @@ namespace CSMWorld
     {
             Q_OBJECT
 
-            std::shared_ptr<CSMFilter::Node> mFilter;
-            std::map<int, int> mColumnMap; // column ID, column index in this model (or -1)
+            std::string mFilter;
 
-            // Cache of enum values for enum columns (e.g. Modified, Record Type).
+            // Cache of enum values for enum columns(e.g. Modified, Record Type).
             // Used to speed up comparisons during the sort by such columns.
             typedef std::map<Columns::ColumnId, std::vector<std::string> > EnumColumnCache;
             mutable EnumColumnCache mEnumColumnCache;
@@ -29,19 +28,15 @@ namespace CSMWorld
 
             IdTableBase *mSourceModel;
 
-        private:
-
-            void updateColumnMap();
-
         public:
 
-            IdTableProxyModel (QObject *parent = 0);
+            IdTableProxyModel(QObject *parent = 0);
 
-            virtual QModelIndex getModelIndex (const std::string& id, int column) const;
+            virtual QModelIndex getModelIndex(const std::string& id, int column) const;
 
             virtual void setSourceModel(QAbstractItemModel *model);
 
-            void setFilter (const std::shared_ptr<CSMFilter::Node>& filter);
+            void setFilter(std::string filter);
 
             void refreshFilter();
 
@@ -49,7 +44,7 @@ namespace CSMWorld
 
             virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
 
-            virtual bool filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent) const;
+            virtual bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const;
 
             QString getRecordId(int sourceRow) const;
 

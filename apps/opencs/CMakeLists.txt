@@ -123,9 +123,9 @@ opencs_units_noqt (model/prefs
     category
     )
 
-opencs_units_noqt (model/filter
-    node unarynode narynode leafnode booleannode parser andnode ornode notnode textnode valuenode
-    )
+#opencs_units_noqt (model/filter
+#    node unarynode narynode leafnode booleannode parser andnode ornode notnode textnode valuenode
+#    )
 
 opencs_units (view/filter
     filterbox recordfilterbox editwidget

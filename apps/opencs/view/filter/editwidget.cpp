@@ -9,9 +9,8 @@
 #include "../../model/world/columns.hpp"
 
 CSVFilter::EditWidget::EditWidget (CSMWorld::Data& data, QWidget *parent)
-: QLineEdit (parent), mParser (data), mIsEmpty(true)
+: QLineEdit (parent), mIsEmpty(true)
 {
-    mPalette = palette();
     connect (this, SIGNAL (textChanged (const QString&)), this, SLOT (textChanged (const QString&)));
 
     const CSMWorld::IdTableBase *model =
@@ -34,7 +33,7 @@ CSVFilter::EditWidget::EditWidget (CSMWorld::Data& data, QWidget *parent)
 void CSVFilter::EditWidget::textChanged (const QString& text)
 {
     //no need to parse and apply filter if it was empty and now is empty too.
-    //e.g. - we modifiing content of filter with already opened some other (big) tables.
+    //e.g. - we modifying content of filter with already opened some other (big) tables.
     if (text.length() == 0){
         if (mIsEmpty)
             return;
@@ -43,19 +42,7 @@ void CSVFilter::EditWidget::textChanged (const QString& text)
     }else
         mIsEmpty = false;
 
-    if (mParser.parse (text.toUtf8().constData()))
-    {
-        setPalette (mPalette);
-        emit filterChanged (mParser.getFilter());
-    }
-    else
-    {
-        QPalette palette (mPalette);
-        palette.setColor (QPalette::Text, Qt::red);
-        setPalette (palette);
-
-        /// \todo improve error reporting; mark only the faulty part
-    }
+    emit filterChanged (text.toUtf8().constData());
 }
 
 void CSVFilter::EditWidget::filterDataChanged (const QModelIndex& topLeft,
