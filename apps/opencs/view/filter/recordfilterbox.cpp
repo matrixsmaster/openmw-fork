@@ -23,8 +23,8 @@ CSVFilter::RecordFilterBox::RecordFilterBox (CSMWorld::Data& data, QWidget *pare
     setLayout (layout);
 
     connect (
-        mEdit, SIGNAL (filterChanged (std::shared_ptr<CSMFilter::Node>)),
-        this, SIGNAL (filterChanged (std::shared_ptr<CSMFilter::Node>)));
+        mEdit, SIGNAL (filterChanged (std::string)),
+        this, SIGNAL (filterChanged (std::string)));
 }
 
 void CSVFilter::RecordFilterBox::setFilter (const std::string& filter)

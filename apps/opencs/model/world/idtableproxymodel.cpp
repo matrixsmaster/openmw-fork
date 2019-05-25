@@ -1,5 +1,6 @@
 #include "idtableproxymodel.hpp"
 
+#include <cstdio>
 #include <vector>
 
 #include "idtablebase.hpp"
@@ -49,6 +50,7 @@ bool CSMWorld::IdTableProxyModel::filterAcceptsRow (int sourceRow, const QModelI
 //    return mFilter->test (*mSourceModel, sourceRow, mColumnMap);
 
     //TODO: make a test!
+    printf("Filter = %s\n", mFilter.c_str());
     return true;
 }
 
