@@ -500,8 +500,8 @@ namespace MWInput
                 bool isRunning = false;
 
                 // joystick movement
-                float xAxis = mInputBinder->getChannel(A_MoveLeftRight)->getValue();
-                float yAxis = mInputBinder->getChannel(A_MoveForwardBackward)->getValue();
+//                float xAxis = mInputBinder->getChannel(A_MoveLeftRight)->getValue();
+//                float yAxis = mInputBinder->getChannel(A_MoveForwardBackward)->getValue();
 //                printf("IM: update: movement XY (%.1f  %.1f)\n",xAxis,yAxis);
 //                if (xAxis < .5)
 //                {
@@ -535,8 +535,8 @@ namespace MWInput
 //                    mJoystickLastUsed = true;
 
                 // keyboard movement
-                isRunning = xAxis > .75 || xAxis < .25 || yAxis > .75 || yAxis < .25;
-                printf("IM: update: isRunning %d\n",isRunning);
+//                isRunning = xAxis > .75 || xAxis < .25 || yAxis > .75 || yAxis < .25;
+//                printf("IM: update: isRunning %d\n",isRunning);
                 if(triedToMove) resetIdleTime();
 
                 if (actionIsActive(A_MoveLeft) && !actionIsActive(A_MoveRight))
