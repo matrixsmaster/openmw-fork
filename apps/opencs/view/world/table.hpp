@@ -6,7 +6,6 @@
 
 #include <QEvent>
 
-#include "../../model/filter/node.hpp"
 #include "../../model/world/columnbase.hpp"
 #include "../../model/world/universalid.hpp"
 #include "dragrecordtable.hpp"
@@ -76,24 +75,24 @@ namespace CSVWorld
 
         private:
 
-            void contextMenuEvent (QContextMenuEvent *event);
+            void contextMenuEvent(QContextMenuEvent *event);
 
             void mouseMoveEvent(QMouseEvent *event);
 
         protected:
 
-            virtual void mouseDoubleClickEvent (QMouseEvent *event);
+            virtual void mouseDoubleClickEvent(QMouseEvent *event);
 
         public:
 
-            Table (const CSMWorld::UniversalId& id, bool createAndDelete,
+            Table(const CSMWorld::UniversalId& id, bool createAndDelete,
                 bool sorting, CSMDoc::Document& document);
             ///< \param createAndDelete Allow creation and deletion of records.
             /// \param sorting Allow changing order of rows in the view via column headers.
 
-            virtual void setEditLock (bool locked);
+            virtual void setEditLock(bool locked);
 
-            CSMWorld::UniversalId getUniversalId (int row) const;
+            CSMWorld::UniversalId getUniversalId(int row) const;
 
             std::vector<std::string> getColumnsWithDisplay(CSMWorld::ColumnBase::Display display) const;
 
@@ -103,11 +102,11 @@ namespace CSVWorld
 
         signals:
 
-            void editRequest (const CSMWorld::UniversalId& id, const std::string& hint);
+            void editRequest(const CSMWorld::UniversalId& id, const std::string& hint);
 
-            void selectionSizeChanged (int size);
+            void selectionSizeChanged(int size);
 
-            void tableSizeChanged (int size, int deleted, int modified);
+            void tableSizeChanged(int size, int deleted, int modified);
             ///< \param size Number of not deleted records
             /// \param deleted Number of deleted records
             /// \param modified Number of added and modified records
@@ -148,15 +147,15 @@ namespace CSVWorld
 
         public slots:
 
-            void settingChanged (const CSMPrefs::Setting *setting);
+            void settingChanged(const CSMPrefs::Setting *setting);
 
             void tableSizeUpdate();
 
             void selectionSizeUpdate();
 
-            void requestFocus (const std::string& id);
+            void requestFocus(const std::string& id);
 
-            void recordFilterChanged (std::shared_ptr<CSMFilter::Node> filter);
+            void recordFilterChanged(std::string filter);
 
             void rowAdded(const std::string &id);
     };

@@ -6,7 +6,6 @@
 #include <QWidget>
 #include <QtCore/qnamespace.h>
 
-#include "../../model/filter/node.hpp"
 #include "../../model/world/universalid.hpp"
 
 namespace CSMWorld
@@ -25,24 +24,24 @@ namespace CSVFilter
             RecordFilterBox *mRecordFilterBox;
 
         public:
-            FilterBox (CSMWorld::Data& data, QWidget *parent = 0);
+            FilterBox(CSMWorld::Data& data, QWidget *parent = 0);
 
-            void setRecordFilter (const std::string& filter);
+            void setRecordFilter(const std::string& filter);
 
             void createFilterRequest(std::vector<std::pair<std::string, std::vector<std::string> > >& filterSource,
                                      Qt::DropAction action);
 
 
         private:
-            void dragEnterEvent (QDragEnterEvent* event);
+            void dragEnterEvent(QDragEnterEvent* event);
 
-            void dropEvent (QDropEvent* event);
+            void dropEvent(QDropEvent* event);
 
             void dragMoveEvent(QDragMoveEvent *event);
 
         signals:
-            void recordFilterChanged (std::shared_ptr<CSMFilter::Node> filter);
-            void recordDropped (std::vector<CSMWorld::UniversalId>& types, Qt::DropAction action);
+            void recordFilterChanged(std::string filter);
+            void recordDropped(std::vector<CSMWorld::UniversalId>& types, Qt::DropAction action);
     };
 
 }

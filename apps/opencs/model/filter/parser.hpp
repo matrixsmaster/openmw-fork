@@ -26,11 +26,11 @@ namespace CSMFilter
 
             Token getNextToken();
 
-            Token checkKeywords (const Token& token);
             ///< Turn string token into keyword token, if possible.
+            Token checkKeywords (const Token& token);
 
-            std::shared_ptr<Node> parseImp (bool allowEmpty = false, bool ignoreOneShot = false);
             ///< Will return a null-pointer, if there is nothing more to parse.
+            std::shared_ptr<Node> parseImp (bool allowEmpty = false, bool ignoreOneShot = false);
 
             std::shared_ptr<Node> parseNAry (const Token& keyword);
 
@@ -44,13 +44,13 @@ namespace CSMFilter
 
             Parser (const CSMWorld::Data& data);
 
-            bool parse (const std::string& filter, bool allowPredefined = true);
             ///< Discards any previous calls to parse
             ///
             /// \return Success?
+            bool parse (const std::string& filter, bool allowPredefined = true);
 
-            std::shared_ptr<Node> getFilter() const;
             ///< Throws an exception if the last call to parse did not return true.
+            std::shared_ptr<Node> getFilter() const;
     };
 }
 

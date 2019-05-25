@@ -6,8 +6,6 @@
 
 #include <QHBoxLayout>
 
-#include "../../model/filter/node.hpp"
-
 namespace CSMWorld
 {
     class Data;
@@ -36,7 +34,7 @@ namespace CSVFilter
 
         signals:
 
-            void filterChanged (std::shared_ptr<CSMFilter::Node> filter);
+            void filterChanged(std::string filter);
     };
 
 }
