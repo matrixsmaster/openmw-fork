@@ -464,27 +464,29 @@ namespace MWInput
 //                MWBase::Environment::get().getWindowManager()->setCursorActive(true);
 //            }
 //        }
-        if (mMouseLookEnabled)
-        {
-            float xAxis = mInputBinder->getChannel(A_LookLeftRight)->getValue()*2.0f-1.0f;
-            float yAxis = mInputBinder->getChannel(A_LookUpDown)->getValue()*2.0f-1.0f;
-            if (xAxis != 0 || yAxis != 0)
-            {
-                resetIdleTime();
-
-                float rot[3];
-                rot[0] = yAxis * (dt * 100.0f) * 10.0f * mCameraSensitivity * (1.0f/256.f) * (mInvertY ? -1 : 1) * mCameraYMultiplier;
-                rot[1] = 0.0f;
-                rot[2] = xAxis * (dt * 100.0f) * 10.0f * mCameraSensitivity * (1.0f/256.f);
-
-                // Only actually turn player when we're not in vanity mode
-                if(!MWBase::Environment::get().getWorld()->vanityRotateCamera(rot))
-                {
-                    mPlayer->yaw(rot[2]);
-                    mPlayer->pitch(rot[0]);
-                }
-            }
-        }
+//        if (mMouseLookEnabled)
+//        {
+//            float xAxis = mInputBinder->getChannel(A_LookLeftRight)->getValue()*2.0f-1.0f;
+//            float yAxis = mInputBinder->getChannel(A_LookUpDown)->getValue()*2.0f-1.0f;
+//            printf("IM: update: mlook XY(%.1f  %.1f)\n",xAxis,yAxis);
+//            if (xAxis != 0 || yAxis != 0)
+//            {
+//                printf("IM: update: mlook XY go\n");
+//                resetIdleTime();
+//
+//                float rot[3];
+//                rot[0] = yAxis * (dt * 100.0f) * 10.0f * mCameraSensitivity * (1.0f/256.f) * (mInvertY ? -1 : 1) * mCameraYMultiplier;
+//                rot[1] = 0.0f;
+//                rot[2] = xAxis * (dt * 100.0f) * 10.0f * mCameraSensitivity * (1.0f/256.f);
+//
+//                // Only actually turn player when we're not in vanity mode
+//                if(!MWBase::Environment::get().getWorld()->vanityRotateCamera(rot))
+//                {
+//                    mPlayer->yaw(rot[2]);
+//                    mPlayer->pitch(rot[0]);
+//                }
+//            }
+//        }
 
         // Disable movement in Gui mode
         if (!(MWBase::Environment::get().getWindowManager()->isGuiMode()
