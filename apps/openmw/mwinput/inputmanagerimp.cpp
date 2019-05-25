@@ -88,7 +88,6 @@ namespace MWInput
 
         loadKeyDefaults();
 //        loadControllerDefaults();
-        //TODO: load the last saved map
 
 //        for(int i = 0; i < A_Last; ++i)
 //        {
@@ -150,10 +149,9 @@ namespace MWInput
 
     InputManager::~InputManager()
     {
-        //TODO: save the current map
-//        mInputBinder->save(mUserFile);
+        mInputBinder->save(mUserFile);
 
-//        delete mInputBinder;
+        delete mInputBinder;
 
         delete mInputManager;
 
@@ -175,8 +173,7 @@ namespace MWInput
 
         for(size_t i = 0; i < sizeof(playerChannels)/sizeof(playerChannels[0]); i++) {
             int pc = playerChannels[i];
-//            mInputBinder->getChannel(pc)->setEnabled(enabled);
-            mBindsEnabled[pc] = enabled;
+            mInputBinder->getChannel(pc)->setEnabled(enabled);
         }
     }
 
@@ -695,24 +692,19 @@ namespace MWInput
         if (mControlSwitch[sw] == value) {
             return;
         }
-
         /// \note 7 switches at all, if-else is relevant
         if (sw == "playercontrols" && !value) {
             mPlayer->setLeftRight(0);
             mPlayer->setForwardBackward(0);
             mPlayer->setAutoMove(false);
             mPlayer->setUpDown(0);
-
         } else if (sw == "playerjumping" && !value) {
             /// \fixme maybe crouching at this time
             mPlayer->setUpDown(0);
-
         } else if (sw == "vanitymode") {
             MWBase::Environment::get().getWorld()->allowVanityMode(value);
-
         } else if (sw == "playerlooking") {
             MWBase::Environment::get().getWorld()->togglePlayerLooking(value);
-
         }
         mControlSwitch[sw] = value;
     }
@@ -1606,12 +1598,12 @@ namespace MWInput
         mInputBinder->enableDetectingBindingState(c, ICS::Control::INCREASE);
     }
 
-//    void InputManager::mouseAxisBindingDetected(ICS::InputControlSystem* ICS, ICS::Control* control
-//        , ICS::InputControlSystem::NamedAxis axis, ICS::Control::ControlChangingDirection direction)
-//    {
-//        // we don't want mouse movement bindings
-//        return;
-//    }
+    void InputManager::mouseAxisBindingDetected(ICS::InputControlSystem* ICS, ICS::Control* control
+        , ICS::InputControlSystem::NamedAxis axis, ICS::Control::ControlChangingDirection direction)
+    {
+        // we don't want mouse movement bindings
+        return;
+    }
 
     void InputManager::keyBindingDetected(ICS::InputControlSystem* ICS, ICS::Control* control
         , SDL_Scancode key, ICS::Control::ControlChangingDirection direction)
@@ -1644,32 +1636,32 @@ namespace MWInput
         MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
     }
 
-//    void InputManager::joystickAxisBindingDetected(ICS::InputControlSystem* ICS, int deviceID, ICS::Control* control
-//        , int axis, ICS::Control::ControlChangingDirection direction)
-//    {
-//        //only allow binding to the trigers
-//        if (axis != SDL_CONTROLLER_AXIS_TRIGGERLEFT && axis != SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
-//            return;
-//        if (mDetectingKeyboard)
-//            return;
-//
-//        clearAllControllerBindings(control);
-//        control->setValue(0.5f); //axis bindings must start at 0.5
-//        control->setInitialValue(0.5f);
-//        ICS::DetectingBindingListener::joystickAxisBindingDetected(ICS, deviceID, control, axis, direction);
-//        MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
-//    }
+    void InputManager::joystickAxisBindingDetected(ICS::InputControlSystem* ICS, int deviceID, ICS::Control* control
+        , int axis, ICS::Control::ControlChangingDirection direction)
+    {
+        //only allow binding to the trigers
+        if (axis != SDL_CONTROLLER_AXIS_TRIGGERLEFT && axis != SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
+            return;
+        if (mDetectingKeyboard)
+            return;
 
-//    void InputManager::joystickButtonBindingDetected(ICS::InputControlSystem* ICS, int deviceID, ICS::Control* control
-//        , unsigned int button, ICS::Control::ControlChangingDirection direction)
-//    {
-//        if (mDetectingKeyboard)
-//            return;
-//        clearAllControllerBindings(control);
-//        control->setInitialValue(0.0f);
-//        ICS::DetectingBindingListener::joystickButtonBindingDetected(ICS, deviceID, control, button, direction);
-//        MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
-//    }
+        clearAllControllerBindings(control);
+        control->setValue(0.5f); //axis bindings must start at 0.5
+        control->setInitialValue(0.5f);
+        ICS::DetectingBindingListener::joystickAxisBindingDetected(ICS, deviceID, control, axis, direction);
+        MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
+    }
+
+    void InputManager::joystickButtonBindingDetected(ICS::InputControlSystem* ICS, int deviceID, ICS::Control* control
+        , unsigned int button, ICS::Control::ControlChangingDirection direction)
+    {
+        if (mDetectingKeyboard)
+            return;
+        clearAllControllerBindings(control);
+        control->setInitialValue(0.0f);
+        ICS::DetectingBindingListener::joystickButtonBindingDetected(ICS, deviceID, control, button, direction);
+        MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
+    }
 
     void InputManager::clearAllKeyBindings(ICS::Control* control)
     {
@@ -1680,14 +1672,14 @@ namespace MWInput
             mInputBinder->removeMouseButtonBinding(mInputBinder->getMouseButtonBinding(control, ICS::Control::INCREASE));
     }
 
-//    void InputManager::clearAllControllerBindings(ICS::Control* control)
-//    {
-//        // right now we don't really need multiple bindings for the same action, so remove all others first
-//        if (mInputBinder->getJoystickAxisBinding(control, mFakeDeviceID, ICS::Control::INCREASE) != SDL_SCANCODE_UNKNOWN)
-//            mInputBinder->removeJoystickAxisBinding(mFakeDeviceID, mInputBinder->getJoystickAxisBinding(control, mFakeDeviceID, ICS::Control::INCREASE));
-//        if (mInputBinder->getJoystickButtonBinding(control, mFakeDeviceID, ICS::Control::INCREASE) != ICS_MAX_DEVICE_BUTTONS)
-//            mInputBinder->removeJoystickButtonBinding(mFakeDeviceID, mInputBinder->getJoystickButtonBinding(control, mFakeDeviceID, ICS::Control::INCREASE));
-//    }
+    void InputManager::clearAllControllerBindings(ICS::Control* control)
+    {
+        // right now we don't really need multiple bindings for the same action, so remove all others first
+        if (mInputBinder->getJoystickAxisBinding(control, mFakeDeviceID, ICS::Control::INCREASE) != SDL_SCANCODE_UNKNOWN)
+            mInputBinder->removeJoystickAxisBinding(mFakeDeviceID, mInputBinder->getJoystickAxisBinding(control, mFakeDeviceID, ICS::Control::INCREASE));
+        if (mInputBinder->getJoystickButtonBinding(control, mFakeDeviceID, ICS::Control::INCREASE) != ICS_MAX_DEVICE_BUTTONS)
+            mInputBinder->removeJoystickButtonBinding(mFakeDeviceID, mInputBinder->getJoystickButtonBinding(control, mFakeDeviceID, ICS::Control::INCREASE));
+    }
 
     int InputManager::countSavedGameRecords() const
     {
