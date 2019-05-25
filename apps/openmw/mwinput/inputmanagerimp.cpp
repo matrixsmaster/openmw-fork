@@ -502,39 +502,41 @@ namespace MWInput
                 // joystick movement
                 float xAxis = mInputBinder->getChannel(A_MoveLeftRight)->getValue();
                 float yAxis = mInputBinder->getChannel(A_MoveForwardBackward)->getValue();
-                if (xAxis < .5)
-                {
-                    triedToMove = true;
-                    mPlayer->setLeftRight (-1);
-                }
-                else if (xAxis > .5)
-                {
-                    triedToMove = true;
-                    mPlayer->setLeftRight (1);
-                }
-
-                if (yAxis < .5)
-                {
-                    triedToMove = true;
-                    mPlayer->setAutoMove (false);
-                    mPlayer->setForwardBackward (1);
-                }
-                else if (yAxis > .5)
-                {
-                    triedToMove = true;
-                    mPlayer->setAutoMove (false);
-                    mPlayer->setForwardBackward (-1);
-                }
-                else if(mPlayer->getAutoMove())
-                {
-                    triedToMove = true;
-                    mPlayer->setForwardBackward (1);
-                }
-                if (triedToMove)
-                    mJoystickLastUsed = true;
+//                printf("IM: update: movement XY (%.1f  %.1f)\n",xAxis,yAxis);
+//                if (xAxis < .5)
+//                {
+//                    triedToMove = true;
+//                    mPlayer->setLeftRight (-1);
+//                }
+//                else if (xAxis > .5)
+//                {
+//                    triedToMove = true;
+//                    mPlayer->setLeftRight (1);
+//                }
+//
+//                if (yAxis < .5)
+//                {
+//                    triedToMove = true;
+//                    mPlayer->setAutoMove (false);
+//                    mPlayer->setForwardBackward (1);
+//                }
+//                else if (yAxis > .5)
+//                {
+//                    triedToMove = true;
+//                    mPlayer->setAutoMove (false);
+//                    mPlayer->setForwardBackward (-1);
+//                }
+//                else if(mPlayer->getAutoMove())
+//                {
+//                    triedToMove = true;
+//                    mPlayer->setForwardBackward (1);
+//                }
+//                if (triedToMove)
+//                    mJoystickLastUsed = true;
 
                 // keyboard movement
                 isRunning = xAxis > .75 || xAxis < .25 || yAxis > .75 || yAxis < .25;
+                printf("IM: update: isRunning %d\n",isRunning);
                 if(triedToMove) resetIdleTime();
 
                 if (actionIsActive(A_MoveLeft) && !actionIsActive(A_MoveRight))
