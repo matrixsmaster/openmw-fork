@@ -35,3 +35,10 @@ So far it does:
 9) Fixed inconsistent docstring formatting in a couple of core headers (more to do)
 
 10) CommandHumanoid spell with a maximum magnitude will now create a temporary companion for a duration of the spell (adds ability to re-equip NPCs)
+
+11) Joystick/gamepad support totally removed (I'm not using them)
+
+12) Removed dependencies:
+
+    1) OICS
+    2) TinyXML
