@@ -36,9 +36,9 @@ So far it does:
 
 10) CommandHumanoid spell with a maximum magnitude will now create a temporary companion for a duration of the spell (adds ability to re-equip NPCs)
 
-11) Joystick/gamepad support totally removed (I'm not using them)
+11) Simplifies the input subsystem, and removes joystick/gamepad support (I'm not using them)
 
-12) Removed dependencies:
+12) Frees up dependencies:
 
     1) OICS
     2) TinyXML
