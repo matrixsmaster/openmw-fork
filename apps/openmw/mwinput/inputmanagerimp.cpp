@@ -1,5 +1,5 @@
 #include "inputmanagerimp.hpp"
-
+#include <cstdio>
 #include <osgViewer/ViewerEventHandlers>
 
 #include <MyGUI_InputManager.h>
@@ -145,6 +145,7 @@ namespace MWInput
         // Enable all controls
         for (std::map<std::string, bool>::iterator it = mControlSwitch.begin(); it != mControlSwitch.end(); ++it)
             it->second = true;
+        printf("IM: Clear\n");
     }
 
     InputManager::~InputManager()
@@ -179,6 +180,7 @@ namespace MWInput
 
     bool isLeftOrRightButton(int action, ICS::InputControlSystem* ics, int deviceId, bool joystick)
     {
+        printf("IM: isLeftOrRightButton(%d, %d, %d)\n",action,deviceId,joystick);
         int mouseBinding = ics->getMouseButtonBinding(ics->getControl(action), ICS::Control::INCREASE);
         if (mouseBinding != ICS_MAX_DEVICE_BUTTONS)
             return true;
@@ -190,6 +192,7 @@ namespace MWInput
 
     void InputManager::handleGuiArrowKey(int action)
     {
+        printf("IM: handleGuiArrowKey(%d)\n",action);
         if (SDL_IsTextInputActive())
             return;
 
@@ -214,11 +217,13 @@ namespace MWInput
             break;
         }
 
+        printf("IM: handleGuiArrowKey: injecting %d\n",key);
         MWBase::Environment::get().getWindowManager()->injectKeyPress(key, 0, false);
     }
 
     void InputManager::channelChanged(ICS::Channel* channel, float currentValue, float previousValue)
     {
+        printf("IM: channelchanged(%.1f  %.1f)\n",currentValue,previousValue);
         resetIdleTime ();
 
         int action = channel->getNumber();
@@ -411,6 +416,8 @@ namespace MWInput
 
     void InputManager::update(float dt, bool disableControls, bool disableEvents)
     {
+//        printf("IM: update(%.1f  %d %d)\n",dt,disableControls,disableEvents);
+
         mControlsDisabled = disableControls;
 
         mInputManager->setMouseVisible(MWBase::Environment::get().getWindowManager()->getCursorVisible());
