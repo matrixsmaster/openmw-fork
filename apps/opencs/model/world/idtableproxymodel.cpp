@@ -32,25 +32,17 @@ bool CSMWorld::IdTableProxyModel::filterAcceptsRow (int sourceRow, const QModelI
 
     if (mFilter.empty()) return true;
 
-//    return mFilter->test (*mSourceModel, sourceRow, mColumnMap);
-
-    //TODO: make a test!
-    printf("Filter %d = %s\n",sourceRow,mFilter.c_str());
     QString str(mFilter.c_str());
 
+    // This is a quick and dirty implementation.
+    //FIXME: add proper upper boundary, exclude hidden cells
     for (int i = 0; i < 1000; i++) {
         QModelIndex cell = mSourceModel->index(sourceRow,i,sourceParent);
         QVariant data = mSourceModel->data(cell);
         if (!data.isValid()) break;
 
-        printf("%d: Data (%s) is here\n",i,data.typeName());
-
-        if (data.toString().contains(str,Qt::CaseInsensitive)) {
-            printf("Returning TRUE\n");
-            return true;
-        }
+        if (data.toString().contains(str,Qt::CaseInsensitive)) return true;
     }
-    printf("Returning false\n");
 
     return false;
 }
