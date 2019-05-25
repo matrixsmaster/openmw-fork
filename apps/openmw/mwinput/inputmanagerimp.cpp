@@ -45,17 +45,17 @@ namespace MWInput
         , mViewer(viewer)
         , mScreenCaptureHandler(screenCaptureHandler)
         , mScreenCaptureOperation(screenCaptureOperation)
-//        , mJoystickLastUsed(false)
+        , mJoystickLastUsed(false)
         , mPlayer(nullptr)
         , mInputManager(nullptr)
         , mVideoWrapper(nullptr)
         , mUserFile(userFile)
         , mDragDrop(false)
-        , mGrabCursor(Settings::Manager::getBool("grab cursor", "Input"))
-        , mInvertY(Settings::Manager::getBool("invert y axis", "Input"))
+        , mGrabCursor (Settings::Manager::getBool("grab cursor", "Input"))
+        , mInvertY (Settings::Manager::getBool("invert y axis", "Input"))
         , mControlsDisabled(false)
-        , mCameraSensitivity(Settings::Manager::getFloat("camera sensitivity", "Input"))
-        , mCameraYMultiplier(Settings::Manager::getFloat("camera y multiplier", "Input"))
+        , mCameraSensitivity (Settings::Manager::getFloat("camera sensitivity", "Input"))
+        , mCameraYMultiplier (Settings::Manager::getFloat("camera y multiplier", "Input"))
         , mPreviewPOVDelay(0.f)
         , mTimeIdle(0.f)
         , mMouseLookEnabled(false)
@@ -74,8 +74,8 @@ namespace MWInput
         , mFakeDeviceID(1)
     {
         mInputManager = new SDLUtil::InputWrapper(window, viewer, grab);
-        mInputManager->setMouseEventCallback(this);
-        mInputManager->setKeyboardEventCallback(this);
+        mInputManager->setMouseEventCallback (this);
+        mInputManager->setKeyboardEventCallback (this);
         mInputManager->setWindowEventCallback(this);
         mInputManager->setControllerEventCallback(this);
 
@@ -84,15 +84,15 @@ namespace MWInput
                                         Settings::Manager::getFloat("contrast", "Video"));
 
         std::string file = userFileExists ? userFile : "";
-//        mInputBinder = new ICS::InputControlSystem(file, true, this, nullptr, A_Last);
+        mInputBinder = new ICS::InputControlSystem(file, true, this, nullptr, A_Last);
 
         loadKeyDefaults();
-//        loadControllerDefaults();
+        loadControllerDefaults();
 
-//        for(int i = 0; i < A_Last; ++i)
-//        {
-//            mInputBinder->getChannel(i)->addListener(this);
-//        }
+        for (int i = 0; i < A_Last; ++i)
+        {
+            mInputBinder->getChannel (i)->addListener (this);
+        }
 
         mControlSwitch["playercontrols"]      = true;
         mControlSwitch["playerfighting"]      = true;
@@ -105,29 +105,29 @@ namespace MWInput
         /* Joystick Init */
 
         // Load controller mappings
-//#if SDL_VERSION_ATLEAST(2,0,2)
-//        if (controllerBindingsFile!="")
-//        {
-//            SDL_GameControllerAddMappingsFromFile(controllerBindingsFile.c_str());
-//        }
-//#endif
+#if SDL_VERSION_ATLEAST(2,0,2)
+        if(controllerBindingsFile!="")
+        {
+            SDL_GameControllerAddMappingsFromFile(controllerBindingsFile.c_str());
+        }
+#endif
 
         // Open all presently connected sticks
-//        int numSticks = SDL_NumJoysticks();
-//        for(int i = 0; i < numSticks; i++)
-//        {
-//            if (SDL_IsGameController(i))
-//            {
-//                SDL_ControllerDeviceEvent evt;
-//                evt.which = i;
-//                controllerAdded(mFakeDeviceID, evt);
-//                Log(Debug::Info) << "Detected game controller: " << SDL_GameControllerNameForIndex(i);
-//            }
-//            else
-//            {
-//                Log(Debug::Info) << "Detected unusable controller: " << SDL_JoystickNameForIndex(i);
-//            }
-//        }
+        int numSticks = SDL_NumJoysticks();
+        for(int i = 0; i < numSticks; i++)
+        {
+            if(SDL_IsGameController(i))
+            {
+                SDL_ControllerDeviceEvent evt;
+                evt.which = i;
+                controllerAdded(mFakeDeviceID, evt);
+                Log(Debug::Info) << "Detected game controller: " << SDL_GameControllerNameForIndex(i);
+            }
+            else
+            {
+                Log(Debug::Info) << "Detected unusable controller: " << SDL_JoystickNameForIndex(i);
+            }
+        }
 
         float uiScale = Settings::Manager::getFloat("scaling factor", "GUI");
         if (uiScale != 0.f)
@@ -143,13 +143,13 @@ namespace MWInput
     void InputManager::clear()
     {
         // Enable all controls
-        for(std::map<std::string, bool>::iterator it = mControlSwitch.begin(); it != mControlSwitch.end(); ++it)
+        for (std::map<std::string, bool>::iterator it = mControlSwitch.begin(); it != mControlSwitch.end(); ++it)
             it->second = true;
     }
 
     InputManager::~InputManager()
     {
-        mInputBinder->save(mUserFile);
+        mInputBinder->save (mUserFile);
 
         delete mInputBinder;
 
@@ -197,7 +197,7 @@ namespace MWInput
             return;
 
         MyGUI::KeyCode key;
-        switch(action)
+        switch (action)
         {
         case A_MoveLeft:
             key = MyGUI::KeyCode::ArrowLeft;
@@ -219,24 +219,24 @@ namespace MWInput
 
     void InputManager::channelChanged(ICS::Channel* channel, float currentValue, float previousValue)
     {
-        resetIdleTime();
+        resetIdleTime ();
 
         int action = channel->getNumber();
 
         if (mDragDrop && action != A_GameMenu && action != A_Inventory)
             return;
 
-        if ((previousValue == 1 || previousValue == 0) && (currentValue==1 || currentValue==0))
+        if((previousValue == 1 || previousValue == 0) && (currentValue==1 || currentValue==0))
         {
             //Is a normal button press, so don't change it at all
         }
         //Otherwise only trigger button presses as they go through specific points
-        else if (previousValue >= .8 && currentValue < .8)
+        else if(previousValue >= .8 && currentValue < .8)
         {
             currentValue = 0.0;
             previousValue = 1.0;
         }
-        else if (previousValue <= .6 && currentValue > .6)
+        else if(previousValue <= .6 && currentValue > .6)
         {
             currentValue = 1.0;
             previousValue = 0.0;
@@ -261,19 +261,19 @@ namespace MWInput
         if (currentValue == 1)
         {
             // trigger action activated
-            switch(action)
+            switch (action)
             {
             case A_GameMenu:
-                toggleMainMenu();
+                toggleMainMenu ();
                 break;
             case A_Screenshot:
                 screenshot();
                 break;
             case A_Inventory:
-                toggleInventory();
+                toggleInventory ();
                 break;
             case A_Console:
-                toggleConsole();
+                toggleConsole ();
                 break;
             case A_Activate:
                 resetIdleTime();
@@ -286,22 +286,22 @@ namespace MWInput
                 handleGuiArrowKey(action);
                 break;
             case A_Journal:
-                toggleJournal();
+                toggleJournal ();
                 break;
             case A_AutoMove:
-                toggleAutoMove();
+                toggleAutoMove ();
                 break;
             case A_AlwaysRun:
-                toggleWalking();
+                toggleWalking ();
                 break;
             case A_ToggleWeapon:
-                toggleWeapon();
+                toggleWeapon ();
                 break;
             case A_Rest:
                 rest();
                 break;
             case A_ToggleSpell:
-                toggleSpell();
+                toggleSpell ();
                 break;
             case A_QuickKey1:
                 quickKey(1);
@@ -391,7 +391,7 @@ namespace MWInput
 
         //we switched to non-relative mode, move our cursor to where the in-game
         //cursor is
-        if ( !is_relative && was_relative != is_relative )
+        if( !is_relative && was_relative != is_relative )
         {
             mInputManager->warpMouse(static_cast<int>(mGuiCursorX/mInvUiScalingFactor), static_cast<int>(mGuiCursorY/mInvUiScalingFactor));
         }
@@ -423,7 +423,7 @@ namespace MWInput
             return;
         }
 
-        // update values of channels(as a result of pressed keys)
+        // update values of channels (as a result of pressed keys)
         mInputBinder->update(dt);
 
         updateCursorMode();
@@ -470,7 +470,7 @@ namespace MWInput
                 rot[2] = xAxis * (dt * 100.0f) * 10.0f * mCameraSensitivity * (1.0f/256.f);
 
                 // Only actually turn player when we're not in vanity mode
-                if (!MWBase::Environment::get().getWorld()->vanityRotateCamera(rot))
+                if(!MWBase::Environment::get().getWorld()->vanityRotateCamera(rot))
                 {
                     mPlayer->yaw(rot[2]);
                     mPlayer->pitch(rot[0]);
@@ -495,65 +495,65 @@ namespace MWInput
                 if (xAxis < .5)
                 {
                     triedToMove = true;
-                    mPlayer->setLeftRight(-1);
+                    mPlayer->setLeftRight (-1);
                 }
                 else if (xAxis > .5)
                 {
                     triedToMove = true;
-                    mPlayer->setLeftRight(1);
+                    mPlayer->setLeftRight (1);
                 }
 
                 if (yAxis < .5)
                 {
                     triedToMove = true;
-                    mPlayer->setAutoMove(false);
-                    mPlayer->setForwardBackward(1);
+                    mPlayer->setAutoMove (false);
+                    mPlayer->setForwardBackward (1);
                 }
                 else if (yAxis > .5)
                 {
                     triedToMove = true;
-                    mPlayer->setAutoMove(false);
-                    mPlayer->setForwardBackward(-1);
+                    mPlayer->setAutoMove (false);
+                    mPlayer->setForwardBackward (-1);
                 }
-                else if (mPlayer->getAutoMove())
+                else if(mPlayer->getAutoMove())
                 {
                     triedToMove = true;
-                    mPlayer->setForwardBackward(1);
+                    mPlayer->setForwardBackward (1);
                 }
                 if (triedToMove)
                     mJoystickLastUsed = true;
 
                 // keyboard movement
                 isRunning = xAxis > .75 || xAxis < .25 || yAxis > .75 || yAxis < .25;
-                if (triedToMove) resetIdleTime();
+                if(triedToMove) resetIdleTime();
 
                 if (actionIsActive(A_MoveLeft) && !actionIsActive(A_MoveRight))
                 {
                     triedToMove = true;
-                    mPlayer->setLeftRight(-1);
+                    mPlayer->setLeftRight (-1);
                 }
                 else if (actionIsActive(A_MoveRight) && !actionIsActive(A_MoveLeft))
                 {
                     triedToMove = true;
-                    mPlayer->setLeftRight(1);
+                    mPlayer->setLeftRight (1);
                 }
 
                 if (actionIsActive(A_MoveForward) && !actionIsActive(A_MoveBackward))
                 {
                     triedToMove = true;
-                    mPlayer->setAutoMove(false);
-                    mPlayer->setForwardBackward(1);
+                    mPlayer->setAutoMove (false);
+                    mPlayer->setForwardBackward (1);
                 }
                 else if (actionIsActive(A_MoveBackward) && !actionIsActive(A_MoveForward))
                 {
                     triedToMove = true;
-                    mPlayer->setAutoMove(false);
-                    mPlayer->setForwardBackward(-1);
+                    mPlayer->setAutoMove (false);
+                    mPlayer->setForwardBackward (-1);
                 }
-                else if (mPlayer->getAutoMove())
+                else if(mPlayer->getAutoMove())
                 {
                     triedToMove = true;
-                    mPlayer->setForwardBackward(1);
+                    mPlayer->setForwardBackward (1);
                 }
 
                 if (!mSneakToggles)
@@ -563,7 +563,7 @@ namespace MWInput
 
                 if (mAttemptJump && mControlSwitch["playerjumping"])
                 {
-                    mPlayer->setUpDown(1);
+                    mPlayer->setUpDown (1);
                     triedToMove = true;
                     mOverencumberedMessageDelay = 0.f;
                 }
@@ -573,17 +573,17 @@ namespace MWInput
                 else
                     mPlayer->setRunState(actionIsActive(A_Run));
 
-                // if player tried to start moving, but can't(due to being overencumbered), display a notification.
+                // if player tried to start moving, but can't (due to being overencumbered), display a notification.
                 if (triedToMove)
                 {
-                    MWWorld::Ptr player = MWBase::Environment::get().getWorld()->getPlayerPtr();
+                    MWWorld::Ptr player = MWBase::Environment::get().getWorld ()->getPlayerPtr();
                     mOverencumberedMessageDelay -= dt;
                     if (player.getClass().getEncumbrance(player) > player.getClass().getCapacity(player))
                     {
-                        mPlayer->setAutoMove(false);
+                        mPlayer->setAutoMove (false);
                         if (mOverencumberedMessageDelay <= 0)
                         {
-                            MWBase::Environment::get().getWindowManager()->messageBox("#{sNotifyMessage59}");
+                            MWBase::Environment::get().getWindowManager ()->messageBox("#{sNotifyMessage59}");
                             mOverencumberedMessageDelay = 1.0;
                         }
                     }
@@ -643,7 +643,7 @@ namespace MWInput
     {
         bool changeRes = false;
 
-        for(Settings::CategorySettingVector::const_iterator it = changed.begin();
+        for (Settings::CategorySettingVector::const_iterator it = changed.begin();
         it != changed.end(); ++it)
         {
             if (it->first == "Input" && it->second == "invert y axis")
@@ -682,12 +682,12 @@ namespace MWInput
         }
     }
 
-    bool InputManager::getControlSwitch(const std::string& sw)
+    bool InputManager::getControlSwitch (const std::string& sw)
     {
         return mControlSwitch[sw];
     }
 
-    void InputManager::toggleControlSwitch(const std::string& sw, bool value)
+    void InputManager::toggleControlSwitch (const std::string& sw, bool value)
     {
         if (mControlSwitch[sw] == value) {
             return;
@@ -724,8 +724,8 @@ namespace MWInput
         if (kc != OIS::KC_UNASSIGNED && !mInputBinder->detectingBindingState())
         {
             consumed = MWBase::Environment::get().getWindowManager()->injectKeyPress(MyGUI::KeyCode::Enum(kc), 0, arg.repeat);
-            // Little trick to check if key is printable
-            if (SDL_IsTextInputActive() &&  ( !(SDLK_SCANCODE_MASK & arg.keysym.sym) && std::isprint(arg.keysym.sym)))
+            if (SDL_IsTextInputActive() &&  // Little trick to check if key is printable
+                                    ( !(SDLK_SCANCODE_MASK & arg.keysym.sym) && std::isprint(arg.keysym.sym)))
                 consumed = true;
             setPlayerControlsEnabled(!consumed);
         }
@@ -733,7 +733,7 @@ namespace MWInput
             return;
 
         if (!mControlsDisabled && !consumed)
-            mInputBinder->keyPressed(arg);
+            mInputBinder->keyPressed (arg);
         mJoystickLastUsed = false;
     }
 
@@ -741,7 +741,7 @@ namespace MWInput
     {
         MyGUI::UString ustring(&arg.text[0]);
         MyGUI::UString::utf32string utf32string = ustring.asUTF32();
-        for(MyGUI::UString::utf32string::const_iterator it = utf32string.begin(); it != utf32string.end(); ++it)
+        for (MyGUI::UString::utf32string::const_iterator it = utf32string.begin(); it != utf32string.end(); ++it)
             MyGUI::InputManager::getInstance().injectKeyPress(MyGUI::KeyCode::None, *it);
     }
 
@@ -752,7 +752,7 @@ namespace MWInput
 
         if (!mInputBinder->detectingBindingState())
             setPlayerControlsEnabled(!MyGUI::InputManager::getInstance().injectKeyRelease(MyGUI::KeyCode::Enum(kc)));
-        mInputBinder->keyReleased(arg);
+        mInputBinder->keyReleased (arg);
     }
 
     void InputManager::mousePressed( const SDL_MouseButtonEvent &arg, Uint8 id )
@@ -764,9 +764,9 @@ namespace MWInput
         {
             guiMode = MWBase::Environment::get().getWindowManager()->isGuiMode();
             guiMode = MyGUI::InputManager::getInstance().injectMousePress(static_cast<int>(mGuiCursorX), static_cast<int>(mGuiCursorY), sdlButtonToMyGUI(id)) && guiMode;
-            if (MyGUI::InputManager::getInstance().getMouseFocusWidget() != 0)
+            if (MyGUI::InputManager::getInstance ().getMouseFocusWidget () != 0)
             {
-                MyGUI::Button* b = MyGUI::InputManager::getInstance().getMouseFocusWidget()->castType<MyGUI::Button>(false);
+                MyGUI::Button* b = MyGUI::InputManager::getInstance ().getMouseFocusWidget ()->castType<MyGUI::Button>(false);
                 if (b && b->getEnabled() && id == SDL_BUTTON_LEFT)
                 {
                     MWBase::Environment::get().getWindowManager()->playSound("Menu Click");
@@ -779,33 +779,33 @@ namespace MWInput
 
         // Don't trigger any mouse bindings while in settings menu, otherwise rebinding controls becomes impossible
         if (MWBase::Environment::get().getWindowManager()->getMode() != MWGui::GM_Settings)
-            mInputBinder->mousePressed(arg, id);
+            mInputBinder->mousePressed (arg, id);
     }
 
     void InputManager::mouseReleased( const SDL_MouseButtonEvent &arg, Uint8 id )
     {
         mJoystickLastUsed = false;
 
-        if (mInputBinder->detectingBindingState())
+        if(mInputBinder->detectingBindingState())
         {
-            mInputBinder->mouseReleased(arg, id);
+            mInputBinder->mouseReleased (arg, id);
         } else {
             bool guiMode = MWBase::Environment::get().getWindowManager()->isGuiMode();
             guiMode = MyGUI::InputManager::getInstance().injectMouseRelease(static_cast<int>(mGuiCursorX), static_cast<int>(mGuiCursorY), sdlButtonToMyGUI(id)) && guiMode;
 
-            if (mInputBinder->detectingBindingState()) return; // don't allow same mouseup to bind as initiated bind
+            if(mInputBinder->detectingBindingState()) return; // don't allow same mouseup to bind as initiated bind
 
             setPlayerControlsEnabled(!guiMode);
-            mInputBinder->mouseReleased(arg, id);
+            mInputBinder->mouseReleased (arg, id);
         }
     }
 
     void InputManager::mouseMoved(const SDLUtil::MouseMotionEvent &arg )
     {
-        mInputBinder->mouseMoved(arg);
+        mInputBinder->mouseMoved (arg);
 
         mJoystickLastUsed = false;
-        resetIdleTime();
+        resetIdleTime ();
 
         if (mGuiCursorEnabled)
         {
@@ -817,7 +817,7 @@ namespace MWInput
             mMouseWheel = int(arg.z);
 
             MyGUI::InputManager::getInstance().injectMouseMove( int(mGuiCursorX), int(mGuiCursorY), mMouseWheel);
-            // FIXME: inject twice to force updating focused widget states(tooltips) resulting from changing the viewport by scroll wheel
+            // FIXME: inject twice to force updating focused widget states (tooltips) resulting from changing the viewport by scroll wheel
             MyGUI::InputManager::getInstance().injectMouseMove( int(mGuiCursorX), int(mGuiCursorY), mMouseWheel);
 
             MWBase::Environment::get().getWindowManager()->setCursorActive(true);
@@ -836,7 +836,7 @@ namespace MWInput
             rot[2] = -x;
 
             // Only actually turn player when we're not in vanity mode
-            if (!MWBase::Environment::get().getWorld()->vanityRotateCamera(rot))
+            if(!MWBase::Environment::get().getWorld()->vanityRotateCamera(rot))
             {
                 mPlayer->yaw(x);
                 mPlayer->pitch(y);
@@ -860,13 +860,13 @@ namespace MWInput
         if (arg.button == SDL_CONTROLLER_BUTTON_A || arg.button == SDL_CONTROLLER_BUTTON_B) // We'll pretend that A is left click and B is right click
         {
             guiMode = MWBase::Environment::get().getWindowManager()->isGuiMode();
-            if (!mInputBinder->detectingBindingState())
+            if(!mInputBinder->detectingBindingState())
             {
                 guiMode = MyGUI::InputManager::getInstance().injectMousePress(static_cast<int>(mGuiCursorX), static_cast<int>(mGuiCursorY),
                     sdlButtonToMyGUI((arg.button == SDL_CONTROLLER_BUTTON_B) ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT)) && guiMode;
-                if (MyGUI::InputManager::getInstance().getMouseFocusWidget() != 0)
+                if (MyGUI::InputManager::getInstance ().getMouseFocusWidget () != 0)
                 {
-                    MyGUI::Button* b = MyGUI::InputManager::getInstance().getMouseFocusWidget()->castType<MyGUI::Button>(false);
+                    MyGUI::Button* b = MyGUI::InputManager::getInstance ().getMouseFocusWidget ()->castType<MyGUI::Button>(false);
                     if (b && b->getEnabled())
                     {
                         MWBase::Environment::get().getWindowManager()->playSound("Menu Click");
@@ -889,14 +889,14 @@ namespace MWInput
     void InputManager::buttonReleased(int deviceID, const SDL_ControllerButtonEvent &arg )
     {
         mJoystickLastUsed = true;
-        if (mInputBinder->detectingBindingState())
+        if(mInputBinder->detectingBindingState())
             mInputBinder->buttonReleased(deviceID, arg);
-        else if (arg.button == SDL_CONTROLLER_BUTTON_A || arg.button == SDL_CONTROLLER_BUTTON_B)
+        else if(arg.button == SDL_CONTROLLER_BUTTON_A || arg.button == SDL_CONTROLLER_BUTTON_B)
         {
             bool guiMode = MWBase::Environment::get().getWindowManager()->isGuiMode();
             guiMode = MyGUI::InputManager::getInstance().injectMouseRelease(static_cast<int>(mGuiCursorX), static_cast<int>(mGuiCursorY), sdlButtonToMyGUI((arg.button == SDL_CONTROLLER_BUTTON_B) ? SDL_BUTTON_RIGHT : SDL_BUTTON_LEFT)) && guiMode;
 
-            if (mInputBinder->detectingBindingState()) return; // don't allow same mouseup to bind as initiated bind
+            if(mInputBinder->detectingBindingState()) return; // don't allow same mouseup to bind as initiated bind
 
             setPlayerControlsEnabled(!guiMode);
             mInputBinder->buttonReleased(deviceID, arg);
@@ -909,20 +909,20 @@ namespace MWInput
         setPlayerControlsEnabled(!MyGUI::InputManager::getInstance().injectKeyRelease(MyGUI::KeyCode::Enum(kc)));
     }
 
-//    void InputManager::axisMoved(int deviceID, const SDL_ControllerAxisEvent &arg )
-//    {
-//        if (!mControlsDisabled)
-//            mInputBinder->axisMoved(deviceID, arg);
-//    }
-//
-//    void InputManager::controllerAdded(int deviceID, const SDL_ControllerDeviceEvent &arg)
-//    {
-//        mInputBinder->controllerAdded(deviceID, arg);
-//    }
-//    void InputManager::controllerRemoved(const SDL_ControllerDeviceEvent &arg)
-//    {
-//        mInputBinder->controllerRemoved(arg);
-//    }
+    void InputManager::axisMoved(int deviceID, const SDL_ControllerAxisEvent &arg )
+    {
+        if (!mControlsDisabled)
+            mInputBinder->axisMoved(deviceID, arg);
+    }
+
+    void InputManager::controllerAdded(int deviceID, const SDL_ControllerDeviceEvent &arg)
+    {
+        mInputBinder->controllerAdded(deviceID, arg);
+    }
+    void InputManager::controllerRemoved(const SDL_ControllerDeviceEvent &arg)
+    {
+        mInputBinder->controllerRemoved(arg);
+    }
 
     void InputManager::windowFocusChange(bool have_focus)
     {
@@ -953,9 +953,9 @@ namespace MWInput
             return;
         }
 
-        if (!MWBase::Environment::get().getWindowManager()->isGuiMode()) //No open GUIs, open up the MainMenu
+        if(!MWBase::Environment::get().getWindowManager()->isGuiMode()) //No open GUIs, open up the MainMenu
         {
-            MWBase::Environment::get().getWindowManager()->pushGuiMode(MWGui::GM_MainMenu);
+            MWBase::Environment::get().getWindowManager()->pushGuiMode (MWGui::GM_MainMenu);
         }
         else //Close current GUI
         {
@@ -1026,10 +1026,10 @@ namespace MWInput
         if (!mControlSwitch["playercontrols"])
             return;
 
-        if (!MWBase::Environment::get().getWindowManager()->getRestEnabled() || MWBase::Environment::get().getWindowManager()->isGuiMode())
+        if (!MWBase::Environment::get().getWindowManager()->getRestEnabled () || MWBase::Environment::get().getWindowManager()->isGuiMode ())
             return;
 
-        MWBase::Environment::get().getWindowManager()->pushGuiMode(MWGui::GM_Rest); //Open rest GUI
+        MWBase::Environment::get().getWindowManager()->pushGuiMode (MWGui::GM_Rest); //Open rest GUI
 
     }
 
@@ -1049,7 +1049,7 @@ namespace MWInput
         }
         else
         {
-            osg::ref_ptr<osg::Image> screenshot(new osg::Image);
+            osg::ref_ptr<osg::Image> screenshot (new osg::Image);
 
             if (MWBase::Environment::get().getWorld()->screenshot360(screenshot.get(),settingStr))
             {
@@ -1064,16 +1064,16 @@ namespace MWInput
         if (!mControlSwitch["playercontrols"])
             return;
 
-        if (MyGUI::InputManager::getInstance().isModalAny())
+        if (MyGUI::InputManager::getInstance ().isModalAny())
             return;
 
         // Toggle between game mode and inventory mode
-        if (!MWBase::Environment::get().getWindowManager()->isGuiMode())
+        if(!MWBase::Environment::get().getWindowManager()->isGuiMode())
             MWBase::Environment::get().getWindowManager()->pushGuiMode(MWGui::GM_Inventory);
         else
         {
             MWGui::GuiMode mode = MWBase::Environment::get().getWindowManager()->getMode();
-            if (mode == MWGui::GM_Inventory || mode == MWGui::GM_Container)
+            if(mode == MWGui::GM_Inventory || mode == MWGui::GM_Container)
                 MWBase::Environment::get().getWindowManager()->popGuiMode();
         }
 
@@ -1082,7 +1082,7 @@ namespace MWInput
 
     void InputManager::toggleConsole()
     {
-        if (MyGUI::InputManager::getInstance().isModalAny())
+        if (MyGUI::InputManager::getInstance ().isModalAny())
             return;
 
         // Switch to console mode no matter what mode we are currently
@@ -1102,23 +1102,23 @@ namespace MWInput
     {
         if (!mControlSwitch["playercontrols"])
             return;
-        if (MyGUI::InputManager::getInstance().isModalAny())
+        if (MyGUI::InputManager::getInstance ().isModalAny())
             return;
 
-        if (MWBase::Environment::get().getWindowManager()->getMode() != MWGui::GM_Journal
+        if(MWBase::Environment::get().getWindowManager()->getMode() != MWGui::GM_Journal
                 && MWBase::Environment::get().getWindowManager()->getMode() != MWGui::GM_MainMenu
                 && MWBase::Environment::get().getWindowManager()->getMode() != MWGui::GM_Settings
-                && MWBase::Environment::get().getWindowManager()->getJournalAllowed())
+                && MWBase::Environment::get().getWindowManager ()->getJournalAllowed())
         {
             MWBase::Environment::get().getWindowManager()->pushGuiMode(MWGui::GM_Journal);
         }
-        else if (MWBase::Environment::get().getWindowManager()->containsMode(MWGui::GM_Journal))
+        else if(MWBase::Environment::get().getWindowManager()->containsMode(MWGui::GM_Journal))
         {
             MWBase::Environment::get().getWindowManager()->removeGuiMode(MWGui::GM_Journal);
         }
     }
 
-    void InputManager::quickKey(int index)
+    void InputManager::quickKey (int index)
     {
         if (!mControlSwitch["playercontrols"])
             return;
@@ -1126,21 +1126,21 @@ namespace MWInput
             return;
 
         if (!MWBase::Environment::get().getWindowManager()->isGuiMode())
-            MWBase::Environment::get().getWindowManager()->activateQuickKey(index);
+            MWBase::Environment::get().getWindowManager()->activateQuickKey (index);
     }
 
     void InputManager::showQuickKeysMenu()
     {
-        if (!MWBase::Environment::get().getWindowManager()->isGuiMode()
-                && MWBase::Environment::get().getWorld()->getGlobalFloat("chargenstate")==-1)
+        if (!MWBase::Environment::get().getWindowManager()->isGuiMode ()
+                && MWBase::Environment::get().getWorld()->getGlobalFloat ("chargenstate")==-1)
         {
             if (!checkAllowedToUseItems())
                 return;
 
-            MWBase::Environment::get().getWindowManager()->pushGuiMode(MWGui::GM_QuickKeysMenu);
+            MWBase::Environment::get().getWindowManager()->pushGuiMode (MWGui::GM_QuickKeysMenu);
 
         }
-        else if (MWBase::Environment::get().getWindowManager()->getMode() == MWGui::GM_QuickKeysMenu) {
+        else if (MWBase::Environment::get().getWindowManager()->getMode () == MWGui::GM_QuickKeysMenu) {
             while(MyGUI::InputManager::getInstance().isModalAny()) { //Handle any open Modal windows
                 MWBase::Environment::get().getWindowManager()->exitCurrentModal();
             }
@@ -1164,7 +1164,7 @@ namespace MWInput
         if (MWBase::Environment::get().getWindowManager()->isGuiMode()) return;
 
         if (mControlSwitch["playercontrols"])
-            mPlayer->setAutoMove(!mPlayer->getAutoMove());
+            mPlayer->setAutoMove (!mPlayer->getAutoMove());
     }
 
     void InputManager::toggleWalking()
@@ -1201,64 +1201,65 @@ namespace MWInput
         }
     }
 
-    bool InputManager::actionIsActive(int id)
+    bool InputManager::actionIsActive (int id)
     {
-        return(mInputBinder->getChannel(id)->getValue()==1.0);
+        return (mInputBinder->getChannel (id)->getValue ()==1.0);
     }
 
-    void InputManager::loadKeyDefaults(bool force)
+    void InputManager::loadKeyDefaults (bool force)
     {
         // using hardcoded key defaults is inevitable, if we want the configuration files to stay valid
-        // across different versions of OpenMW(in the case where another input action is added)
-    	mBinds.clear();
-        //Gets the Keyvalue from the Scancode; gives the button in the same place reguardless of keyboard format
-        mBinds[A_Activate] = SDL_SCANCODE_SPACE;
-        mBinds[A_MoveBackward] = SDL_SCANCODE_S;
-        mBinds[A_MoveForward] = SDL_SCANCODE_W;
-        mBinds[A_MoveLeft] = SDL_SCANCODE_A;
-        mBinds[A_MoveRight] = SDL_SCANCODE_D;
-        mBinds[A_ToggleWeapon] = SDL_SCANCODE_F;
-        mBinds[A_ToggleSpell] = SDL_SCANCODE_R;
-        mBinds[A_CycleSpellLeft] = SDL_SCANCODE_MINUS;
-        mBinds[A_CycleSpellRight] = SDL_SCANCODE_EQUALS;
-        mBinds[A_CycleWeaponLeft] = SDL_SCANCODE_LEFTBRACKET;
-        mBinds[A_CycleWeaponRight] = SDL_SCANCODE_RIGHTBRACKET;
+        // across different versions of OpenMW (in the case where another input action is added)
+        std::map<int, SDL_Scancode> defaultKeyBindings;
 
-        mBinds[A_QuickKeysMenu] = SDL_SCANCODE_F1;
-        mBinds[A_Console] = SDL_SCANCODE_GRAVE;
-        mBinds[A_Run] = SDL_SCANCODE_LSHIFT;
-        mBinds[A_Sneak] = SDL_SCANCODE_LCTRL;
-        mBinds[A_AutoMove] = SDL_SCANCODE_Q;
-        mBinds[A_Jump] = SDL_SCANCODE_E;
-        mBinds[A_Journal] = SDL_SCANCODE_J;
-        mBinds[A_Rest] = SDL_SCANCODE_T;
-        mBinds[A_GameMenu] = SDL_SCANCODE_ESCAPE;
-        mBinds[A_TogglePOV] = SDL_SCANCODE_TAB;
-        mBinds[A_QuickKey1] = SDL_SCANCODE_1;
-        mBinds[A_QuickKey2] = SDL_SCANCODE_2;
-        mBinds[A_QuickKey3] = SDL_SCANCODE_3;
-        mBinds[A_QuickKey4] = SDL_SCANCODE_4;
-        mBinds[A_QuickKey5] = SDL_SCANCODE_5;
-        mBinds[A_QuickKey6] = SDL_SCANCODE_6;
-        mBinds[A_QuickKey7] = SDL_SCANCODE_7;
-        mBinds[A_QuickKey8] = SDL_SCANCODE_8;
-        mBinds[A_QuickKey9] = SDL_SCANCODE_9;
-        mBinds[A_QuickKey10] = SDL_SCANCODE_0;
-        mBinds[A_Screenshot] = SDL_SCANCODE_F12;
-        mBinds[A_ToggleHUD] = SDL_SCANCODE_F11;
-        mBinds[A_ToggleDebug] = SDL_SCANCODE_F10;
-        mBinds[A_AlwaysRun] = SDL_SCANCODE_CAPSLOCK;
-        mBinds[A_QuickSave] = SDL_SCANCODE_F5;
-        mBinds[A_QuickLoad] = SDL_SCANCODE_F9;
+        //Gets the Keyvalue from the Scancode; gives the button in the same place reguardless of keyboard format
+        defaultKeyBindings[A_Activate] = SDL_SCANCODE_SPACE;
+        defaultKeyBindings[A_MoveBackward] = SDL_SCANCODE_S;
+        defaultKeyBindings[A_MoveForward] = SDL_SCANCODE_W;
+        defaultKeyBindings[A_MoveLeft] = SDL_SCANCODE_A;
+        defaultKeyBindings[A_MoveRight] = SDL_SCANCODE_D;
+        defaultKeyBindings[A_ToggleWeapon] = SDL_SCANCODE_F;
+        defaultKeyBindings[A_ToggleSpell] = SDL_SCANCODE_R;
+        defaultKeyBindings[A_CycleSpellLeft] = SDL_SCANCODE_MINUS;
+        defaultKeyBindings[A_CycleSpellRight] = SDL_SCANCODE_EQUALS;
+        defaultKeyBindings[A_CycleWeaponLeft] = SDL_SCANCODE_LEFTBRACKET;
+        defaultKeyBindings[A_CycleWeaponRight] = SDL_SCANCODE_RIGHTBRACKET;
+
+        defaultKeyBindings[A_QuickKeysMenu] = SDL_SCANCODE_F1;
+        defaultKeyBindings[A_Console] = SDL_SCANCODE_GRAVE;
+        defaultKeyBindings[A_Run] = SDL_SCANCODE_LSHIFT;
+        defaultKeyBindings[A_Sneak] = SDL_SCANCODE_LCTRL;
+        defaultKeyBindings[A_AutoMove] = SDL_SCANCODE_Q;
+        defaultKeyBindings[A_Jump] = SDL_SCANCODE_E;
+        defaultKeyBindings[A_Journal] = SDL_SCANCODE_J;
+        defaultKeyBindings[A_Rest] = SDL_SCANCODE_T;
+        defaultKeyBindings[A_GameMenu] = SDL_SCANCODE_ESCAPE;
+        defaultKeyBindings[A_TogglePOV] = SDL_SCANCODE_TAB;
+        defaultKeyBindings[A_QuickKey1] = SDL_SCANCODE_1;
+        defaultKeyBindings[A_QuickKey2] = SDL_SCANCODE_2;
+        defaultKeyBindings[A_QuickKey3] = SDL_SCANCODE_3;
+        defaultKeyBindings[A_QuickKey4] = SDL_SCANCODE_4;
+        defaultKeyBindings[A_QuickKey5] = SDL_SCANCODE_5;
+        defaultKeyBindings[A_QuickKey6] = SDL_SCANCODE_6;
+        defaultKeyBindings[A_QuickKey7] = SDL_SCANCODE_7;
+        defaultKeyBindings[A_QuickKey8] = SDL_SCANCODE_8;
+        defaultKeyBindings[A_QuickKey9] = SDL_SCANCODE_9;
+        defaultKeyBindings[A_QuickKey10] = SDL_SCANCODE_0;
+        defaultKeyBindings[A_Screenshot] = SDL_SCANCODE_F12;
+        defaultKeyBindings[A_ToggleHUD] = SDL_SCANCODE_F11;
+        defaultKeyBindings[A_ToggleDebug] = SDL_SCANCODE_F10;
+        defaultKeyBindings[A_AlwaysRun] = SDL_SCANCODE_CAPSLOCK;
+        defaultKeyBindings[A_QuickSave] = SDL_SCANCODE_F5;
+        defaultKeyBindings[A_QuickLoad] = SDL_SCANCODE_F9;
 
         std::map<int, int> defaultMouseButtonBindings;
         defaultMouseButtonBindings[A_Inventory] = SDL_BUTTON_RIGHT;
         defaultMouseButtonBindings[A_Use] = SDL_BUTTON_LEFT;
 
-        for(int i = 0; i < A_Last; ++i)
+        for (int i = 0; i < A_Last; ++i)
         {
             ICS::Control* control;
-            bool controlExists = mInputBinder->getChannel(i)->getControlsCount() != 0;
+            bool controlExists = mInputBinder->getChannel(i)->getControlsCount () != 0;
             if (!controlExists)
             {
                 control = new ICS::Control(std::to_string(i), false, true, 0, ICS::ICS_MAX, ICS::ICS_MAX);
@@ -1267,12 +1268,12 @@ namespace MWInput
             }
             else
             {
-                control = mInputBinder->getChannel(i)->getAttachedControls().front().control;
+                control = mInputBinder->getChannel(i)->getAttachedControls ().front().control;
             }
 
             if (!controlExists || force ||
-                    ( mInputBinder->getKeyBinding(control, ICS::Control::INCREASE) == SDL_SCANCODE_UNKNOWN
-                      && mInputBinder->getMouseButtonBinding(control, ICS::Control::INCREASE) == ICS_MAX_DEVICE_BUTTONS
+                    ( mInputBinder->getKeyBinding (control, ICS::Control::INCREASE) == SDL_SCANCODE_UNKNOWN
+                      && mInputBinder->getMouseButtonBinding (control, ICS::Control::INCREASE) == ICS_MAX_DEVICE_BUTTONS
                       ))
             {
                 clearAllKeyBindings(control);
@@ -1287,7 +1288,7 @@ namespace MWInput
                          && (force || !mInputBinder->isMouseButtonBound(defaultMouseButtonBindings[i])))
                 {
                     control->setInitialValue(0.0f);
-                    mInputBinder->addMouseButtonBinding(control, defaultMouseButtonBindings[i], ICS::Control::INCREASE);
+                    mInputBinder->addMouseButtonBinding (control, defaultMouseButtonBindings[i], ICS::Control::INCREASE);
                 }
 
                 if (i == A_LookLeftRight && !mInputBinder->isKeyBound(SDL_SCANCODE_KP_4) && !mInputBinder->isKeyBound(SDL_SCANCODE_KP_6))
@@ -1304,76 +1305,76 @@ namespace MWInput
         }
     }
 
-//    void InputManager::loadControllerDefaults(bool force)
-//    {
-//        // using hardcoded key defaults is inevitable, if we want the configuration files to stay valid
-//        // across different versions of OpenMW(in the case where another input action is added)
-//        std::map<int, int> defaultButtonBindings;
-//
-//        defaultButtonBindings[A_Activate] = SDL_CONTROLLER_BUTTON_A;
-//        defaultButtonBindings[A_ToggleWeapon] = SDL_CONTROLLER_BUTTON_X;
-//        defaultButtonBindings[A_ToggleSpell] = SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
-//        //defaultButtonBindings[A_QuickButtonsMenu] = SDL_GetButtonFromScancode(SDL_SCANCODE_F1); // Need to implement, should be ToggleSpell(5) AND Wait(9)
-//        defaultButtonBindings[A_Sneak] = SDL_CONTROLLER_BUTTON_RIGHTSTICK;
-//        defaultButtonBindings[A_Jump] = SDL_CONTROLLER_BUTTON_Y;
-//        defaultButtonBindings[A_Journal] = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
-//        defaultButtonBindings[A_Rest] = SDL_CONTROLLER_BUTTON_BACK;
-//        defaultButtonBindings[A_TogglePOV] = SDL_CONTROLLER_BUTTON_LEFTSTICK;
-//        defaultButtonBindings[A_Inventory] = SDL_CONTROLLER_BUTTON_B;
-//        defaultButtonBindings[A_GameMenu] = SDL_CONTROLLER_BUTTON_START;
-//        defaultButtonBindings[A_QuickSave] = SDL_CONTROLLER_BUTTON_GUIDE;
-//        defaultButtonBindings[A_QuickKey1] = SDL_CONTROLLER_BUTTON_DPAD_UP;
-//        defaultButtonBindings[A_QuickKey2] = SDL_CONTROLLER_BUTTON_DPAD_LEFT;
-//        defaultButtonBindings[A_QuickKey3] = SDL_CONTROLLER_BUTTON_DPAD_DOWN;
-//        defaultButtonBindings[A_QuickKey4] = SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
-//
-//        std::map<int, int> defaultAxisBindings;
-//        defaultAxisBindings[A_MoveForwardBackward] = SDL_CONTROLLER_AXIS_LEFTY;
-//        defaultAxisBindings[A_MoveLeftRight] = SDL_CONTROLLER_AXIS_LEFTX;
-//        defaultAxisBindings[A_LookUpDown] = SDL_CONTROLLER_AXIS_RIGHTY;
-//        defaultAxisBindings[A_LookLeftRight] = SDL_CONTROLLER_AXIS_RIGHTX;
-//        defaultAxisBindings[A_Use] = SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
-//
-//        for(int i = 0; i < A_Last; i++)
-//        {
-//            ICS::Control* control;
-//            bool controlExists = mInputBinder->getChannel(i)->getControlsCount() != 0;
-//            if (!controlExists)
-//            {
-//                float initial;
-//                if (defaultAxisBindings.find(i) == defaultAxisBindings.end())
-//                    initial = 0.0f;
-//                else initial = 0.5f;
-//                control = new ICS::Control(std::to_string(i), false, true, initial, ICS::ICS_MAX, ICS::ICS_MAX);
-//                mInputBinder->addControl(control);
-//                control->attachChannel(mInputBinder->getChannel(i), ICS::Channel::DIRECT);
-//            }
-//            else
-//            {
-//                control = mInputBinder->getChannel(i)->getAttachedControls().front().control;
-//            }
-//
-//            if (!controlExists || force || ( mInputBinder->getJoystickAxisBinding(control, mFakeDeviceID, ICS::Control::INCREASE) == ICS::InputControlSystem::UNASSIGNED && mInputBinder->getJoystickButtonBinding(control, mFakeDeviceID, ICS::Control::INCREASE) == ICS_MAX_DEVICE_BUTTONS ))
-//            {
-//                clearAllControllerBindings(control);
-//
-//                if (defaultButtonBindings.find(i) != defaultButtonBindings.end()
-//                        && (force || !mInputBinder->isJoystickButtonBound(mFakeDeviceID, defaultButtonBindings[i])))
-//                {
-//                    control->setInitialValue(0.0f);
-//                    mInputBinder->addJoystickButtonBinding(control, mFakeDeviceID, defaultButtonBindings[i], ICS::Control::INCREASE);
-//                }
-//                else if (defaultAxisBindings.find(i) != defaultAxisBindings.end() && (force || !mInputBinder->isJoystickAxisBound(mFakeDeviceID, defaultAxisBindings[i])))
-//                {
-//                    control->setValue(0.5f);
-//                    control->setInitialValue(0.5f);
-//                    mInputBinder->addJoystickAxisBinding(control, mFakeDeviceID, defaultAxisBindings[i], ICS::Control::INCREASE);
-//                }
-//            }
-//        }
-//    }
+    void InputManager::loadControllerDefaults(bool force)
+    {
+        // using hardcoded key defaults is inevitable, if we want the configuration files to stay valid
+        // across different versions of OpenMW (in the case where another input action is added)
+        std::map<int, int> defaultButtonBindings;
 
-    std::string InputManager::getActionDescription(int action)
+        defaultButtonBindings[A_Activate] = SDL_CONTROLLER_BUTTON_A;
+        defaultButtonBindings[A_ToggleWeapon] = SDL_CONTROLLER_BUTTON_X;
+        defaultButtonBindings[A_ToggleSpell] = SDL_CONTROLLER_BUTTON_LEFTSHOULDER;
+        //defaultButtonBindings[A_QuickButtonsMenu] = SDL_GetButtonFromScancode(SDL_SCANCODE_F1); // Need to implement, should be ToggleSpell(5) AND Wait(9)
+        defaultButtonBindings[A_Sneak] = SDL_CONTROLLER_BUTTON_RIGHTSTICK;
+        defaultButtonBindings[A_Jump] = SDL_CONTROLLER_BUTTON_Y;
+        defaultButtonBindings[A_Journal] = SDL_CONTROLLER_BUTTON_RIGHTSHOULDER;
+        defaultButtonBindings[A_Rest] = SDL_CONTROLLER_BUTTON_BACK;
+        defaultButtonBindings[A_TogglePOV] = SDL_CONTROLLER_BUTTON_LEFTSTICK;
+        defaultButtonBindings[A_Inventory] = SDL_CONTROLLER_BUTTON_B;
+        defaultButtonBindings[A_GameMenu] = SDL_CONTROLLER_BUTTON_START;
+        defaultButtonBindings[A_QuickSave] = SDL_CONTROLLER_BUTTON_GUIDE;
+        defaultButtonBindings[A_QuickKey1] = SDL_CONTROLLER_BUTTON_DPAD_UP;
+        defaultButtonBindings[A_QuickKey2] = SDL_CONTROLLER_BUTTON_DPAD_LEFT;
+        defaultButtonBindings[A_QuickKey3] = SDL_CONTROLLER_BUTTON_DPAD_DOWN;
+        defaultButtonBindings[A_QuickKey4] = SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+
+        std::map<int, int> defaultAxisBindings;
+        defaultAxisBindings[A_MoveForwardBackward] = SDL_CONTROLLER_AXIS_LEFTY;
+        defaultAxisBindings[A_MoveLeftRight] = SDL_CONTROLLER_AXIS_LEFTX;
+        defaultAxisBindings[A_LookUpDown] = SDL_CONTROLLER_AXIS_RIGHTY;
+        defaultAxisBindings[A_LookLeftRight] = SDL_CONTROLLER_AXIS_RIGHTX;
+        defaultAxisBindings[A_Use] = SDL_CONTROLLER_AXIS_TRIGGERRIGHT;
+
+        for (int i = 0; i < A_Last; i++)
+        {
+            ICS::Control* control;
+            bool controlExists = mInputBinder->getChannel(i)->getControlsCount () != 0;
+            if (!controlExists)
+            {
+                float initial;
+                if (defaultAxisBindings.find(i) == defaultAxisBindings.end())
+                    initial = 0.0f;
+                else initial = 0.5f;
+                control = new ICS::Control(std::to_string(i), false, true, initial, ICS::ICS_MAX, ICS::ICS_MAX);
+                mInputBinder->addControl(control);
+                control->attachChannel(mInputBinder->getChannel(i), ICS::Channel::DIRECT);
+            }
+            else
+            {
+                control = mInputBinder->getChannel(i)->getAttachedControls ().front().control;
+            }
+
+            if (!controlExists || force || ( mInputBinder->getJoystickAxisBinding (control, mFakeDeviceID, ICS::Control::INCREASE) == ICS::InputControlSystem::UNASSIGNED && mInputBinder->getJoystickButtonBinding (control, mFakeDeviceID, ICS::Control::INCREASE) == ICS_MAX_DEVICE_BUTTONS ))
+            {
+                clearAllControllerBindings(control);
+
+                if (defaultButtonBindings.find(i) != defaultButtonBindings.end()
+                        && (force || !mInputBinder->isJoystickButtonBound(mFakeDeviceID, defaultButtonBindings[i])))
+                {
+                    control->setInitialValue(0.0f);
+                    mInputBinder->addJoystickButtonBinding(control, mFakeDeviceID, defaultButtonBindings[i], ICS::Control::INCREASE);
+                }
+                else if (defaultAxisBindings.find(i) != defaultAxisBindings.end() && (force || !mInputBinder->isJoystickAxisBound(mFakeDeviceID, defaultAxisBindings[i])))
+                {
+                    control->setValue(0.5f);
+                    control->setInitialValue(0.5f);
+                    mInputBinder->addJoystickAxisBinding(control, mFakeDeviceID, defaultAxisBindings[i], ICS::Control::INCREASE);
+                }
+            }
+        }
+    }
+
+    std::string InputManager::getActionDescription (int action)
     {
         std::map<int, std::string> descriptions;
 
@@ -1422,96 +1423,96 @@ namespace MWInput
         return "#{" + descriptions[action] + "}";
     }
 
-    std::string InputManager::getActionKeyBindingName(int action)
+    std::string InputManager::getActionKeyBindingName (int action)
     {
-        if (mInputBinder->getChannel(action)->getControlsCount() == 0)
+        if (mInputBinder->getChannel (action)->getControlsCount () == 0)
             return "#{sNone}";
 
-        ICS::Control* c = mInputBinder->getChannel(action)->getAttachedControls().front().control;
+        ICS::Control* c = mInputBinder->getChannel (action)->getAttachedControls ().front().control;
 
-        SDL_Scancode key = mInputBinder->getKeyBinding(c, ICS::Control::INCREASE);
-        unsigned int mouse = mInputBinder->getMouseButtonBinding(c, ICS::Control::INCREASE);
+        SDL_Scancode key = mInputBinder->getKeyBinding (c, ICS::Control::INCREASE);
+        unsigned int mouse = mInputBinder->getMouseButtonBinding (c, ICS::Control::INCREASE);
         if (key != SDL_SCANCODE_UNKNOWN)
-            return MyGUI::TextIterator::toTagsString(mInputBinder->scancodeToString(key));
+            return MyGUI::TextIterator::toTagsString(mInputBinder->scancodeToString (key));
         else if (mouse != ICS_MAX_DEVICE_BUTTONS)
             return "#{sMouse} " + std::to_string(mouse);
         else
             return "#{sNone}";
     }
 
-//    std::string InputManager::getActionControllerBindingName(int action)
-//    {
-//        if (mInputBinder->getChannel(action)->getControlsCount() == 0)
-//            return "#{sNone}";
-//
-//        ICS::Control* c = mInputBinder->getChannel(action)->getAttachedControls().front().control;
-//
-//        if (mInputBinder->getJoystickAxisBinding(c, mFakeDeviceID, ICS::Control::INCREASE) != ICS::InputControlSystem::UNASSIGNED)
-//            return sdlControllerAxisToString(mInputBinder->getJoystickAxisBinding(c, mFakeDeviceID, ICS::Control::INCREASE));
-//        else if (mInputBinder->getJoystickButtonBinding(c, mFakeDeviceID, ICS::Control::INCREASE) != ICS_MAX_DEVICE_BUTTONS )
-//            return sdlControllerButtonToString(mInputBinder->getJoystickButtonBinding(c, mFakeDeviceID, ICS::Control::INCREASE));
-//        else
-//            return "#{sNone}";
-//    }
+    std::string InputManager::getActionControllerBindingName (int action)
+    {
+        if (mInputBinder->getChannel (action)->getControlsCount () == 0)
+            return "#{sNone}";
 
-//    std::string InputManager::sdlControllerButtonToString(int button)
-//    {
-//        switch(button)
-//        {
-//            case SDL_CONTROLLER_BUTTON_A:
-//                return "A Button";
-//            case SDL_CONTROLLER_BUTTON_B:
-//                return "B Button";
-//            case SDL_CONTROLLER_BUTTON_BACK:
-//                return "Back Button";
-//            case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
-//                return "DPad Down";
-//            case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
-//                return "DPad Left";
-//            case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
-//                return "DPad Right";
-//            case SDL_CONTROLLER_BUTTON_DPAD_UP:
-//                return "DPad Up";
-//            case SDL_CONTROLLER_BUTTON_GUIDE:
-//                return "Guide Button";
-//            case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
-//                return "Left Shoulder";
-//            case SDL_CONTROLLER_BUTTON_LEFTSTICK:
-//                return "Left Stick Button";
-//            case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
-//                return "Right Shoulder";
-//            case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
-//                return "Right Stick Button";
-//            case SDL_CONTROLLER_BUTTON_START:
-//                return "Start Button";
-//            case SDL_CONTROLLER_BUTTON_X:
-//                return "X Button";
-//            case SDL_CONTROLLER_BUTTON_Y:
-//                return "Y Button";
-//            default:
-//                return "Button " + std::to_string(button);
-//        }
-//    }
-//    std::string InputManager::sdlControllerAxisToString(int axis)
-//    {
-//        switch(axis)
-//        {
-//            case SDL_CONTROLLER_AXIS_LEFTX:
-//                return "Left Stick X";
-//            case SDL_CONTROLLER_AXIS_LEFTY:
-//                return "Left Stick Y";
-//            case SDL_CONTROLLER_AXIS_RIGHTX:
-//                return "Right Stick X";
-//            case SDL_CONTROLLER_AXIS_RIGHTY:
-//                return "Right Stick Y";
-//            case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
-//                return "Left Trigger";
-//            case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
-//                return "Right Trigger";
-//            default:
-//                return "Axis " + std::to_string(axis);
-//        }
-//     }
+        ICS::Control* c = mInputBinder->getChannel (action)->getAttachedControls ().front().control;
+
+        if (mInputBinder->getJoystickAxisBinding (c, mFakeDeviceID, ICS::Control::INCREASE) != ICS::InputControlSystem::UNASSIGNED)
+            return sdlControllerAxisToString(mInputBinder->getJoystickAxisBinding (c, mFakeDeviceID, ICS::Control::INCREASE));
+        else if (mInputBinder->getJoystickButtonBinding (c, mFakeDeviceID, ICS::Control::INCREASE) != ICS_MAX_DEVICE_BUTTONS )
+            return sdlControllerButtonToString(mInputBinder->getJoystickButtonBinding (c, mFakeDeviceID, ICS::Control::INCREASE));
+        else
+            return "#{sNone}";
+    }
+
+    std::string InputManager::sdlControllerButtonToString(int button)
+    {
+        switch(button)
+        {
+            case SDL_CONTROLLER_BUTTON_A:
+                return "A Button";
+            case SDL_CONTROLLER_BUTTON_B:
+                return "B Button";
+            case SDL_CONTROLLER_BUTTON_BACK:
+                return "Back Button";
+            case SDL_CONTROLLER_BUTTON_DPAD_DOWN:
+                return "DPad Down";
+            case SDL_CONTROLLER_BUTTON_DPAD_LEFT:
+                return "DPad Left";
+            case SDL_CONTROLLER_BUTTON_DPAD_RIGHT:
+                return "DPad Right";
+            case SDL_CONTROLLER_BUTTON_DPAD_UP:
+                return "DPad Up";
+            case SDL_CONTROLLER_BUTTON_GUIDE:
+                return "Guide Button";
+            case SDL_CONTROLLER_BUTTON_LEFTSHOULDER:
+                return "Left Shoulder";
+            case SDL_CONTROLLER_BUTTON_LEFTSTICK:
+                return "Left Stick Button";
+            case SDL_CONTROLLER_BUTTON_RIGHTSHOULDER:
+                return "Right Shoulder";
+            case SDL_CONTROLLER_BUTTON_RIGHTSTICK:
+                return "Right Stick Button";
+            case SDL_CONTROLLER_BUTTON_START:
+                return "Start Button";
+            case SDL_CONTROLLER_BUTTON_X:
+                return "X Button";
+            case SDL_CONTROLLER_BUTTON_Y:
+                return "Y Button";
+            default:
+                return "Button " + std::to_string(button);
+        }
+    }
+    std::string InputManager::sdlControllerAxisToString(int axis)
+    {
+        switch(axis)
+        {
+            case SDL_CONTROLLER_AXIS_LEFTX:
+                return "Left Stick X";
+            case SDL_CONTROLLER_AXIS_LEFTY:
+                return "Left Stick Y";
+            case SDL_CONTROLLER_AXIS_RIGHTX:
+                return "Right Stick X";
+            case SDL_CONTROLLER_AXIS_RIGHTY:
+                return "Right Stick Y";
+            case SDL_CONTROLLER_AXIS_TRIGGERLEFT:
+                return "Left Trigger";
+            case SDL_CONTROLLER_AXIS_TRIGGERRIGHT:
+                return "Right Trigger";
+            default:
+                return "Axis " + std::to_string(axis);
+        }
+     }
 
     std::vector<int> InputManager::getActionKeySorting()
     {
@@ -1555,47 +1556,47 @@ namespace MWInput
 
         return ret;
     }
-//    std::vector<int> InputManager::getActionControllerSorting()
-//    {
-//        std::vector<int> ret;
-//        ret.push_back(A_TogglePOV);
-//        ret.push_back(A_Sneak);
-//        ret.push_back(A_Activate);
-//        ret.push_back(A_Use);
-//        ret.push_back(A_ToggleWeapon);
-//        ret.push_back(A_ToggleSpell);
-//        ret.push_back(A_AutoMove);
-//        ret.push_back(A_Jump);
-//        ret.push_back(A_Inventory);
-//        ret.push_back(A_Journal);
-//        ret.push_back(A_Rest);
-//        ret.push_back(A_QuickSave);
-//        ret.push_back(A_QuickLoad);
-//        ret.push_back(A_Screenshot);
-//        ret.push_back(A_QuickKeysMenu);
-//        ret.push_back(A_QuickKey1);
-//        ret.push_back(A_QuickKey2);
-//        ret.push_back(A_QuickKey3);
-//        ret.push_back(A_QuickKey4);
-//        ret.push_back(A_QuickKey5);
-//        ret.push_back(A_QuickKey6);
-//        ret.push_back(A_QuickKey7);
-//        ret.push_back(A_QuickKey8);
-//        ret.push_back(A_QuickKey9);
-//        ret.push_back(A_QuickKey10);
-//        ret.push_back(A_CycleSpellLeft);
-//        ret.push_back(A_CycleSpellRight);
-//        ret.push_back(A_CycleWeaponLeft);
-//        ret.push_back(A_CycleWeaponRight);
-//
-//        return ret;
-//    }
+    std::vector<int> InputManager::getActionControllerSorting()
+    {
+        std::vector<int> ret;
+        ret.push_back(A_TogglePOV);
+        ret.push_back(A_Sneak);
+        ret.push_back(A_Activate);
+        ret.push_back(A_Use);
+        ret.push_back(A_ToggleWeapon);
+        ret.push_back(A_ToggleSpell);
+        ret.push_back(A_AutoMove);
+        ret.push_back(A_Jump);
+        ret.push_back(A_Inventory);
+        ret.push_back(A_Journal);
+        ret.push_back(A_Rest);
+        ret.push_back(A_QuickSave);
+        ret.push_back(A_QuickLoad);
+        ret.push_back(A_Screenshot);
+        ret.push_back(A_QuickKeysMenu);
+        ret.push_back(A_QuickKey1);
+        ret.push_back(A_QuickKey2);
+        ret.push_back(A_QuickKey3);
+        ret.push_back(A_QuickKey4);
+        ret.push_back(A_QuickKey5);
+        ret.push_back(A_QuickKey6);
+        ret.push_back(A_QuickKey7);
+        ret.push_back(A_QuickKey8);
+        ret.push_back(A_QuickKey9);
+        ret.push_back(A_QuickKey10);
+        ret.push_back(A_CycleSpellLeft);
+        ret.push_back(A_CycleSpellRight);
+        ret.push_back(A_CycleWeaponLeft);
+        ret.push_back(A_CycleWeaponRight);
 
-    void InputManager::enableDetectingBindingMode(int action, bool keyboard)
+        return ret;
+    }
+
+    void InputManager::enableDetectingBindingMode (int action, bool keyboard)
     {
         mDetectingKeyboard = keyboard;
-        ICS::Control* c = mInputBinder->getChannel(action)->getAttachedControls().front().control;
-        mInputBinder->enableDetectingBindingState(c, ICS::Control::INCREASE);
+        ICS::Control* c = mInputBinder->getChannel (action)->getAttachedControls ().front().control;
+        mInputBinder->enableDetectingBindingState (c, ICS::Control::INCREASE);
     }
 
     void InputManager::mouseAxisBindingDetected(ICS::InputControlSystem* ICS, ICS::Control* control
@@ -1609,76 +1610,76 @@ namespace MWInput
         , SDL_Scancode key, ICS::Control::ControlChangingDirection direction)
     {
         //Disallow binding escape key
-        if (key==SDL_SCANCODE_ESCAPE)
+        if(key==SDL_SCANCODE_ESCAPE)
         {
             //Stop binding if esc pressed
             mInputBinder->cancelDetectingBindingState();
-            MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
+            MWBase::Environment::get().getWindowManager ()->notifyInputActionBound ();
             return;
         }
-        if (!mDetectingKeyboard)
+        if(!mDetectingKeyboard)
             return;
 
         clearAllKeyBindings(control);
         control->setInitialValue(0.0f);
-        ICS::DetectingBindingListener::keyBindingDetected(ICS, control, key, direction);
-        MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
+        ICS::DetectingBindingListener::keyBindingDetected (ICS, control, key, direction);
+        MWBase::Environment::get().getWindowManager ()->notifyInputActionBound ();
     }
 
     void InputManager::mouseButtonBindingDetected(ICS::InputControlSystem* ICS, ICS::Control* control
         , unsigned int button, ICS::Control::ControlChangingDirection direction)
     {
-        if (!mDetectingKeyboard)
+        if(!mDetectingKeyboard)
             return;
         clearAllKeyBindings(control);
         control->setInitialValue(0.0f);
-        ICS::DetectingBindingListener::mouseButtonBindingDetected(ICS, control, button, direction);
-        MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
+        ICS::DetectingBindingListener::mouseButtonBindingDetected (ICS, control, button, direction);
+        MWBase::Environment::get().getWindowManager ()->notifyInputActionBound ();
     }
 
     void InputManager::joystickAxisBindingDetected(ICS::InputControlSystem* ICS, int deviceID, ICS::Control* control
         , int axis, ICS::Control::ControlChangingDirection direction)
     {
         //only allow binding to the trigers
-        if (axis != SDL_CONTROLLER_AXIS_TRIGGERLEFT && axis != SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
+        if(axis != SDL_CONTROLLER_AXIS_TRIGGERLEFT && axis != SDL_CONTROLLER_AXIS_TRIGGERRIGHT)
             return;
-        if (mDetectingKeyboard)
+        if(mDetectingKeyboard)
             return;
 
         clearAllControllerBindings(control);
         control->setValue(0.5f); //axis bindings must start at 0.5
         control->setInitialValue(0.5f);
-        ICS::DetectingBindingListener::joystickAxisBindingDetected(ICS, deviceID, control, axis, direction);
-        MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
+        ICS::DetectingBindingListener::joystickAxisBindingDetected (ICS, deviceID, control, axis, direction);
+        MWBase::Environment::get().getWindowManager ()->notifyInputActionBound ();
     }
 
     void InputManager::joystickButtonBindingDetected(ICS::InputControlSystem* ICS, int deviceID, ICS::Control* control
         , unsigned int button, ICS::Control::ControlChangingDirection direction)
     {
-        if (mDetectingKeyboard)
+        if(mDetectingKeyboard)
             return;
         clearAllControllerBindings(control);
         control->setInitialValue(0.0f);
-        ICS::DetectingBindingListener::joystickButtonBindingDetected(ICS, deviceID, control, button, direction);
-        MWBase::Environment::get().getWindowManager()->notifyInputActionBound();
+        ICS::DetectingBindingListener::joystickButtonBindingDetected (ICS, deviceID, control, button, direction);
+        MWBase::Environment::get().getWindowManager ()->notifyInputActionBound ();
     }
 
-    void InputManager::clearAllKeyBindings(ICS::Control* control)
+    void InputManager::clearAllKeyBindings (ICS::Control* control)
     {
         // right now we don't really need multiple bindings for the same action, so remove all others first
-        if (mInputBinder->getKeyBinding(control, ICS::Control::INCREASE) != SDL_SCANCODE_UNKNOWN)
-            mInputBinder->removeKeyBinding(mInputBinder->getKeyBinding(control, ICS::Control::INCREASE));
-        if (mInputBinder->getMouseButtonBinding(control, ICS::Control::INCREASE) != ICS_MAX_DEVICE_BUTTONS)
-            mInputBinder->removeMouseButtonBinding(mInputBinder->getMouseButtonBinding(control, ICS::Control::INCREASE));
+        if (mInputBinder->getKeyBinding (control, ICS::Control::INCREASE) != SDL_SCANCODE_UNKNOWN)
+            mInputBinder->removeKeyBinding (mInputBinder->getKeyBinding (control, ICS::Control::INCREASE));
+        if (mInputBinder->getMouseButtonBinding (control, ICS::Control::INCREASE) != ICS_MAX_DEVICE_BUTTONS)
+            mInputBinder->removeMouseButtonBinding (mInputBinder->getMouseButtonBinding (control, ICS::Control::INCREASE));
     }
 
-    void InputManager::clearAllControllerBindings(ICS::Control* control)
+    void InputManager::clearAllControllerBindings (ICS::Control* control)
     {
         // right now we don't really need multiple bindings for the same action, so remove all others first
-        if (mInputBinder->getJoystickAxisBinding(control, mFakeDeviceID, ICS::Control::INCREASE) != SDL_SCANCODE_UNKNOWN)
-            mInputBinder->removeJoystickAxisBinding(mFakeDeviceID, mInputBinder->getJoystickAxisBinding(control, mFakeDeviceID, ICS::Control::INCREASE));
-        if (mInputBinder->getJoystickButtonBinding(control, mFakeDeviceID, ICS::Control::INCREASE) != ICS_MAX_DEVICE_BUTTONS)
-            mInputBinder->removeJoystickButtonBinding(mFakeDeviceID, mInputBinder->getJoystickButtonBinding(control, mFakeDeviceID, ICS::Control::INCREASE));
+        if (mInputBinder->getJoystickAxisBinding (control, mFakeDeviceID, ICS::Control::INCREASE) != SDL_SCANCODE_UNKNOWN)
+            mInputBinder->removeJoystickAxisBinding (mFakeDeviceID, mInputBinder->getJoystickAxisBinding (control, mFakeDeviceID, ICS::Control::INCREASE));
+        if (mInputBinder->getJoystickButtonBinding (control, mFakeDeviceID, ICS::Control::INCREASE) != ICS_MAX_DEVICE_BUTTONS)
+            mInputBinder->removeJoystickButtonBinding (mFakeDeviceID, mInputBinder->getJoystickButtonBinding (control, mFakeDeviceID, ICS::Control::INCREASE));
     }
 
     int InputManager::countSavedGameRecords() const
@@ -1697,9 +1698,9 @@ namespace MWInput
         controls.mWeaponDrawingDisabled = !getControlSwitch("playerfighting");
         controls.mSpellDrawingDisabled = !getControlSwitch("playermagic");
 
-        writer.startRecord(ESM::REC_INPU);
+        writer.startRecord (ESM::REC_INPU);
         controls.save(writer);
-        writer.endRecord(ESM::REC_INPU);
+        writer.endRecord (ESM::REC_INPU);
     }
 
     void InputManager::readRecord(ESM::ESMReader& reader, uint32_t type)
@@ -1724,17 +1725,17 @@ namespace MWInput
         loadKeyDefaults(true);
     }
 
-//    void InputManager::resetToDefaultControllerBindings()
-//    {
-//        loadControllerDefaults(true);
-//    }
+    void InputManager::resetToDefaultControllerBindings()
+    {
+        loadControllerDefaults(true);
+    }
 
     MyGUI::MouseButton InputManager::sdlButtonToMyGUI(Uint8 button)
     {
         //The right button is the second button, according to MyGUI
-        if (button == SDL_BUTTON_RIGHT)
+        if(button == SDL_BUTTON_RIGHT)
             button = SDL_BUTTON_MIDDLE;
-        else if (button == SDL_BUTTON_MIDDLE)
+        else if(button == SDL_BUTTON_MIDDLE)
             button = SDL_BUTTON_RIGHT;
 
         //MyGUI's buttons are 0 indexed

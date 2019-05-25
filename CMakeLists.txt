@@ -37,7 +37,18 @@ IF(NOT CMAKE_BUILD_TYPE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS None Debug Release RelWithDebInfo MinSizeRel)
 ENDIF()
 
+if (APPLE)
+    set(APP_BUNDLE_NAME "${CMAKE_PROJECT_NAME}.app")
+
+    set(APP_BUNDLE_DIR "${OpenMW_BINARY_DIR}/${APP_BUNDLE_NAME}")
+endif (APPLE)
+
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/)
+
+if (ANDROID)
+    set(CMAKE_FIND_ROOT_PATH ${OPENMW_DEPENDENCIES_DIR} "${CMAKE_FIND_ROOT_PATH}")
+    set (OSG_PLUGINS_DIR CACHE STRING "")
+endif()
 
 # Version
 message(STATUS "Configuring OpenMW...")
@@ -84,23 +95,44 @@ IF( BUILD_DOCS )
     FIND_PACKAGE( Doxygen REQUIRED )
 ENDIF()
 
-# Set up common paths
-SET(BINDIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Where to install binaries")
-SET(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}" CACHE PATH "Where to install libraries")
-SET(DATAROOTDIR "${CMAKE_INSTALL_PREFIX}/share" CACHE PATH "Sets the root of data directories to a non-default location")
-SET(GLOBAL_DATA_PATH "${DATAROOTDIR}/games/" CACHE PATH "Set data path prefix")
-SET(DATADIR "${GLOBAL_DATA_PATH}/openmw" CACHE PATH "Sets the openmw data directories to a non-default location")
-SET(ICONDIR "${DATAROOTDIR}/pixmaps" CACHE PATH "Set icon dir")
-SET(LICDIR "${DATAROOTDIR}/licenses/openmw" CACHE PATH "Sets the openmw license directory to a non-default location.")
-IF("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr")
-    SET(GLOBAL_CONFIG_PATH "/etc/" CACHE PATH "Set config dir prefix")
-ELSE()
-    SET(GLOBAL_CONFIG_PATH "${CMAKE_INSTALL_PREFIX}/etc/" CACHE PATH "Set config dir prefix")
-ENDIF()
-SET(SYSCONFDIR "${GLOBAL_CONFIG_PATH}/openmw" CACHE PATH "Set config dir")
+# OS X deployment
+option(OPENMW_OSX_DEPLOYMENT OFF)
 
-set(MORROWIND_DATA_FILES "${DATADIR}/data" CACHE PATH "location of Morrowind data files")
-set(OPENMW_RESOURCE_FILES "${DATADIR}/resources" CACHE PATH "location of OpenMW resources files")
+if (MSVC)
+    option(OPENMW_MP_BUILD "Build OpenMW with /MP flag" OFF)
+    option(OPENMW_LTO_BUILD "Build OpenMW with Link-Time Optimization (Needs ~2GB of RAM)" OFF)
+endif()
+
+# Set up common paths
+if (APPLE)
+    set(MORROWIND_DATA_FILES "./data" CACHE PATH "location of Morrowind data files")
+    set(OPENMW_RESOURCE_FILES "../Resources/resources" CACHE PATH "location of OpenMW resources files")
+elseif(UNIX)
+    # Paths
+    SET(BINDIR "${CMAKE_INSTALL_PREFIX}/bin" CACHE PATH "Where to install binaries")
+    SET(LIBDIR "${CMAKE_INSTALL_PREFIX}/lib${LIB_SUFFIX}" CACHE PATH "Where to install libraries")
+    SET(DATAROOTDIR "${CMAKE_INSTALL_PREFIX}/share" CACHE PATH "Sets the root of data directories to a non-default location")
+    SET(GLOBAL_DATA_PATH "${DATAROOTDIR}/games/" CACHE PATH "Set data path prefix")
+    SET(DATADIR "${GLOBAL_DATA_PATH}/openmw" CACHE PATH "Sets the openmw data directories to a non-default location")
+    SET(ICONDIR "${DATAROOTDIR}/pixmaps" CACHE PATH "Set icon dir")
+    SET(LICDIR "${DATAROOTDIR}/licenses/openmw" CACHE PATH "Sets the openmw license directory to a non-default location.")
+    IF("${CMAKE_INSTALL_PREFIX}" STREQUAL "/usr")
+        SET(GLOBAL_CONFIG_PATH "/etc/" CACHE PATH "Set config dir prefix")
+    ELSE()
+        SET(GLOBAL_CONFIG_PATH "${CMAKE_INSTALL_PREFIX}/etc/" CACHE PATH "Set config dir prefix")
+    ENDIF()
+    SET(SYSCONFDIR "${GLOBAL_CONFIG_PATH}/openmw" CACHE PATH "Set config dir")
+
+    set(MORROWIND_DATA_FILES "${DATADIR}/data" CACHE PATH "location of Morrowind data files")
+    set(OPENMW_RESOURCE_FILES "${DATADIR}/resources" CACHE PATH "location of OpenMW resources files")
+else()
+    set(MORROWIND_DATA_FILES "data" CACHE PATH "location of Morrowind data files")
+    set(OPENMW_RESOURCE_FILES "resources" CACHE PATH "location of OpenMW resources files")
+endif(APPLE)
+
+if (WIN32)
+    option(USE_DEBUG_CONSOLE "whether a debug console should be enabled for debug builds, if false debug output is redirected to Visual Studio output" ON)
+endif()
 
 # Dependencies
 find_package(OpenGL REQUIRED)
@@ -126,12 +158,12 @@ find_package(FFmpeg REQUIRED COMPONENTS AVCODEC AVFORMAT AVUTIL SWSCALE SWRESAMP
 add_definitions(-D__STDC_CONSTANT_MACROS)
 
 # TinyXML
-#option(USE_SYSTEM_TINYXML "Use system TinyXML library instead of internal." OFF)
-#if (USE_SYSTEM_TINYXML)
-#    find_package(TinyXML REQUIRED)
-#    add_definitions (-DTIXML_USE_STL)
-#    include_directories(SYSTEM ${TinyXML_INCLUDE_DIRS})
-#endif()
+option(USE_SYSTEM_TINYXML "Use system TinyXML library instead of internal." OFF)
+if (USE_SYSTEM_TINYXML)
+    find_package(TinyXML REQUIRED)
+    add_definitions (-DTIXML_USE_STL)
+    include_directories(SYSTEM ${TinyXML_INCLUDE_DIRS})
+endif()
 
 # Platform specific
 if (WIN32)
@@ -236,6 +268,14 @@ if(MYGUI_STATIC)
    add_definitions(-DMYGUI_STATIC)
 endif (MYGUI_STATIC)
 
+if (APPLE)
+    configure_file(${OpenMW_SOURCE_DIR}/files/mac/openmw-Info.plist.in
+        "${APP_BUNDLE_DIR}/Contents/Info.plist")
+
+    configure_file(${OpenMW_SOURCE_DIR}/files/mac/openmw.icns
+        "${APP_BUNDLE_DIR}/Contents/Resources/OpenMW.icns" COPYONLY)
+endif (APPLE)
+
 # Set up DEBUG define
 set_directory_properties(PROPERTIES COMPILE_DEFINITIONS_DEBUG DEBUG=1)
 
@@ -247,8 +287,18 @@ endif ()
 add_subdirectory(files/)
 
 # Specify build paths
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OpenMW_BINARY_DIR}")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OpenMW_BINARY_DIR}")
+
+if (APPLE)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${APP_BUNDLE_DIR}/Contents/MacOS")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${APP_BUNDLE_DIR}/Contents/MacOS")
+
+    if (OPENMW_OSX_DEPLOYMENT)
+        SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+    endif()
+else (APPLE)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${OpenMW_BINARY_DIR}")
+    set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${OpenMW_BINARY_DIR}")
+endif (APPLE)
 
 # Other files
 
@@ -293,7 +343,7 @@ endif()
 # CXX Compiler settings
 set(CMAKE_CXX_STANDARD 11)
 if (CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL Clang)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wundef -Wno-unused-parameter -Wno-deprecated-declarations -std=c++11 -pedantic -Wno-long-long")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wundef -Wno-unused-parameter -std=c++11 -pedantic -Wno-long-long")
     add_definitions( -DBOOST_NO_CXX11_SCOPED_ENUMS=ON )
 
     if (APPLE)
@@ -310,6 +360,16 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL Clang)
     if (CMAKE_CXX_COMPILER_ID STREQUAL GNU AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 4.6 OR CMAKE_CXX_COMPILER_VERSION VERSION_EQUAL 4.6)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-but-set-parameter")
     endif()
+elseif (MSVC)
+    # Enable link-time code generation globally for all linking
+    if (OPENMW_LTO_BUILD)
+        set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /GL")
+        set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${CMAKE_EXE_LINKER_FLAGS_RELEASE} /LTCG")
+        set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} /LTCG")
+        set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS_RELEASE} /LTCG")
+    endif()
+
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /FORCE:MULTIPLE")
 endif (CMAKE_CXX_COMPILER_ID STREQUAL GNU OR CMAKE_CXX_COMPILER_ID STREQUAL Clang)
 
 IF(NOT WIN32 AND NOT APPLE)
@@ -478,7 +538,7 @@ endif(WIN32)
 
 # Extern
 add_subdirectory (extern/osg-ffmpeg-videoplayer)
-# add_subdirectory (extern/oics)
+add_subdirectory (extern/oics)
 if (BUILD_OPENCS)
     add_subdirectory (extern/osgQt)
 endif()

@@ -3,11 +3,11 @@
 
 #include "../mwgui/mode.hpp"
 
-#include <map>
 #include <osg/ref_ptr>
 #include <osgViewer/ViewerEventHandlers>
 
-#include <SDL_version.h>
+#include <extern/oics/ICSChannelListener.h>
+#include <extern/oics/ICSInputControlSystem.h>
 
 #include <components/settings/settings.hpp>
 #include <components/files/configurationmanager.hpp>
@@ -165,8 +165,6 @@ namespace MWInput
         MWWorld::Player* mPlayer;
 
         ICS::InputControlSystem* mInputBinder;
-        std::map<int, SDL_Scancode> mBinds;
-        std::map<int, bool> mBindsEnabled;
 
         SDLUtil::InputWrapper* mInputManager;
         SDLUtil::VideoWrapper* mVideoWrapper;
@@ -246,7 +244,7 @@ namespace MWInput
         bool actionIsActive (int id);
 
         void loadKeyDefaults(bool force = false);
-//        void loadControllerDefaults(bool force = false);
+        void loadControllerDefaults(bool force = false);
 
         int mFakeDeviceID; //As we only support one controller at a time, use a fake deviceID so we don't lose bindings when switching controllers
 
