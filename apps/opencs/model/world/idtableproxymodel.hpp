@@ -17,8 +17,6 @@ namespace CSMWorld
     {
             Q_OBJECT
 
-//            std::shared_ptr<CSMFilter::Node> mFilter;
-//            std::map<int, int> mColumnMap; // column ID, column index in this model(or -1)
             std::string mFilter;
 
             // Cache of enum values for enum columns(e.g. Modified, Record Type).
@@ -29,10 +27,6 @@ namespace CSMWorld
         protected:
 
             IdTableBase *mSourceModel;
-
-        private:
-
-            void updateColumnMap();
 
         public:
 

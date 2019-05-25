@@ -17,20 +17,6 @@ namespace
     }
 }
 
-void CSMWorld::IdTableProxyModel::updateColumnMap()
-{
-//    Q_ASSERT(mSourceModel != nullptr);
-//
-//    mColumnMap.clear();
-//    if (mFilter)
-//    {
-//        std::vector<int> columns = mFilter->getReferencedColumns();
-//        for (std::vector<int>::const_iterator iter (columns.begin()); iter!=columns.end(); ++iter)
-//            mColumnMap.insert (std::make_pair (*iter,
-//                mSourceModel->searchColumnIndex (static_cast<CSMWorld::Columns::ColumnId> (*iter))));
-//    }
-}
-
 bool CSMWorld::IdTableProxyModel::filterAcceptsRow (int sourceRow, const QModelIndex& sourceParent)
     const
 {
@@ -44,13 +30,13 @@ bool CSMWorld::IdTableProxyModel::filterAcceptsRow (int sourceRow, const QModelI
     if (sourceParent.isValid())
         return false;
 
-//    if (!mFilter)
-//        return true;
+    if (mFilter.empty()) return true;
 
 //    return mFilter->test (*mSourceModel, sourceRow, mColumnMap);
 
     //TODO: make a test!
     printf("Filter = %s\n", mFilter.c_str());
+    mSourceModel->
     return true;
 }
 
@@ -91,7 +77,6 @@ void CSMWorld::IdTableProxyModel::setFilter(std::string filter)
 {
     beginResetModel();
     mFilter = filter;
-    updateColumnMap();
     endResetModel();
 }
 
@@ -126,7 +111,6 @@ QString CSMWorld::IdTableProxyModel::getRecordId(int sourceRow) const
 
 void CSMWorld::IdTableProxyModel::refreshFilter()
 {
-    updateColumnMap();
     invalidateFilter();
 }
 
