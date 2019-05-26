@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2013-2019  Dmitry Soloviov
+ *  Copyright (C) 2013-2019  Dmitry Solovyev
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -41,7 +41,6 @@ static uint32_t* framebuf = NULL;
 static SDL_Texture* frame_sdl = NULL;
 static bool frame_dirty = false;
 static std::vector<dosbox::LDB_UIEvent> evt_fifo;
-static int frame_block = 0;
 static pthread_mutex_t update_mutex;
 static XS_SoundRing sndring;
 //static SDL_AudioDeviceID audio = 0;
@@ -470,4 +469,28 @@ int wrapperKill()
 {
     XS_SDLKill();
     return 0;
+}
+
+osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
+{
+    osg::ref_ptr<osg::Texture2D> txd(new osg::Texture2D());
+
+    if (!doscard || !framebuf) {
+        printf("Unable to render VM frame\n");
+        return txd;
+    }
+
+    pthread_mutex_lock(&update_mutex);
+
+    osg::ref_ptr<osg::Image> img(new osg::Image());
+
+    img.get()->allocateImage(lcd_w,lcd_h,1,GL_RGBA,GL_UNSIGNED_BYTE);
+
+    pthread_mutex_unlock(&update_mutex);
+
+    memcpy(img.get()->data(),framebuf,lcd_w*lcd_h*4);
+
+    txd->setImage(img);
+
+    return txd;
 }

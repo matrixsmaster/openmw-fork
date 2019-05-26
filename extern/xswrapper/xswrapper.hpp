@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2013-2014  Dmitry Soloviov
+ *  Copyright (C) 2013-2019  Dmitry Solovyev
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,10 +24,14 @@
 #include <string.h>
 #include <inttypes.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <time.h>
+
+#include <pthread.h>
 #include <sys/stat.h>
 #include <dirent.h>
+
+#include <osg/Texture2D>
+
 #include "ldb.h"
 
 #ifdef LDB_EMBEDDED
@@ -47,6 +51,8 @@ int32_t XS_FIO(void* buf, size_t len);
 
 int wrapperInit();
 int wrapperKill();
+
+osg::ref_ptr<osg::Texture2D> wrapperGetFrame();
 
 void XS_AudioCallback(void* userdata, uint8_t* stream, int len);
 

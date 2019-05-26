@@ -486,14 +486,17 @@ VMOController::~VMOController()
 
 void VMOController::initVM()
 {
-    mStatus = wrapperInit();
+    mStatus = !wrapperInit();
     printf("VMO Created, status = %d\n",mStatus);
 }
 
 void VMOController::apply(osg::StateSet* stateset, osg::NodeVisitor* nv)
 {
-    //TODO
-//    printf("VMO controller is working\n");
+    if (!mStatus) return;
+
+    stateset->setTextureAttribute(mTexSlot, wrapperGetFrame());
+
+    printf("VMO controller is working\n");
 }
 
 }
