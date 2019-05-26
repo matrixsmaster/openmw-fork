@@ -471,6 +471,22 @@ int wrapperKill()
     return 0;
 }
 
+static void* revmemcpy(void* dest, void* src, size_t len, size_t unit)
+{
+    if (!dest || !src ) return NULL;
+    if (!len || !unit) return dest;
+    if (len % unit) return dest;
+
+    uint8_t* _dest = (uint8_t*)dest;
+    uint8_t* _src = (uint8_t*)src;
+
+    _dest += len - unit;
+    for (size_t i = 0; i < len; i += unit, _dest -= unit, _src += unit)
+        memcpy(_dest,_src,unit);
+
+    return dest;
+}
+
 osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
 {
     osg::ref_ptr<osg::Texture2D> txd(new osg::Texture2D());
@@ -486,9 +502,10 @@ osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
 
     img.get()->allocateImage(lcd_w,lcd_h,1,GL_RGBA,GL_UNSIGNED_BYTE);
 
-    pthread_mutex_unlock(&update_mutex);
+//    memcpy(img.get()->data(),framebuf,lcd_w*lcd_h*4);
+    revmemcpy(img.get()->data(),framebuf,lcd_w*lcd_h*4,lcd_w*4);
 
-    memcpy(img.get()->data(),framebuf,lcd_w*lcd_h*4);
+    pthread_mutex_unlock(&update_mutex);
 
     txd->setImage(img);
 
