@@ -570,7 +570,7 @@ namespace MWInput
     void InputManager::keyPressed(const SDL_KeyboardEvent &arg)
     {
         if (mEventSinkEnabled) {
-            mEventSinkEnabled = mEventSinks.keyup(&arg);
+            mEventSinkEnabled = mEventSinks.keydown(&arg);
             return;
         }
 
@@ -615,7 +615,7 @@ namespace MWInput
     void InputManager::keyReleased(const SDL_KeyboardEvent &arg)
     {
         if (mEventSinkEnabled) {
-            mEventSinkEnabled = mEventSinks.keydown(&arg);
+            mEventSinkEnabled = mEventSinks.keyup(&arg);
             return;
         }
 

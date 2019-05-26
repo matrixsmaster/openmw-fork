@@ -99,11 +99,11 @@ namespace MWScript
                 stateset->setTextureAttributeAndModes(0, tex2, osg::StateAttribute::ON);
 
                 // create the VMO controller (this will lead to VM initialization)
-//                osg::ref_ptr<NifOsg::VMOController> controller(new NifOsg::VMOController(0, 1));
+                osg::ref_ptr<NifOsg::VMOController> controller(new NifOsg::VMOController(0, 1));
 
                 // start up the VMO controller
-//                controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
-//                myNode->setUpdateCallback(controller);
+                controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
+                myNode->setUpdateCallback(controller);
             }
         };
 
