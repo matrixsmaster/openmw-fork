@@ -88,6 +88,7 @@ namespace MWScript
                 // and add it to the scene
                 myNode->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3f(0.0f,0.0f,0.0f),50.f)));
                 myNode->setName("VirtualMachineObject");
+                myNode->setDataVariance(osg::Object::DYNAMIC);
                 ptr->addChild(myNode.get());
 
                 // set new (seed) texture properties

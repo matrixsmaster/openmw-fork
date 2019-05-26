@@ -46,6 +46,8 @@ static XS_SoundRing sndring;
 static uint8_t frameskip_cnt;
 static wrapperEventSinkType cur_sinks;
 static bool rctrl_down;
+static bool outtex_valid = false;
+osg::ref_ptr<osg::Texture2D> outtexture;
 
 #define FRAMESKIP_MAX 10
 
@@ -227,96 +229,7 @@ static void XS_SDLKill()
 
     pthread_mutex_destroy(&update_mutex);
 }
-#if 0
-static void XS_SDLoop()
-{
-    SDL_Event e;
-    LDB_UIEvent mye;
-    uint32_t i;
-    bool quit = false;
 
-    do {
-        while (!SDL_AtomicGet(&at_flag))
-            if (!doscard) return;           //DOS thread had finished
-
-        /* Event Processing*/
-        while (SDL_PollEvent(&e)) {
-
-            memset(&mye,0,sizeof(mye));
-            switch (e.type) {
-
-            case SDL_QUIT:
-                mye.t = LDB_UIE_QUIT;
-                quit = true;
-                break;
-
-            case SDL_KEYDOWN:
-                if (e.key.keysym.scancode == SDL_SCANCODE_PAUSE) {
-                    frame_block ^= 1;
-                    continue;
-                }
-                //no break
-
-            case SDL_KEYUP:
-                mye.t = LDB_UIE_KBD;
-                mye.pressed = (e.type == SDL_KEYDOWN);
-                mye.key = KBD_NONE;
-                //FIXME: use key-list rather than this brute-force!
-                for (i=0; i<(sizeof(XShellKeyboardMap)/sizeof(XShellKeyboardPair)); i++)
-                    if (XShellKeyboardMap[i].sdl == e.key.keysym.scancode) {
-                        mye.key = XShellKeyboardMap[i].db;
-                        break;
-                    }
-                break;
-
-            case SDL_MOUSEBUTTONDOWN:
-            case SDL_MOUSEBUTTONUP:
-                mye.pressed = (e.button.state == SDL_PRESSED);
-                switch (e.button.button) {
-                case SDL_BUTTON_LEFT:   mye.m.button = 1; break;
-                case SDL_BUTTON_RIGHT:  mye.m.button = 2; break;
-                default:                mye.m.button = 3; break;
-                }
-                //no break
-
-            case SDL_MOUSEMOTION:
-                mye.t = LDB_UIE_MOUSE;
-                //FIXME: mouse moves looks not so good, investigation needed
-                mye.m.rel.x = static_cast<float>(e.motion.xrel);
-                mye.m.rel.y = static_cast<float>(e.motion.yrel);
-                mye.m.abs.x = static_cast<float>(e.motion.x);
-                mye.m.abs.y = static_cast<float>(e.motion.y);
-                break;
-
-            default: continue;
-            }
-
-            evt_fifo.insert(evt_fifo.begin(),mye);
-        }
-
-        /* Frame Processing*/
-        if ((!frame_block) && (framebuf)) {
-//            if (frame_dirty) {
-//                if (frame_sdl) SDL_DestroyTexture(frame_sdl);
-//                frame_sdl = SDL_CreateTexture(ren,SDL_PIXELFORMAT_ARGB8888,
-//                        SDL_TEXTUREACCESS_STREAMING,lcd_w,lcd_h);
-//                frame_dirty = false;
-//            }
-//            if (frame_sdl) {
-//                SDL_UpdateTexture(frame_sdl,NULL,framebuf,lcd_w*sizeof(uint32_t));
-//                SDL_RenderClear(ren);
-//                SDL_RenderCopy(ren,frame_sdl,NULL,NULL);
-//            }
-        }
-        SDL_AtomicSet(&at_flag,0);
-
-        /* Update Window*/
-//        SDL_RenderPresent(ren);
-//        SDL_Delay(5);           //FIXME: MAGIC delay
-    } while (!quit);
-    SDL_AtomicSet(&at_flag,-10);
-}
-#endif
 int32_t XS_Message(void* buf, size_t len)
 {
     return 0;
@@ -496,6 +409,7 @@ static void* revmemcpy(void* dest, void* src, size_t len, size_t unit)
 
 osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
 {
+#if 0
     osg::ref_ptr<osg::Texture2D> txd(new osg::Texture2D());
 
     if (!doscard || !framebuf) {
@@ -503,9 +417,9 @@ osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
         return txd;
     }
 
-    pthread_mutex_lock(&update_mutex);
-
     osg::ref_ptr<osg::Image> img(new osg::Image());
+
+    pthread_mutex_lock(&update_mutex);
 
     img.get()->allocateImage(lcd_w,lcd_h,1,GL_RGBA,GL_UNSIGNED_BYTE);
 
@@ -517,6 +431,46 @@ osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
     txd->setImage(img);
 
     return txd;
+#else
+    if (!outtex_valid) {
+        outtexture = osg::ref_ptr<osg::Texture2D>(new osg::Texture2D());
+        outtexture.get()->setFilter(osg::Texture::MIN_FILTER,osg::Texture::LINEAR);
+        outtexture.get()->setFilter(osg::Texture::MAG_FILTER,osg::Texture::LINEAR);
+        outtexture.get()->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP_TO_EDGE);
+        outtexture.get()->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP_TO_EDGE);
+        outtexture.get()->setDataVariance(osg::Object::DYNAMIC);
+
+        osg::ref_ptr<osg::Image> img(new osg::Image());
+
+        pthread_mutex_lock(&update_mutex);
+        img.get()->allocateImage(lcd_w,lcd_h,1,GL_RGBA,GL_UNSIGNED_BYTE);
+        pthread_mutex_unlock(&update_mutex);
+
+        outtexture->setImage(img);
+
+        outtex_valid = true;
+    }
+
+    if (!doscard || !framebuf) return outtexture;
+
+    pthread_mutex_lock(&update_mutex);
+
+    if (frame_dirty) {
+        outtex_valid = false;
+        frame_dirty = false;
+        pthread_mutex_unlock(&update_mutex);
+        return outtexture;
+    }
+
+    if (outtexture.get()->getImage()) {
+        revmemcpy(outtexture.get()->getImage()->data(),framebuf,lcd_w*lcd_h*4,lcd_w*4);
+        outtexture.get()->getImage()->dirty();
+    }
+
+    pthread_mutex_unlock(&update_mutex);
+
+    return outtexture;
+#endif
 }
 
 static void insertEvent(LDB_UIEventE t, KBD_KEYS key, bool pressed, LDB_MOUSEINF* mouse)
@@ -533,7 +487,7 @@ static void insertEvent(LDB_UIEventE t, KBD_KEYS key, bool pressed, LDB_MOUSEINF
     evt_fifo.insert(evt_fifo.begin(),ev);
     pthread_mutex_unlock(&update_mutex);
 
-    printf("Wrapper: event added: %d, %d, %d, %p\n", t, key, pressed, mouse);
+//    printf("Wrapper: event added: %d, %d, %d, %p\n", t, key, pressed, mouse);
 }
 
 static KBD_KEYS mapSdl2Kbd(SDL_Scancode code)
