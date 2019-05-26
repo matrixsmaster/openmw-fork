@@ -42,12 +42,14 @@ static uint32_t* framebuf = NULL;
 static bool frame_dirty = false;
 static std::vector<dosbox::LDB_UIEvent> evt_fifo;
 static pthread_mutex_t update_mutex;
+static pthread_mutex_t sound_mutex;
 static XS_SoundRing sndring;
 static uint8_t frameskip_cnt;
 static wrapperEventSinkType cur_sinks;
 static bool rctrl_down;
 static bool outtex_valid = false;
 osg::ref_ptr<osg::Texture2D> outtexture;
+static dosbox::LDB_SoundInfo sndinfo;
 
 #define FRAMESKIP_MAX 10
 
@@ -113,53 +115,28 @@ int32_t XS_UpdateScreenBuffer(void* buf, size_t len)
 
 int32_t XS_UpdateSoundBuffer(void* buf, size_t len)
 {
-#if 1
     int i;
     if (!buf) return -1;
 
     if (len == sizeof(LDB_SoundInfo)) {
-        SDL_AudioSpec want,have;
-        LDB_SoundInfo* req = reinterpret_cast<LDB_SoundInfo*>(buf);
-        SDL_zero(want);
-        if (req->silent) return 0;
-
-        want.freq = req->freq;
-        if (req->sign && (req->width == 16)) want.format = AUDIO_S16SYS;
-        want.channels = req->channels;
-        want.samples = req->blocksize;
-        want.callback = XS_AudioCallback;
-
-//        audio = SDL_OpenAudioDevice(NULL,0,&want,&have,SDL_AUDIO_ALLOW_FORMAT_CHANGE);
-//        if (!audio) return 0;
-//
-//        memset(sndring.data,0,sizeof(sndring.data));
-//        sndring.read = 0;
-//        sndring.write = 0;
-//        sndring.paused = true;
-//        SDL_PauseAudioDevice(audio,1);
+        sndinfo = *(reinterpret_cast<LDB_SoundInfo*>(buf));
         return 0;
     }
-//    if (!audio) return 0;
-//
-//    SDL_LockAudioDevice(audio);
-//
-//    len >>= 1;
-//    int16_t* in = reinterpret_cast<int16_t*>(buf);
-//    int p = sndring.write;
-//
-//    for (i=0; i<len; i++) {
-//        sndring.data[p] = in[i];
-//        if (++p >= XSHELL_SOUND_LENGTH) p = 0;
-//    }
-//    sndring.write = p;
-//
-//    SDL_UnlockAudioDevice(audio);
-//
-//    if (sndring.paused) {
-//        sndring.paused = false;
-//        SDL_PauseAudioDevice(audio,0);
-//    }
-#endif
+
+    pthread_mutex_lock(&sound_mutex);
+
+    len >>= 1;
+    int16_t* in = reinterpret_cast<int16_t*>(buf);
+    int p = sndring.write;
+
+    for (i=0; i<len; i++) {
+        sndring.data[p] = in[i];
+        if (++p >= XSHELL_SOUND_LENGTH) p = 0;
+    }
+    sndring.write = p;
+
+    pthread_mutex_unlock(&sound_mutex);
+
     return 0;
 }
 
@@ -206,6 +183,7 @@ static void XS_SDLInit()
     rctrl_down = false;
 
     pthread_mutex_init(&update_mutex,NULL);
+    pthread_mutex_init(&sound_mutex,NULL);
 }
 
 static void XS_SDLKill()
@@ -225,6 +203,7 @@ static void XS_SDLKill()
     }
 
     pthread_mutex_destroy(&update_mutex);
+    pthread_mutex_destroy(&sound_mutex);
 }
 
 int32_t XS_FIO(void* buf, size_t len)
@@ -325,18 +304,26 @@ int32_t XS_FIO(void* buf, size_t len)
     return 0;
 }
 
-void XS_AudioCallback(void* userdata, uint8_t* stream, int len)
+void wrapperGetSound(void* userdata, uint8_t* stream, int len)
 {
+    if (!doscard || !dosboxthr) return;
+
     int i,p;
     int16_t* buf = reinterpret_cast<int16_t*>(stream);
     len >>= 1;
+
+    pthread_mutex_lock(&sound_mutex);
+
     //FIXME: better use memcpy()
     p = sndring.read;
     for (i=0; i<len; i++) {
         buf[i] = sndring.data[p];
         if (++p >= XSHELL_SOUND_LENGTH) p = 0;
     }
+
     sndring.read = p;
+
+    pthread_mutex_unlock(&sound_mutex);
 }
 
 int DosRun(void* p)

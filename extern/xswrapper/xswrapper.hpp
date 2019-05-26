@@ -54,7 +54,7 @@ int wrapperKill();
 
 osg::ref_ptr<osg::Texture2D> wrapperGetFrame();
 
-void XS_AudioCallback(void* userdata, uint8_t* stream, int len);
+void wrapperGetSound(void* userdata, uint8_t* stream, int len);
 
 wrapperEventSinkType* wrapperGetEventSinks();
 
