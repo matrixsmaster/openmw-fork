@@ -58,7 +58,6 @@ int32_t XS_UpdateScreenBuffer(void* buf, size_t len)
 {
     if (!buf) return -1;
     uint32_t* dw;
-    uint8_t* b;
 
     pthread_mutex_lock(&update_mutex);
 
@@ -197,9 +196,7 @@ static void XS_ldb_register()
     doscard->RegisterCallback(DBCB_PushScreen,&XS_UpdateScreenBuffer);
     doscard->RegisterCallback(DBCB_PushSound,&XS_UpdateSoundBuffer);
     doscard->RegisterCallback(DBCB_PullUIEvents,&XS_QueryUIEvents);
-    doscard->RegisterCallback(DBCB_PushMessage,&XS_Message);
     doscard->RegisterCallback(DBCB_FileIOReq,&XS_FIO);
-    doscard->RegisterCallback(DBCB_LogSTDOUT,&XS_Message); //to test it out :)
 }
 
 static void XS_SDLInit()
@@ -228,11 +225,6 @@ static void XS_SDLKill()
     }
 
     pthread_mutex_destroy(&update_mutex);
-}
-
-int32_t XS_Message(void* buf, size_t len)
-{
-    return 0;
 }
 
 int32_t XS_FIO(void* buf, size_t len)
