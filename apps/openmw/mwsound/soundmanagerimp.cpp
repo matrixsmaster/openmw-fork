@@ -27,6 +27,7 @@
 #include "openal_output.hpp"
 #include "ffmpeg_decoder.hpp"
 
+//static Stream* mysoundstream = NULL;
 
 namespace MWSound
 {
@@ -1090,6 +1091,23 @@ namespace MWSound
             }
         }
 
+#if 0
+        {
+            Stream* snd = mysoundstream;
+            if (!snd) {
+                snd = getStreamRef();
+                snd->init(1.0f, volumeFromType(Type::Sfx), 1.0f, PlayMode::NoEnv|Type::Sfx|Play_2D);
+                if(!mOutput->streamSound(decoder, track))
+                {
+                    mUnusedStreams.push_back(track);
+                    return nullptr;
+                }
+
+            }
+            mysoundstream = snd;
+        }
+#endif
+
         if(mListenerUnderwater)
         {
             // Play underwater sound (after updating sounds)
@@ -1107,7 +1125,7 @@ namespace MWSound
             mMusic->updateFade(duration);
 
             mOutput->updateStream(mMusic);
-            
+
             if (mMusic->getRealVolume() <= 0.f)
             {
                 streamMusicFull(mNextMusic);

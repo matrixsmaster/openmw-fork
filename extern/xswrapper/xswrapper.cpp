@@ -113,7 +113,7 @@ int32_t XS_UpdateScreenBuffer(void* buf, size_t len)
 
 int32_t XS_UpdateSoundBuffer(void* buf, size_t len)
 {
-#if 0
+#if 1
     int i;
     if (!buf) return -1;
 
@@ -129,36 +129,36 @@ int32_t XS_UpdateSoundBuffer(void* buf, size_t len)
         want.samples = req->blocksize;
         want.callback = XS_AudioCallback;
 
-        audio = SDL_OpenAudioDevice(NULL,0,&want,&have,SDL_AUDIO_ALLOW_FORMAT_CHANGE);
-        if (!audio) return 0;
-
-        memset(sndring.data,0,sizeof(sndring.data));
-        sndring.read = 0;
-        sndring.write = 0;
-        sndring.paused = true;
-        SDL_PauseAudioDevice(audio,1);
+//        audio = SDL_OpenAudioDevice(NULL,0,&want,&have,SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+//        if (!audio) return 0;
+//
+//        memset(sndring.data,0,sizeof(sndring.data));
+//        sndring.read = 0;
+//        sndring.write = 0;
+//        sndring.paused = true;
+//        SDL_PauseAudioDevice(audio,1);
         return 0;
     }
-    if (!audio) return 0;
-
-    SDL_LockAudioDevice(audio);
-
-    len >>= 1;
-    int16_t* in = reinterpret_cast<int16_t*>(buf);
-    int p = sndring.write;
-
-    for (i=0; i<len; i++) {
-        sndring.data[p] = in[i];
-        if (++p >= XSHELL_SOUND_LENGTH) p = 0;
-    }
-    sndring.write = p;
-
-    SDL_UnlockAudioDevice(audio);
-
-    if (sndring.paused) {
-        sndring.paused = false;
-        SDL_PauseAudioDevice(audio,0);
-    }
+//    if (!audio) return 0;
+//
+//    SDL_LockAudioDevice(audio);
+//
+//    len >>= 1;
+//    int16_t* in = reinterpret_cast<int16_t*>(buf);
+//    int p = sndring.write;
+//
+//    for (i=0; i<len; i++) {
+//        sndring.data[p] = in[i];
+//        if (++p >= XSHELL_SOUND_LENGTH) p = 0;
+//    }
+//    sndring.write = p;
+//
+//    SDL_UnlockAudioDevice(audio);
+//
+//    if (sndring.paused) {
+//        sndring.paused = false;
+//        SDL_PauseAudioDevice(audio,0);
+//    }
 #endif
     return 0;
 }
