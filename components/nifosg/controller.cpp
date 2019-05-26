@@ -13,6 +13,8 @@
 #include <components/nif/data.hpp>
 #include <components/sceneutil/morphgeometry.hpp>
 
+#include <extern/xswrapper/xswrapper.hpp>
+
 #include "userdata.hpp"
 
 namespace NifOsg
@@ -453,15 +455,17 @@ void ParticleSystemController::operator() (osg::Node* node, osg::NodeVisitor* nv
 VMOController::VMOController(int texSlot, int frameskip)
     : mTexSlot(texSlot)
     , mFrameskip(frameskip)
-    , mVM(NULL)
+    , mStatus(0)
 {
+    initVM();
 }
 
 VMOController::VMOController()
     : mTexSlot(0)
     , mFrameskip(0)
-    , mVM(NULL)
+    , mStatus(0)
 {
+    initVM();
 }
 
 VMOController::VMOController(const VMOController &copy, const osg::CopyOp &copyop)
@@ -469,14 +473,27 @@ VMOController::VMOController(const VMOController &copy, const osg::CopyOp &copyo
     , Controller(copy)
     , mTexSlot(copy.mTexSlot)
     , mFrameskip(copy.mFrameskip)
-    , mVM(copy.mVM)
+    , mStatus(copy.mStatus)
 {
+    initVM();
+}
+
+VMOController::~VMOController()
+{
+    wrapperKill();
+    printf("VMO Destroyed\n");
+}
+
+void VMOController::initVM()
+{
+    mStatus = wrapperInit();
+    printf("VMO Created, status = %d\n",mStatus);
 }
 
 void VMOController::apply(osg::StateSet* stateset, osg::NodeVisitor* nv)
 {
     //TODO
-    printf("VMO controller is working\n");
+//    printf("VMO controller is working\n");
 }
 
 }

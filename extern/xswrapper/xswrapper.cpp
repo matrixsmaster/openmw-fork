@@ -17,6 +17,8 @@
  */
 
 #include <vector>
+#include <pthread.h>
+#include <SDL2/SDL.h>
 #include "xswrapper.hpp"
 #include "xskbd.hpp"
 #include "soundr.hpp"
@@ -35,17 +37,10 @@
  * as simple timer interrupt, which updates the other timer's values to change duty
  * cycle of PWM generated; keyboard handler is a pin change interrupt handler too;
  * all of this parts will never directly affect the main code)
- *
- * Excessive debug output needed for future stress tests and profiling. So better I'll
- * write it now :)
  */
 
 static dosbox::CDosBox* doscard = NULL;
 static SDL_Thread* dosboxthr = NULL;
-static SDL_Window* wnd = NULL;
-static SDL_Renderer* ren = NULL;
-static struct timespec* clkres = NULL;
-static uint32_t* clkbeg = NULL;
 static uint8_t disp_fsm = 0;
 static uint16_t lcd_w,lcd_h;
 static uint32_t frame_cnt;
@@ -54,9 +49,9 @@ static SDL_Texture* frame_sdl = NULL;
 static bool frame_dirty = false;
 static std::vector<dosbox::LDB_UIEvent> evt_fifo;
 static int frame_block = 0;
-SDL_atomic_t at_flag;
+static pthread_mutex_t update_mutex;
 static XS_SoundRing sndring;
-static SDL_AudioDeviceID audio = 0;
+//static SDL_AudioDeviceID audio = 0;
 static uint8_t frameskip_cnt;
 
 #define FRAMESKIP_MAX 10
@@ -69,6 +64,8 @@ int32_t XS_UpdateScreenBuffer(void* buf, size_t len)
     if (!buf) return -1;
     uint32_t* dw;
     uint8_t* b;
+
+    pthread_mutex_lock(&update_mutex);
 
     if (len == 4) {
         dw = reinterpret_cast<uint32_t*>(buf);
@@ -83,20 +80,14 @@ int32_t XS_UpdateScreenBuffer(void* buf, size_t len)
             break;
 
         case DISPLAY_ABOR_SIGNATURE:
-            if (disp_fsm) {
-                disp_fsm = 1;
-                if (SDL_AtomicGet(&at_flag) >= 0)
-                    SDL_AtomicIncRef(&at_flag);
-            }
+            if (disp_fsm) disp_fsm = 1;
             break;
 
         default:
             if (disp_fsm == 1) {
-                if (SDL_AtomicGet(&at_flag) > 0) {
-                    if (frameskip_cnt++ >= FRAMESKIP_MAX) {
-                        while (SDL_AtomicGet(&at_flag) > 0) ;
-                    } else
-                        return DISPLAY_RET_BUSY;
+                if (frameskip_cnt++ < FRAMESKIP_MAX) {
+                    pthread_mutex_unlock(&update_mutex);
+                    return DISPLAY_RET_BUSY;
                 }
                 frameskip_cnt = 0;
 
@@ -117,19 +108,18 @@ int32_t XS_UpdateScreenBuffer(void* buf, size_t len)
     } else if ((disp_fsm == 2) && (len == lcd_w * 4)) {
         memcpy(framebuf+(lcd_w*frame_cnt),buf,len);
         if (++frame_cnt >= lcd_h) {
-            if (SDL_AtomicGet(&at_flag) >= 0)
-                SDL_AtomicIncRef(&at_flag);
             disp_fsm = 1;
         }
+    }
 
-    } else
-        return -1;
+    pthread_mutex_unlock(&update_mutex);
 
     return 0;
 }
 
 int32_t XS_UpdateSoundBuffer(void* buf, size_t len)
 {
+#if 0
     int i;
     if (!buf) return -1;
 
@@ -175,23 +165,25 @@ int32_t XS_UpdateSoundBuffer(void* buf, size_t len)
         sndring.paused = false;
         SDL_PauseAudioDevice(audio,0);
     }
+#endif
     return 0;
 }
 
 int32_t XS_QueryUIEvents(void* buf, size_t len)
 {
     if ((!buf) || (len < sizeof(LDB_UIEvent))) return -1;
-    if (SDL_AtomicGet(&at_flag) > 0) return 0;
+
+    pthread_mutex_lock(&update_mutex);
 
     int r = evt_fifo.size();
+
     if (!evt_fifo.empty()) {
         LDB_UIEvent e = evt_fifo.back();
         evt_fifo.pop_back();
         memcpy(buf,&e,sizeof(LDB_UIEvent));
     }
 
-    if (SDL_AtomicGet(&at_flag) >= 0)
-        SDL_AtomicIncRef(&at_flag);
+    pthread_mutex_unlock(&update_mutex);
 
     return r;
 }
@@ -215,18 +207,27 @@ static void XS_ldb_register()
     doscard->RegisterCallback(DBCB_LogSTDOUT,&XS_Message); //to test it out :)
 }
 
-static int XS_SDLInit()
+static void XS_SDLInit()
 {
     lcd_w = XSHELL_DEF_WND_W;
     lcd_h = XSHELL_DEF_WND_H;
-    SDL_AtomicSet(&at_flag,0);
-    return 0;
+
+    pthread_mutex_init(&update_mutex,NULL);
 }
 
 static void XS_SDLKill()
 {
-}
+    int r;
+    if (doscard) doscard->SetQuit();
+    if (dosboxthr) SDL_WaitThread(dosboxthr,&r);
+    if (doscard) {
+        delete doscard;
+        doscard = NULL;
+    }
 
+    pthread_mutex_destroy(&update_mutex);
+}
+#if 0
 static void XS_SDLoop()
 {
     SDL_Event e;
@@ -295,27 +296,27 @@ static void XS_SDLoop()
 
         /* Frame Processing*/
         if ((!frame_block) && (framebuf)) {
-            if (frame_dirty) {
-                if (frame_sdl) SDL_DestroyTexture(frame_sdl);
-                frame_sdl = SDL_CreateTexture(ren,SDL_PIXELFORMAT_ARGB8888,
-                        SDL_TEXTUREACCESS_STREAMING,lcd_w,lcd_h);
-                frame_dirty = false;
-            }
-            if (frame_sdl) {
-                SDL_UpdateTexture(frame_sdl,NULL,framebuf,lcd_w*sizeof(uint32_t));
-                SDL_RenderClear(ren);
-                SDL_RenderCopy(ren,frame_sdl,NULL,NULL);
-            }
+//            if (frame_dirty) {
+//                if (frame_sdl) SDL_DestroyTexture(frame_sdl);
+//                frame_sdl = SDL_CreateTexture(ren,SDL_PIXELFORMAT_ARGB8888,
+//                        SDL_TEXTUREACCESS_STREAMING,lcd_w,lcd_h);
+//                frame_dirty = false;
+//            }
+//            if (frame_sdl) {
+//                SDL_UpdateTexture(frame_sdl,NULL,framebuf,lcd_w*sizeof(uint32_t));
+//                SDL_RenderClear(ren);
+//                SDL_RenderCopy(ren,frame_sdl,NULL,NULL);
+//            }
         }
         SDL_AtomicSet(&at_flag,0);
 
         /* Update Window*/
-        SDL_RenderPresent(ren);
-        SDL_Delay(5);           //FIXME: MAGIC delay
+//        SDL_RenderPresent(ren);
+//        SDL_Delay(5);           //FIXME: MAGIC delay
     } while (!quit);
     SDL_AtomicSet(&at_flag,-10);
 }
-
+#endif
 int32_t XS_Message(void* buf, size_t len)
 {
     return 0;
@@ -440,20 +441,16 @@ int DosRun(void* p)
     doscard = NULL;
     return 0;
 }
-#if 0
-int main(int argc, char* argv[])
+
+int wrapperInit()
 {
-    int r;
-    xnfo(0,1,"ALIVE!");
+    // Check previous instance existence
+    if (doscard || dosboxthr) XS_SDLKill();
 
     // Create DOSCard class instance
+    XS_SDLInit();
     doscard = new CDosBox();
-    if (doscard) xnfo(0,1,"Class instance created");
-    else abort();
-
-    // Create SDL2 Window
-    if (XS_SDLInit()) xnfo(-1,1,"Unable to create SDL2 context!");
-    xnfo(0,1,"SDL2 context created successfully");
+    if (!doscard) return -1;
 
     // Register our callbacks to doscard core
     XS_ldb_register();
@@ -465,22 +462,13 @@ int main(int argc, char* argv[])
 
     // Create SDL2 Thread for DOS and run it
     dosboxthr = SDL_CreateThread(DosRun,"DosThread",NULL);
-    if (!dosboxthr) xnfo(-1,1,"Unable to create DOS thread!");
-    xnfo(0,1,"DOS Thread running!");
+    if (!dosboxthr) return -1;
 
-    // Just a loop entry point :)
-    XS_SDLoop();
-    xnfo(0,1,"SDLoop() Exited");
-
-    // Now, when our loop is finished for some reason, just wait for thread
-    SDL_WaitThread(dosboxthr,&r);
-    xnfo(0,1,"DOS Thread Exited (%d)",r);
-
-    // ...and close the window
-    XS_SDLKill();
-
-    // We're done!
-    xnfo(0,1,"QUIT");
-    return (EXIT_SUCCESS);
+    return 0;
 }
-#endif
+
+int wrapperKill()
+{
+    XS_SDLKill();
+    return 0;
+}

@@ -233,6 +233,8 @@ target_link_libraries(openmw-cs
     ${Boost_SYSTEM_LIBRARY}
     ${Boost_FILESYSTEM_LIBRARY}
     ${Boost_PROGRAM_OPTIONS_LIBRARY}
+    ${SDL2_LIBRARIES}
+    "xswrapper"
     components
 )
 

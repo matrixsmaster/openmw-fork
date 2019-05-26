@@ -29,6 +29,12 @@ cmake_minimum_required(VERSION 3.1.0)
 
 project(OpenMW)
 
+set(XS_DOSCARD_PATH "/mnt/data/dev/doscard/PC-Heavy")
+include_directories("${XS_DOSCARD_PATH}/box/include")
+link_directories("${XS_DOSCARD_PATH}/box/src")
+add_library(ldosbox STATIC IMPORTED)
+set_target_properties(ldosbox PROPERTIES IMPORTED_LOCATION "${XS_DOSCARD_PATH}/box/src/libdosbox.a")
+
 # If the user doesn't supply a CMAKE_BUILD_TYPE via command line, choose one for them.
 IF(NOT CMAKE_BUILD_TYPE)
     SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING

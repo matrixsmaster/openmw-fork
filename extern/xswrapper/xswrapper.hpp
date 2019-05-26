@@ -28,7 +28,6 @@
 #include <time.h>
 #include <sys/stat.h>
 #include <dirent.h>
-#include <SDL2/SDL.h>
 #include "ldb.h"
 
 #ifdef LDB_EMBEDDED
@@ -45,6 +44,9 @@ int32_t XS_QueryUIEvents(void* buf, size_t len);
 int32_t XS_GetTicks(void* buf, size_t len);
 int32_t XS_Message(void* buf, size_t len);
 int32_t XS_FIO(void* buf, size_t len);
+
+int wrapperInit();
+int wrapperKill();
 
 void XS_AudioCallback(void* userdata, uint8_t* stream, int len);
 

@@ -321,14 +321,17 @@ namespace NifOsg
     private:
         int mTexSlot;
         int mFrameskip;
-        void* mVM;
+        int mStatus;
 
     public:
         VMOController(int texSlot, int frameskip);
         VMOController();
         VMOController(const VMOController& copy, const osg::CopyOp& copyop);
+        virtual ~VMOController();
 
         META_Object(NifOsg, VMOController)
+
+        void initVM();
 
         virtual void apply(osg::StateSet *stateset, osg::NodeVisitor *nv);
     };
