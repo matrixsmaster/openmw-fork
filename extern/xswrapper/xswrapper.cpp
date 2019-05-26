@@ -526,6 +526,8 @@ static void insertEvent(LDB_UIEventE t, KBD_KEYS key, bool pressed, LDB_MOUSEINF
     pthread_mutex_lock(&update_mutex);
     evt_fifo.insert(evt_fifo.begin(),ev);
     pthread_mutex_unlock(&update_mutex);
+
+    printf("Wrapper: event added: %d, %d, %d, %p\n", t, key, pressed, mouse);
 }
 
 static KBD_KEYS mapSdl2Kbd(SDL_Scancode code)
@@ -537,7 +539,7 @@ static KBD_KEYS mapSdl2Kbd(SDL_Scancode code)
     return KBD_NONE;
 }
 
-static bool wrapperKeyDownEvent(SDL_KeyboardEvent* ev)
+static bool wrapperKeyDownEvent(const SDL_KeyboardEvent* ev)
 {
     if (!ev) return true;
 
@@ -552,7 +554,7 @@ static bool wrapperKeyDownEvent(SDL_KeyboardEvent* ev)
     return true;
 }
 
-static bool wrapperKeyUpEvent(SDL_KeyboardEvent* ev)
+static bool wrapperKeyUpEvent(const SDL_KeyboardEvent* ev)
 {
     if (!ev) return true;
 
@@ -570,7 +572,7 @@ static LDB_MOUSEINF mapSdl2MouseClick(uint8_t button)
     return inf;
 }
 
-static bool wrapperMouseDownEvent(SDL_MouseButtonEvent* ev)
+static bool wrapperMouseDownEvent(const SDL_MouseButtonEvent* ev)
 {
     if (!ev) return true;
 
@@ -580,7 +582,7 @@ static bool wrapperMouseDownEvent(SDL_MouseButtonEvent* ev)
 }
 
 
-static bool wrapperMouseUpEvent(SDL_MouseButtonEvent* ev)
+static bool wrapperMouseUpEvent(const SDL_MouseButtonEvent* ev)
 {
     if (!ev) return true;
 
@@ -589,7 +591,7 @@ static bool wrapperMouseUpEvent(SDL_MouseButtonEvent* ev)
     return true;
 }
 
-static bool wrapperMouseEvent(SDL_MouseMotionEvent* ev)
+static bool wrapperMouseEvent(const SDL_MouseMotionEvent* ev)
 {
     if (!ev) return true;
 

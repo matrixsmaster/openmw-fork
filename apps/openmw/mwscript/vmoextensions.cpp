@@ -15,6 +15,12 @@
 #include <osg/Geode>
 #include <osg/ShapeDrawable>
 
+#include <MyGUI_InputManager.h>
+#include <MyGUI_RenderManager.h>
+#include <MyGUI_Widget.h>
+#include <MyGUI_Button.h>
+#include <MyGUI_EditBox.h>
+
 #include <components/compiler/extensions.hpp>
 #include <components/compiler/opcodes.hpp>
 #include <components/compiler/locals.hpp>
@@ -125,7 +131,17 @@ namespace MWScript
 #else
                 if (!en) {
                     MWBase::Environment::get().getInputManager()->setEventSinks(NULL);
+
                 } else {
+                    if (MyGUI::InputManager::getInstance().isModalAny())
+                        return;
+
+                    if (MWBase::Environment::get().getWindowManager()->isGuiMode())
+                    {
+                        if (MWBase::Environment::get().getWindowManager()->getMode() == MWGui::GM_Console)
+                            MWBase::Environment::get().getWindowManager()->popGuiMode();
+                    }
+
                     MWBase::Environment::get().getInputManager()->setEventSinks(wrapperGetEventSinks());
                 }
 #endif

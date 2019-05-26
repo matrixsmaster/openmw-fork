@@ -23,11 +23,11 @@
 #include <SDL2/SDL.h>
 
 struct wrapperEventSinkType {
-    std::function<bool (SDL_KeyboardEvent*)> keydown = 0;
-    std::function<bool (SDL_KeyboardEvent*)> keyup = 0;
-    std::function<bool (SDL_MouseButtonEvent*)> mousedown = 0;
-    std::function<bool (SDL_MouseButtonEvent*)> mouseup = 0;
-    std::function<bool (SDL_MouseMotionEvent*)> mouse = 0;
+    std::function<bool (const SDL_KeyboardEvent*)> keydown = 0;
+    std::function<bool (const SDL_KeyboardEvent*)> keyup = 0;
+    std::function<bool (const SDL_MouseButtonEvent*)> mousedown = 0;
+    std::function<bool (const SDL_MouseButtonEvent*)> mouseup = 0;
+    std::function<bool (const SDL_MouseMotionEvent*)> mouse = 0;
 };
 
 #endif /* XSWRAPPER_EVENTSINK_HPP_ */
