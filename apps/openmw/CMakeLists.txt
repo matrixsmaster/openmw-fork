@@ -129,6 +129,7 @@ target_link_libraries(openmw
     ${MyGUI_LIBRARIES}
     ${SDL2_LIBRARY}
     "osg-ffmpeg-videoplayer"
+    "xswrapper"
     components
 )
 

@@ -366,7 +366,8 @@ ENDIF(NOT WIN32 AND NOT APPLE)
 
 # Extern
 add_subdirectory (extern/osg-ffmpeg-videoplayer)
-# add_subdirectory (extern/oics)
+add_subdirectory (extern/xswrapper)
+
 if (BUILD_OPENCS)
     add_subdirectory (extern/osgQt)
 endif()
