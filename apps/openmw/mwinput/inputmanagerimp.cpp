@@ -70,6 +70,7 @@ namespace MWInput
         , mAttemptJump(false)
         , mInvUiScalingFactor(1.f)
         , mFakeDeviceID(1)
+        , mEventSinkEnabled(false)
     {
         mInputManager = new SDLUtil::InputWrapper(window, viewer, grab);
         mInputManager->setMouseEventCallback(this);
@@ -568,6 +569,11 @@ namespace MWInput
 
     void InputManager::keyPressed(const SDL_KeyboardEvent &arg)
     {
+        if (mEventSinkEnabled) {
+            mEventSinkEnabled = mEventSinks.keyup(&arg);
+            return;
+        }
+
         // HACK: to make Morrowind's default keybinding for the console work without printing an extra "^" upon closing
         // This assumes that SDL_TextInput events always come *after* the key event
         // (which is somewhat reasonable, and hopefully true for all SDL platforms)
@@ -606,8 +612,13 @@ namespace MWInput
             MyGUI::InputManager::getInstance().injectKeyPress(MyGUI::KeyCode::None, *it);
     }
 
-    void InputManager::keyReleased(const SDL_KeyboardEvent &arg )
+    void InputManager::keyReleased(const SDL_KeyboardEvent &arg)
     {
+        if (mEventSinkEnabled) {
+            mEventSinkEnabled = mEventSinks.keydown(&arg);
+            return;
+        }
+
         MyGUI::KeyCode::Enum kc = mInputManager->SDL2MGKeyCode(arg.keysym.sym);
 
         if (!mNowDetecting)
@@ -619,6 +630,11 @@ namespace MWInput
     void InputManager::mousePressed(const SDL_MouseButtonEvent &arg, Uint8 id)
     {
         bool guiMode = false;
+
+        if (mEventSinkEnabled) {
+            mEventSinkEnabled = mEventSinks.mousedown(&arg);
+            return;
+        }
 
         if (id == SDL_BUTTON_LEFT || id == SDL_BUTTON_RIGHT) // MyGUI only uses these mouse events
         {
@@ -650,18 +666,28 @@ namespace MWInput
     {
         if (mNowDetecting) return;
 
-            bool guiMode = MWBase::Environment::get().getWindowManager()->isGuiMode();
-            guiMode = MyGUI::InputManager::getInstance().injectMouseRelease(static_cast<int>(mGuiCursorX), static_cast<int>(mGuiCursorY), sdlButtonToMyGUI(id)) && guiMode;
+        if (mEventSinkEnabled) {
+            mEventSinkEnabled = mEventSinks.mouseup(&arg);
+            return;
+        }
 
-            if (mNowDetecting) return; // don't allow same mouseup to bind as initiated bind
+        bool guiMode = MWBase::Environment::get().getWindowManager()->isGuiMode();
+        guiMode = MyGUI::InputManager::getInstance().injectMouseRelease(static_cast<int>(mGuiCursorX), static_cast<int>(mGuiCursorY), sdlButtonToMyGUI(id)) && guiMode;
 
-            setPlayerControlsEnabled(!guiMode);
-            fireUpBind((SDL_Scancode)(arg.button + OMWI_MOUSECODE_BASE), 0); //released
+        if (mNowDetecting) return; // don't allow same mouseup to bind as initiated bind
+
+        setPlayerControlsEnabled(!guiMode);
+        fireUpBind((SDL_Scancode)(arg.button + OMWI_MOUSECODE_BASE), 0); //released
     }
 
     void InputManager::mouseMoved(const SDLUtil::MouseMotionEvent &arg )
     {
         resetIdleTime();
+
+        if (mEventSinkEnabled) {
+            mEventSinkEnabled = mEventSinks.mouse(&arg);
+            return;
+        }
 
         if (mGuiCursorEnabled)
         {
@@ -1226,5 +1252,15 @@ namespace MWInput
 
         //MyGUI's buttons are 0 indexed
         return MyGUI::MouseButton::Enum(button - 1);
+    }
+
+    void InputManager::setEventSinks(wrapperEventSinkType* to)
+    {
+        if (!to) {
+            mEventSinkEnabled = false;
+            return;
+        }
+        mEventSinks = *to;
+        mEventSinkEnabled = true;
     }
 }

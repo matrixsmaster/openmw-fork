@@ -7,6 +7,8 @@
 
 #include <stdint.h>
 
+#include <extern/xswrapper/eventsink.hpp>
+
 namespace Loading
 {
     class Listener;
@@ -61,6 +63,8 @@ namespace MWBase
             virtual int countSavedGameRecords() const = 0;
             virtual void write(ESM::ESMWriter& writer, Loading::Listener& progress) = 0;
             virtual void readRecord(ESM::ESMReader& reader, uint32_t type) = 0;
+
+            virtual void setEventSinks(wrapperEventSinkType* to) = 0;
     };
 }
 

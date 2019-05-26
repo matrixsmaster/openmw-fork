@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2013-2014  Dmitry Solovyev
+ *  Copyright (C) 2019  Dmitry Solovyev
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -16,15 +16,18 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef SOUNDR_H_
-#define SOUNDR_H_
+#ifndef XSWRAPPER_EVENTSINK_HPP_
+#define XSWRAPPER_EVENTSINK_HPP_
 
-#define XSHELL_SOUND_LENGTH 22050
+#include <functional>
+#include <SDL2/SDL.h>
 
-typedef struct {
-	int16_t data[XSHELL_SOUND_LENGTH*2];
-	uint32_t read,write;
-	bool paused;
-} XS_SoundRing;
+struct wrapperEventSinkType {
+    std::function<bool (SDL_KeyboardEvent*)> keydown = 0;
+    std::function<bool (SDL_KeyboardEvent*)> keyup = 0;
+    std::function<bool (SDL_MouseButtonEvent*)> mousedown = 0;
+    std::function<bool (SDL_MouseButtonEvent*)> mouseup = 0;
+    std::function<bool (SDL_MouseMotionEvent*)> mouse = 0;
+};
 
-#endif /* SOUNDR_H_ */
+#endif /* XSWRAPPER_EVENTSINK_HPP_ */

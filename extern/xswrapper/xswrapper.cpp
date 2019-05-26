@@ -38,13 +38,13 @@ static uint8_t disp_fsm = 0;
 static uint16_t lcd_w,lcd_h;
 static uint32_t frame_cnt;
 static uint32_t* framebuf = NULL;
-static SDL_Texture* frame_sdl = NULL;
 static bool frame_dirty = false;
 static std::vector<dosbox::LDB_UIEvent> evt_fifo;
 static pthread_mutex_t update_mutex;
 static XS_SoundRing sndring;
-//static SDL_AudioDeviceID audio = 0;
 static uint8_t frameskip_cnt;
+static wrapperEventSinkType cur_sinks;
+static bool rctrl_down;
 
 #define FRAMESKIP_MAX 10
 
@@ -203,6 +203,7 @@ static void XS_SDLInit()
 {
     lcd_w = XSHELL_DEF_WND_W;
     lcd_h = XSHELL_DEF_WND_H;
+    rctrl_down = false;
 
     pthread_mutex_init(&update_mutex,NULL);
 }
@@ -510,4 +511,106 @@ osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
     txd->setImage(img);
 
     return txd;
+}
+
+static void insertEvent(LDB_UIEventE t, KBD_KEYS key, bool pressed, LDB_MOUSEINF* mouse)
+{
+    LDB_UIEvent ev;
+    memset(&ev,0,sizeof(ev));
+
+    ev.t = t;
+    ev.key = key;
+    ev.pressed = pressed;
+    if (mouse) ev.m = *mouse;
+
+    pthread_mutex_lock(&update_mutex);
+    evt_fifo.insert(evt_fifo.begin(),ev);
+    pthread_mutex_unlock(&update_mutex);
+}
+
+static KBD_KEYS mapSdl2Kbd(SDL_Scancode code)
+{
+    for (unsigned i = 0; i < (sizeof(XShellKeyboardMap)/sizeof(XShellKeyboardPair)); i++) {
+        if (XShellKeyboardMap[i].sdl == code)
+            return XShellKeyboardMap[i].db;
+    }
+    return KBD_NONE;
+}
+
+static bool wrapperKeyDownEvent(SDL_KeyboardEvent* ev)
+{
+    if (!ev) return true;
+
+    if (rctrl_down && ev->keysym.scancode == SDL_SCANCODE_HOME) {
+        rctrl_down = false;
+        return false; //exit
+    }
+
+    if (ev->keysym.scancode == SDL_SCANCODE_RCTRL) rctrl_down = true;
+
+    insertEvent(LDB_UIE_KBD, mapSdl2Kbd(ev->keysym.scancode), true, NULL);
+    return true;
+}
+
+static bool wrapperKeyUpEvent(SDL_KeyboardEvent* ev)
+{
+    if (!ev) return true;
+
+    if (ev->keysym.scancode == SDL_SCANCODE_RCTRL) rctrl_down = false;
+
+    insertEvent(LDB_UIE_KBD, mapSdl2Kbd(ev->keysym.scancode), false, NULL);
+    return true;
+}
+
+static LDB_MOUSEINF mapSdl2MouseClick(uint8_t button)
+{
+    LDB_MOUSEINF inf;
+    memset(&inf,0,sizeof(inf));
+    inf.button = button;
+    return inf;
+}
+
+static bool wrapperMouseDownEvent(SDL_MouseButtonEvent* ev)
+{
+    if (!ev) return true;
+
+    LDB_MOUSEINF tmp = mapSdl2MouseClick(ev->button);
+    insertEvent(LDB_UIE_MOUSE, KBD_NONE, true, &tmp);
+    return true;
+}
+
+
+static bool wrapperMouseUpEvent(SDL_MouseButtonEvent* ev)
+{
+    if (!ev) return true;
+
+    LDB_MOUSEINF tmp = mapSdl2MouseClick(ev->button);
+    insertEvent(LDB_UIE_MOUSE, KBD_NONE, false, &tmp);
+    return true;
+}
+
+static bool wrapperMouseEvent(SDL_MouseMotionEvent* ev)
+{
+    if (!ev) return true;
+
+    LDB_MOUSEINF inf;
+    memset(&inf,0,sizeof(inf));
+    inf.rel.x = static_cast<float>(ev->xrel);
+    inf.rel.y = static_cast<float>(ev->yrel);
+    inf.abs.x = static_cast<float>(ev->x);
+    inf.abs.y = static_cast<float>(ev->y);
+
+    insertEvent(LDB_UIE_MOUSE, KBD_NONE, false, &inf);
+    return true;
+}
+
+wrapperEventSinkType* wrapperGetEventSinks()
+{
+    cur_sinks.keydown = wrapperKeyDownEvent;
+    cur_sinks.keyup = wrapperKeyUpEvent;
+    cur_sinks.mousedown = wrapperMouseDownEvent;
+    cur_sinks.mouseup = wrapperMouseUpEvent;
+    cur_sinks.mouse = wrapperMouseEvent;
+
+    return &cur_sinks;
 }

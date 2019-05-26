@@ -33,12 +33,12 @@
 #include <osg/Texture2D>
 
 #include "ldb.h"
+#include "eventsink.hpp"
 
 #ifdef LDB_EMBEDDED
 #error LDB_EMBEDDED is defined
 #endif
 
-#define XSHELL_CAPTION "DOSCARD XShell"
 #define XSHELL_DEF_WND_W 640
 #define XSHELL_DEF_WND_H 480
 
@@ -55,5 +55,7 @@ int wrapperKill();
 osg::ref_ptr<osg::Texture2D> wrapperGetFrame();
 
 void XS_AudioCallback(void* userdata, uint8_t* stream, int len);
+
+wrapperEventSinkType* wrapperGetEventSinks();
 
 #endif /* XSHELL_H_ */
