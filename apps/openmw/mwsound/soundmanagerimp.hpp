@@ -112,6 +112,8 @@ namespace MWSound
         Sound *mUnderwaterSound;
         Sound *mNearWaterSound;
 
+        Stream* mVMOStream;
+
         Sound_Buffer *insertSound(const std::string &soundId, const ESM::Sound *sound);
 
         Sound_Buffer *lookupSound(const std::string &soundId) const;
@@ -128,6 +130,8 @@ namespace MWSound
         void streamMusicFull(const std::string& filename);
         void advanceMusic(const std::string& filename);
         void startRandomTitle();
+
+        void streamVMO();
 
         void updateSounds(float duration);
         void updateRegionSound(float duration);

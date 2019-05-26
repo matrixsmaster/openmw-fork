@@ -44,6 +44,7 @@
 #include "../mwbase/windowmanager.hpp"
 #include "../mwbase/scriptmanager.hpp"
 #include "../mwbase/inputmanager.hpp"
+#include "../mwbase/soundmanager.hpp"
 #include "../mwbase/world.hpp"
 
 #include "../mwworld/class.hpp"
@@ -105,6 +106,9 @@ namespace MWScript
                 // start up the VMO controller
                 controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
                 myNode->setUpdateCallback(controller);
+
+                // start sound
+                MWBase::Environment::get().getSoundManager()->streamVMO();
             }
         };
 

@@ -50,6 +50,7 @@ static bool rctrl_down;
 static bool outtex_valid = false;
 osg::ref_ptr<osg::Texture2D> outtexture;
 static dosbox::LDB_SoundInfo sndinfo;
+static bool got_sndinfo = false;
 
 #define FRAMESKIP_MAX 10
 
@@ -120,6 +121,7 @@ int32_t XS_UpdateSoundBuffer(void* buf, size_t len)
 
     if (len == sizeof(LDB_SoundInfo)) {
         sndinfo = *(reinterpret_cast<LDB_SoundInfo*>(buf));
+        got_sndinfo = true;
         return 0;
     }
 
@@ -304,9 +306,9 @@ int32_t XS_FIO(void* buf, size_t len)
     return 0;
 }
 
-void wrapperGetSound(void* userdata, uint8_t* stream, int len)
+int wrapperGetSound(uint8_t* stream, int len)
 {
-    if (!doscard || !dosboxthr) return;
+    if (!doscard || !dosboxthr) return 0;
 
     int i,p;
     int16_t* buf = reinterpret_cast<int16_t*>(stream);
@@ -324,6 +326,8 @@ void wrapperGetSound(void* userdata, uint8_t* stream, int len)
     sndring.read = p;
 
     pthread_mutex_unlock(&sound_mutex);
+
+    return len<<1;
 }
 
 int DosRun(void* p)
@@ -554,4 +558,12 @@ wrapperEventSinkType* wrapperGetEventSinks()
     cur_sinks.mouse = wrapperMouseEvent;
 
     return &cur_sinks;
+}
+
+dosbox::LDB_SoundInfo* wrapperGetSoundConfig()
+{
+    if (!doscard) return NULL; //shouldn't happen
+
+    while (!got_sndinfo) ; // wait for info (should be ready soon)
+    return &sndinfo;
 }

@@ -175,6 +175,8 @@ namespace MWBase
             virtual void updatePtr(const MWWorld::ConstPtr& old, const MWWorld::ConstPtr& updated) = 0;
 
             virtual void clear() = 0;
+
+            virtual void streamVMO() = 0;
     };
 }
 

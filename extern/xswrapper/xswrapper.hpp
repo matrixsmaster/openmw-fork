@@ -54,7 +54,8 @@ int wrapperKill();
 
 osg::ref_ptr<osg::Texture2D> wrapperGetFrame();
 
-void wrapperGetSound(void* userdata, uint8_t* stream, int len);
+int wrapperGetSound(uint8_t* stream, int len);
+dosbox::LDB_SoundInfo* wrapperGetSoundConfig();
 
 wrapperEventSinkType* wrapperGetEventSinks();
 

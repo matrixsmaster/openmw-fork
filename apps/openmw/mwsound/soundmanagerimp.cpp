@@ -26,6 +26,7 @@
 
 #include "openal_output.hpp"
 #include "ffmpeg_decoder.hpp"
+#include "vmo_generator.hpp"
 
 namespace MWSound
 {
@@ -53,6 +54,7 @@ namespace MWSound
         , mPausedSoundTypes(0)
         , mUnderwaterSound(nullptr)
         , mNearWaterSound(nullptr)
+        , mVMOStream(nullptr)
     {
         mMasterVolume = Settings::Manager::getFloat("master volume", "Sound");
         mMasterVolume = std::min(std::max(mMasterVolume, 0.0f), 1.0f);
@@ -385,6 +387,20 @@ namespace MWSound
         mMusic->init(1.0f, volumeFromType(Type::Music), 1.0f,
                      PlayMode::NoEnv|Type::Music|Play_2D);
         mOutput->streamSound(decoder, mMusic);
+    }
+
+    void SoundManager::streamVMO()
+    {
+        if (!mOutput->isInitialized()) return;
+        if (mVMOStream) return;
+
+        Log(Debug::Info) << "Started VMO Streaming";
+
+        DecoderPtr decoder = std::shared_ptr<VMO_Generator>(new VMO_Generator());
+
+        mVMOStream = getStreamRef();
+        mVMOStream->init(1.0f, volumeFromType(Type::Music), 1.0f, PlayMode::NoEnv|Type::Music|Play_2D);
+        mOutput->streamSound(decoder, mVMOStream);
     }
 
     void SoundManager::advanceMusic(const std::string& filename)
