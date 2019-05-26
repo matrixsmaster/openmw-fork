@@ -31,6 +31,7 @@
 #include "xskbd.hpp"
 #include "soundr.hpp"
 #include "dosbox.h"
+#include "cpu.h"
 
 static dosbox::CDosBox* doscard = NULL;
 static SDL_Thread* dosboxthr = NULL;
@@ -435,6 +436,7 @@ void XS_AudioCallback(void* userdata, uint8_t* stream, int len)
 
 int DosRun(void* p)
 {
+    doscard->UnlockSpeed(true);
     doscard->Execute();
     delete doscard;
     doscard = NULL;
@@ -457,6 +459,10 @@ int wrapperInit()
     // Request for 64MB RAM
     LDB_Settings* setts = doscard->GetConfig();
     setts->mem.total_ram = 64;
+    setts->cpu.core = ALDB_CPU::LDB_CPU_NORMAL;
+//    setts->cpu.cycle_limit = ALDB_CPU::LDB_CPU_CYCLE_MAX;
+    setts->cpu.family = CPU_ARCHTYPE_386FAST;
+    setts->frameskip = 0;
     doscard->SetConfig(setts);
 
     // Create SDL2 Thread for DOS and run it

@@ -496,7 +496,7 @@ void VMOController::apply(osg::StateSet* stateset, osg::NodeVisitor* nv)
 
     stateset->setTextureAttribute(mTexSlot, wrapperGetFrame());
 
-    printf("VMO controller is working\n");
+//    printf("VMO controller is working\n");
 }
 
 }
