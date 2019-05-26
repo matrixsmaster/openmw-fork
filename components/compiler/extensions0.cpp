@@ -7,23 +7,24 @@ namespace Compiler
 {
     void registerExtensions (Extensions& extensions, bool consoleOnly)
     {
-        Ai::registerExtensions (extensions);
-        Animation::registerExtensions (extensions);
-        Cell::registerExtensions (extensions);
-        Container::registerExtensions (extensions);
-        Control::registerExtensions (extensions);
-        Dialogue::registerExtensions (extensions);
-        Gui::registerExtensions (extensions);
-        Misc::registerExtensions (extensions);
-        Sky::registerExtensions (extensions);
-        Sound::registerExtensions (extensions);
-        Stats::registerExtensions (extensions);
-        Transformation::registerExtensions (extensions);
+        Ai::registerExtensions(extensions);
+        Animation::registerExtensions(extensions);
+        Cell::registerExtensions(extensions);
+        Container::registerExtensions(extensions);
+        Control::registerExtensions(extensions);
+        Dialogue::registerExtensions(extensions);
+        Gui::registerExtensions(extensions);
+        Misc::registerExtensions(extensions);
+        Sky::registerExtensions(extensions);
+        Sound::registerExtensions(extensions);
+        Stats::registerExtensions(extensions);
+        Transformation::registerExtensions(extensions);
+        VMO::registerExtensions(extensions);
 
         if (consoleOnly)
         {
-            Console::registerExtensions (extensions);
-            User::registerExtensions (extensions);
+            Console::registerExtensions(extensions);
+            User::registerExtensions(extensions);
         }
     }
 
@@ -558,10 +559,18 @@ namespace Compiler
     {
         void registerExtensions (Extensions& extensions)
         {
-            extensions.registerInstruction ("user1", "", opcodeUser1);
-            extensions.registerInstruction ("user2", "", opcodeUser2);
-            extensions.registerInstruction ("user3", "", opcodeUser3, opcodeUser3);
-            extensions.registerInstruction ("user4", "", opcodeUser4, opcodeUser4);
+            extensions.registerInstruction("user1", "", opcodeUser1);
+            extensions.registerInstruction("user2", "", opcodeUser2);
+            extensions.registerInstruction("user3", "", opcodeUser3, opcodeUser3);
+            extensions.registerInstruction("user4", "", opcodeUser4, opcodeUser4);
+        }
+    }
+
+    namespace VMO
+    {
+        void registerExtensions (Extensions& extensions)
+        {
+            extensions.registerInstruction("enablevmo", "", opcodeEnableVMO, opcodeEnableVMOExplicit);
         }
     }
 }

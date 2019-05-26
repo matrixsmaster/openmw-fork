@@ -482,7 +482,7 @@ namespace MWRender
     {
         mSky->setEnabled(enabled);
     }
-    
+
     bool RenderingManager::toggleBorders()
     {
         mBorders = !mBorders;
@@ -574,8 +574,7 @@ namespace MWRender
 
         mUnrefQueue->flush(mWorkQueue.get());
 
-        if (!paused)
-        {
+        if (!paused) {
             mEffectManager->update(dt);
             mSky->update(dt);
             mWater->update(dt);
@@ -586,14 +585,14 @@ namespace MWRender
         osg::Vec3f focal, cameraPos;
         mCamera->getPosition(focal, cameraPos);
         mCurrentCameraPos = cameraPos;
-        if (mWater->isUnderwater(cameraPos))
-        {
+
+        if (mWater->isUnderwater(cameraPos)) {
             setFogColor(mUnderwaterColor * mUnderwaterWeight + mFogColor * (1.f-mUnderwaterWeight));
+
             mStateUpdater->setFogStart(mUnderwaterFogStart);
             mStateUpdater->setFogEnd(mUnderwaterFogEnd);
-        }
-        else
-        {
+
+        } else {
             setFogColor(mFogColor);
 
             mStateUpdater->setFogStart(mLandFogStart);
@@ -749,8 +748,8 @@ namespace MWRender
 
         osg::Vec3 directions[6] = {
             rawCubemap ? osg::Vec3(1,0,0) : osg::Vec3(0,0,1),
-            osg::Vec3(0,0,-1),  
-            osg::Vec3(-1,0,0),   
+            osg::Vec3(0,0,-1),
+            osg::Vec3(-1,0,0),
             rawCubemap ? osg::Vec3(0,0,1) : osg::Vec3(1,0,0),
             osg::Vec3(0,1,0),
             osg::Vec3(0,-1,0)};
@@ -789,7 +788,7 @@ namespace MWRender
         mFieldOfView = fovBackup;
 
         if (rawCubemap)    // for raw cubemap don't run on GPU, just merge the images
-        {    
+        {
             image->allocateImage(cubeSize * 6,cubeSize,images[0]->r(),images[0]->getPixelFormat(),images[0]->getDataType());
 
             for (int i = 0; i < 6; ++i)
@@ -797,7 +796,7 @@ namespace MWRender
 
             return true;
         }
-        
+
         // run on GPU now:
 
         osg::ref_ptr<osg::TextureCubeMap> cubeTexture (new osg::TextureCubeMap);

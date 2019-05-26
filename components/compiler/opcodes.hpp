@@ -521,6 +521,14 @@ namespace Compiler
         const int opcodeUser4 = 0x2000170;
         const int opcodeUser4Explicit = 0x2000171;
     }
+
+    namespace VMO
+    {
+        const int opcodeEnableVMO = 0x2000310;
+        const int opcodeEnableVMOExplicit = 0x2000311;
+        const int opcodeSetEventSink = 0x2000312;
+        const int opcodeSetEventSinkExplicit = 0x2000313;
+    }
 }
 
 #endif

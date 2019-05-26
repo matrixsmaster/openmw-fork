@@ -1,5 +1,7 @@
 #include "controller.hpp"
 
+#include <cstdio>
+
 #include <osg/MatrixTransform>
 #include <osg/TexMat>
 #include <osg/Material>
@@ -412,7 +414,11 @@ void FlipController::apply(osg::StateSet* stateset, osg::NodeVisitor* nv)
     if (hasInput() && mDelta != 0 && !mTextures.empty())
     {
         int curTexture = int(getInputValue(nv) / mDelta) % mTextures.size();
+//        printf("selecting texture %d (out of %lu)\n",curTexture,mTextures.size());
+//        printf("Selecting texture %s\n",mTextures[curTexture]->getName().c_str());
         stateset->setTextureAttribute(mTexSlot, mTextures[curTexture]);
+//        stateset->setTextureAttributeAndModes(mTexSlot, mTextures[curTexture], osg::StateAttribute::ON);
+//        mTextures[curTexture]->getImage()->dirty();
     }
 }
 
