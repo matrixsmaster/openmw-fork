@@ -64,7 +64,7 @@ namespace MWScript
             {
                 MWWorld::Ptr obj = R()(runtime);
                 Resource::ResourceSystem* rsys = MWBase::Environment::get().getWorld()->getResourceSystem();
-
+#if 0
                 int num = 51;
                 std::vector<osg::ref_ptr<osg::Texture2D> > textures;
                 for (int i=0; i<num; ++i)
@@ -81,17 +81,27 @@ namespace MWScript
                     textures.push_back(tex2);
                     printf("-> %u\n",tex2->getImage()->getImageSizeInBytes());
                 }
-
+#else
+                osg::ref_ptr<osg::Texture2D> tex2 (new osg::Texture2D(rsys->getImageManager()->getImage("textures/0_DELETE_ME/anim-1.png")));
+                tex2->setWrap(osg::Texture::WRAP_S, osg::Texture::CLAMP);
+                tex2->setWrap(osg::Texture::WRAP_T, osg::Texture::CLAMP);
+                rsys->getSceneManager()->applyFilterSettings(tex2);
+#endif
                 SceneUtil::PositionAttitudeTransform* ptr = obj.getRefData().getBaseNode();
                 osg::ref_ptr<osg::Geode> myNode = new osg::Geode();
+
                 myNode->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3f(0.0f,0.0f,0.0f),50.f)));
                 ptr->addChild(myNode.get());
+
                 osg::StateSet* stateset = myNode->getOrCreateStateSet();
                 osg::TexEnv* pTexEnv = new osg::TexEnv();
+
                 pTexEnv->setMode(osg::TexEnv::REPLACE);
                 stateset->setTextureAttributeAndModes(0, pTexEnv, osg::StateAttribute::ON);
-                stateset->setTextureAttributeAndModes(0, textures[1].get(), osg::StateAttribute::ON);
-                osg::ref_ptr<NifOsg::FlipController> controller (new NifOsg::FlipController(0, 4.f/float(num), textures));
+                stateset->setTextureAttributeAndModes(0, tex2, osg::StateAttribute::ON);
+
+                osg::ref_ptr<NifOsg::VMOController> controller(new NifOsg::VMOController(0, 1));
+
                 controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
                 myNode->setUpdateCallback(controller);
             }

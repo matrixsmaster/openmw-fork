@@ -414,11 +414,7 @@ void FlipController::apply(osg::StateSet* stateset, osg::NodeVisitor* nv)
     if (hasInput() && mDelta != 0 && !mTextures.empty())
     {
         int curTexture = int(getInputValue(nv) / mDelta) % mTextures.size();
-//        printf("selecting texture %d (out of %lu)\n",curTexture,mTextures.size());
-//        printf("Selecting texture %s\n",mTextures[curTexture]->getName().c_str());
         stateset->setTextureAttribute(mTexSlot, mTextures[curTexture]);
-//        stateset->setTextureAttributeAndModes(mTexSlot, mTextures[curTexture], osg::StateAttribute::ON);
-//        mTextures[curTexture]->getImage()->dirty();
     }
 }
 
@@ -452,6 +448,35 @@ void ParticleSystemController::operator() (osg::Node* node, osg::NodeVisitor* nv
     else
         emitter->getParticleSystem()->setFrozen(true);
     traverse(node, nv);
+}
+
+VMOController::VMOController(int texSlot, int frameskip)
+    : mTexSlot(texSlot)
+    , mFrameskip(frameskip)
+    , mVM(NULL)
+{
+}
+
+VMOController::VMOController()
+    : mTexSlot(0)
+    , mFrameskip(0)
+    , mVM(NULL)
+{
+}
+
+VMOController::VMOController(const VMOController &copy, const osg::CopyOp &copyop)
+    : StateSetUpdater(copy, copyop)
+    , Controller(copy)
+    , mTexSlot(copy.mTexSlot)
+    , mFrameskip(copy.mFrameskip)
+    , mVM(copy.mVM)
+{
+}
+
+void VMOController::apply(osg::StateSet* stateset, osg::NodeVisitor* nv)
+{
+    //TODO
+    printf("VMO controller is working\n");
 }
 
 }
