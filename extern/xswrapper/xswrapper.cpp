@@ -374,6 +374,22 @@ int wrapperKill()
     return 0;
 }
 
+#if 0
+static void reversecolor(uint8_t* buf, size_t len)
+{
+    uint32_t* ptr = (uint32_t*)buf;
+    for (size_t i = 0; i < len; i += 4, ++ptr)
+        *ptr = __builtin_bswap32(*ptr);
+}
+#else
+static void reversecolor(uint8_t* buf, size_t len)
+{
+    for (size_t i = 0; i < len; i += 4) {
+        std::swap(buf[i+0],buf[i+2]);
+    }
+}
+#endif
+
 static void* revmemcpy(void* dest, void* src, size_t len, size_t unit)
 {
     if (!dest || !src ) return NULL;
@@ -447,10 +463,15 @@ osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
 
     if (outtexture.get()->getImage()) {
         revmemcpy(outtexture.get()->getImage()->data(),framebuf,lcd_w*lcd_h*4,lcd_w*4);
-        outtexture.get()->getImage()->dirty();
+//        outtexture.get()->getImage()->dirty();
     }
 
     pthread_mutex_unlock(&update_mutex);
+
+    if (outtexture.get()->getImage()) {
+        reversecolor(outtexture.get()->getImage()->data(),lcd_w*lcd_h*4);
+        outtexture.get()->getImage()->dirty();
+    }
 
     return outtexture;
 #endif
@@ -564,6 +585,7 @@ dosbox::LDB_SoundInfo* wrapperGetSoundConfig()
 {
     if (!doscard) return NULL; //shouldn't happen
 
-    while (!got_sndinfo) ; // wait for info (should be ready soon)
+    //FIXME: add proper waiting or callback
+//    while (!got_sndinfo) ; // wait for info (should be ready soon)
     return &sndinfo;
 }

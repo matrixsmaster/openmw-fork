@@ -10,8 +10,8 @@ namespace Version
     {
     	// I have to hard-code it because the version resource file in my setup is too volatile
     	// and could completely be out of sync with the current ELF file being executed
-        const std::string mVersion = "0.45.0";
-        const std::string mCommitHash = "branch newdyntxd"; // this would point to the PREVIOUS commit
+        const std::string mVersion = "0.45.2";
+        const std::string mCommitHash = "DOS DOS"; // this would point to the PREVIOUS commit
 
         std::string describe();
     };

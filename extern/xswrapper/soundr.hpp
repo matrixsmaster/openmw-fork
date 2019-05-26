@@ -19,7 +19,7 @@
 #ifndef SOUNDR_H_
 #define SOUNDR_H_
 
-#define XSHELL_SOUND_LENGTH 22050
+#define XSHELL_SOUND_LENGTH 11025
 
 typedef struct {
 	int16_t data[XSHELL_SOUND_LENGTH*2];
