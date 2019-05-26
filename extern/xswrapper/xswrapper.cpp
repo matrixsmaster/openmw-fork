@@ -16,6 +16,14 @@
  *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+/*
+ * ATTENTION! WARNING! ACHTUNG!
+ * This module IS NOT FINISHED, it's just a roughly changed copy of DosCard demo XShell 1
+ * Made for proof-of-concept purposes
+ *
+ * TODO: fix all this mess
+ */
+
 #include <vector>
 #include <pthread.h>
 #include <SDL2/SDL.h>
@@ -23,21 +31,6 @@
 #include "xskbd.hpp"
 #include "soundr.hpp"
 #include "dosbox.h"
-
-/*
- * The Basic model:
- * 1. Run SDL window
- * 2. Start Box thread
- * 2.a. Box thread calls UpdateScreenBuffer() every it's own frame
- * 2.b. Box thread calls UpdateSoundBuffer() every time the buffer is ready
- * 2.c. Box thread calls QueryUIEvents() every time the thread ready to process them
- * 2.note. This mechanism is close enough to what will happen on a real chip
- * (video generator may be a separate chip, which connected to main chip via UART/SPI/I2C
- * or may be just a timer's interrupt handler; audio output controller may be implemented
- * as simple timer interrupt, which updates the other timer's values to change duty
- * cycle of PWM generated; keyboard handler is a pin change interrupt handler too;
- * all of this parts will never directly affect the main code)
- */
 
 static dosbox::CDosBox* doscard = NULL;
 static SDL_Thread* dosboxthr = NULL;
@@ -218,8 +211,14 @@ static void XS_SDLInit()
 static void XS_SDLKill()
 {
     int r;
+
     if (doscard) doscard->SetQuit();
-    if (dosboxthr) SDL_WaitThread(dosboxthr,&r);
+
+    if (dosboxthr) {
+        SDL_WaitThread(dosboxthr,&r);
+        dosboxthr = NULL;
+    }
+
     if (doscard) {
         delete doscard;
         doscard = NULL;
