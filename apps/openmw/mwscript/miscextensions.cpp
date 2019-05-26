@@ -1,5 +1,6 @@
 #include "miscextensions.hpp"
 
+#include <cstdio>
 #include <cstdlib>
 
 #include <components/compiler/extensions.hpp>

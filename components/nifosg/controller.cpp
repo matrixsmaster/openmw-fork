@@ -1,5 +1,7 @@
 #include "controller.hpp"
 
+#include <cstdio>
+
 #include <osg/MatrixTransform>
 #include <osg/TexMat>
 #include <osg/Material>
@@ -10,6 +12,8 @@
 
 #include <components/nif/data.hpp>
 #include <components/sceneutil/morphgeometry.hpp>
+
+#include <extern/xswrapper/xswrapper.hpp>
 
 #include "userdata.hpp"
 
@@ -446,6 +450,53 @@ void ParticleSystemController::operator() (osg::Node* node, osg::NodeVisitor* nv
     else
         emitter->getParticleSystem()->setFrozen(true);
     traverse(node, nv);
+}
+
+VMOController::VMOController(int texSlot, int frameskip)
+    : mTexSlot(texSlot)
+    , mFrameskip(frameskip)
+    , mStatus(0)
+{
+    initVM();
+}
+
+VMOController::VMOController()
+    : mTexSlot(0)
+    , mFrameskip(0)
+    , mStatus(0)
+{
+    initVM();
+}
+
+VMOController::VMOController(const VMOController &copy, const osg::CopyOp &copyop)
+    : StateSetUpdater(copy, copyop)
+    , Controller(copy)
+    , mTexSlot(copy.mTexSlot)
+    , mFrameskip(copy.mFrameskip)
+    , mStatus(copy.mStatus)
+{
+    initVM();
+}
+
+VMOController::~VMOController()
+{
+    wrapperKill();
+    printf("VMO Destroyed\n");
+}
+
+void VMOController::initVM()
+{
+    mStatus = !wrapperInit();
+    printf("VMO Created, status = %d\n",mStatus);
+}
+
+void VMOController::apply(osg::StateSet* stateset, osg::NodeVisitor* nv)
+{
+    if (!mStatus) return;
+
+    stateset->setTextureAttribute(mTexSlot, wrapperGetFrame());
+
+//    printf("VMO controller is working\n");
 }
 
 }

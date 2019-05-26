@@ -117,6 +117,8 @@ namespace MWInput
         virtual void write(ESM::ESMWriter& writer, Loading::Listener& progress);
         virtual void readRecord(ESM::ESMReader& reader, uint32_t type);
 
+        virtual void setEventSinks(wrapperEventSinkType* to);
+
     private:
         SDL_Window* mWindow;
         bool mWindowVisible;
@@ -168,6 +170,9 @@ namespace MWInput
         std::map<std::string, bool> mControlSwitch;
 
         float mInvUiScalingFactor;
+
+        bool mEventSinkEnabled;
+        wrapperEventSinkType mEventSinks;
 
     private:
         void convertMousePosForMyGUI(int& x, int& y);

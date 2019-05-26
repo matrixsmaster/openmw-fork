@@ -2242,7 +2242,7 @@ namespace MWWorld
 
         float waterlevel = cell->getWaterLevel();
 
-        // SwimHeightScale affects the upper z position an actor can swim to 
+        // SwimHeightScale affects the upper z position an actor can swim to
         // while in water. Based on observation from the original engine,
         // the upper z position you get with a +1 SwimHeightScale is the depth
         // limit for being able to cast water walking on an underwater target.
@@ -2385,7 +2385,7 @@ namespace MWWorld
     {
         mRendering->screenshot(image, w, h);
     }
-    
+
     bool World::screenshot360(osg::Image* image, std::string settingStr)
     {
         return mRendering->screenshot360(image,settingStr);
@@ -3710,4 +3710,8 @@ namespace MWWorld
         }
     }
 
+    Resource::ResourceSystem* World::getResourceSystem()
+    {
+        return mResourceSystem;
+    }
 }

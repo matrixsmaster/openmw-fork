@@ -46,12 +46,12 @@ add_openmw_dir (mwscript
     locals scriptmanagerimp compilercontext interpretercontext cellextensions miscextensions
     guiextensions soundextensions skyextensions statsextensions containerextensions
     aiextensions controlextensions extensions globalscripts ref dialogueextensions
-    animationextensions transformationextensions consoleextensions userextensions
+    animationextensions transformationextensions consoleextensions userextensions vmoextensions
     )
 
 add_openmw_dir (mwsound
     soundmanagerimp openal_output ffmpeg_decoder sound sound_buffer sound_decoder sound_output
-    loudness movieaudiofactory alext efx efx-presets
+    loudness movieaudiofactory alext efx efx-presets vmo_generator
     )
 
 add_openmw_dir (mwworld
@@ -129,12 +129,9 @@ target_link_libraries(openmw
     ${MyGUI_LIBRARIES}
     ${SDL2_LIBRARY}
     "osg-ffmpeg-videoplayer"
+    "xswrapper"
     components
 )
-
-#if (USE_SYSTEM_TINYXML)
-#    target_link_libraries(openmw ${TinyXML_LIBRARIES})
-#endif()
 
 if (NOT UNIX)
 	target_link_libraries(openmw ${SDL2MAIN_LIBRARY})

@@ -76,6 +76,11 @@ namespace Compiler
     {
         void registerExtensions (Extensions& extensions);
     }
+
+    namespace VMO
+    {
+        void registerExtensions (Extensions& extensions);
+    }
 }
 
 #endif

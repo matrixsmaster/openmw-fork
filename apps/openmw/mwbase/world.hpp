@@ -71,6 +71,11 @@ namespace Fallback
     class Map;
 }
 
+namespace Resource
+{
+    class ResourceSystem;
+}
+
 namespace MWBase
 {
     /// \brief Interface for the World(implemented in MWWorld)
@@ -608,6 +613,8 @@ namespace MWBase
 
             /// Preload VFX associated with this effect list
             virtual void preloadEffects(const ESM::EffectList* effectList) = 0;
+
+            virtual Resource::ResourceSystem* getResourceSystem() = 0;
     };
 }
 

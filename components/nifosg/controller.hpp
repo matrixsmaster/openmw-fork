@@ -316,6 +316,26 @@ namespace NifOsg
         float mEmitStop;
     };
 
+    class VMOController : public SceneUtil::StateSetUpdater, public SceneUtil::Controller
+    {
+    private:
+        int mTexSlot;
+        int mFrameskip;
+        int mStatus;
+
+    public:
+        VMOController(int texSlot, int frameskip);
+        VMOController();
+        VMOController(const VMOController& copy, const osg::CopyOp& copyop);
+        virtual ~VMOController();
+
+        META_Object(NifOsg, VMOController)
+
+        void initVM();
+
+        virtual void apply(osg::StateSet *stateset, osg::NodeVisitor *nv);
+    };
+
 }
 
 #endif

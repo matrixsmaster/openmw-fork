@@ -687,7 +687,7 @@ void OMW::Engine::go()
     {
         double dt = frameTimer.time_s();
         frameTimer.setStartTick();
-        dt = std::min(dt, 0.2);
+        dt = std::min(dt, 0.2); // TODO: 0.001 is good enough for a bullet time
 
         mViewer->advance(simulationTime);
 
@@ -696,19 +696,16 @@ void OMW::Engine::go()
             OpenThreads::Thread::microSleep(5000);
             continue;
         }
-        else
-        {
-            mViewer->eventTraversal();
-            mViewer->updateTraversal();
 
-            mEnvironment.getWorld()->updateWindowManager();
+        mViewer->eventTraversal();
+        mViewer->updateTraversal();
 
-            mViewer->renderingTraversals();
+        mEnvironment.getWorld()->updateWindowManager();
 
-            bool guiActive = mEnvironment.getWindowManager()->isGuiMode();
-            if (!guiActive)
-                simulationTime += dt;
-        }
+        mViewer->renderingTraversals();
+
+        bool guiActive = mEnvironment.getWindowManager()->isGuiMode();
+        if (!guiActive) simulationTime += dt;
 
         mEnvironment.limitFrameRate(frameTimer.time_s());
     }

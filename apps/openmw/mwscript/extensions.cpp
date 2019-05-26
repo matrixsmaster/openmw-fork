@@ -17,29 +17,31 @@
 #include "transformationextensions.hpp"
 #include "consoleextensions.hpp"
 #include "userextensions.hpp"
+#include "vmoextensions.hpp"
 
 namespace MWScript
 {
     void installOpcodes (Interpreter::Interpreter& interpreter, bool consoleOnly)
     {
-        Interpreter::installOpcodes (interpreter);
-        Cell::installOpcodes (interpreter);
-        Misc::installOpcodes (interpreter);
-        Gui::installOpcodes (interpreter);
-        Sound::installOpcodes (interpreter);
-        Sky::installOpcodes (interpreter);
-        Stats::installOpcodes (interpreter);
-        Container::installOpcodes (interpreter);
-        Ai::installOpcodes (interpreter);
-        Control::installOpcodes (interpreter);
-        Dialogue::installOpcodes (interpreter);
-        Animation::installOpcodes (interpreter);
-        Transformation::installOpcodes (interpreter);
+        Interpreter::installOpcodes(interpreter);
+        Cell::installOpcodes(interpreter);
+        Misc::installOpcodes(interpreter);
+        Gui::installOpcodes(interpreter);
+        Sound::installOpcodes(interpreter);
+        Sky::installOpcodes(interpreter);
+        Stats::installOpcodes(interpreter);
+        Container::installOpcodes(interpreter);
+        Ai::installOpcodes(interpreter);
+        Control::installOpcodes(interpreter);
+        Dialogue::installOpcodes(interpreter);
+        Animation::installOpcodes(interpreter);
+        Transformation::installOpcodes(interpreter);
+        VMO::installOpcodes(interpreter);
 
         if (consoleOnly)
         {
-            Console::installOpcodes (interpreter);
-            User::installOpcodes (interpreter);
+            Console::installOpcodes(interpreter);
+            User::installOpcodes(interpreter);
         }
     }
 }
