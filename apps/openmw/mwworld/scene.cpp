@@ -303,7 +303,7 @@ namespace MWWorld
 
             // ... then references. This is important for adjustPosition to work correctly.
             /// \todo rescale depending on the state of a new GMST
-            insertCell (*cell, true, loadingListener);
+            insertCell (*cell, false, loadingListener);
 
             mRendering.addCell(cell);
             bool waterEnabled = cell->getCell()->hasWater() || cell->isExterior();
