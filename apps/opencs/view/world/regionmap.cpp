@@ -309,29 +309,16 @@ void CSVWorld::RegionMap::view()
 
 void CSVWorld::RegionMap::viewInTable()
 {
-    std::ostringstream hint;
-    hint << "f:!or(";
-
+    std::string hint = "f:";
     QModelIndexList selected = getSelectedCells();
-
-    bool first = true;
 
     for (QModelIndexList::const_iterator iter (selected.begin()); iter!=selected.end(); ++iter)
     {
-        std::string cellId = model()->data (*iter, CSMWorld::RegionMap::Role_CellId).
-            toString().toUtf8().constData();
-
-        if (first)
-            first = false;
-        else
-            hint << ",";
-
-        hint << "string(ID,\"" << cellId << "\")";
+        hint += model()->data (*iter, CSMWorld::RegionMap::Role_CellId).toString().toUtf8().constData();
+        break;
     }
 
-    hint << ")";
-
-    emit editRequest (CSMWorld::UniversalId::Type_Cells, hint.str());
+    emit editRequest (CSMWorld::UniversalId::Type_Cells, hint);
 }
 
 void CSVWorld::RegionMap::mouseMoveEvent (QMouseEvent* event)
