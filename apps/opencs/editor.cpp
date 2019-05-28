@@ -22,9 +22,8 @@ using namespace Fallback;
 CS::Editor::Editor (int argc, char **argv)
 : mSettingsState (mCfgMgr), mDocumentManager (mCfgMgr),
   mViewManager (mDocumentManager), mPid(""),
-  mLock(), mMerge (mDocumentManager),
-  mIpcServerName ("org.openmw.OpenCS"), mServer(nullptr), mClientSocket(nullptr)
-{    
+  mLock(), mMerge (mDocumentManager)
+{
     std::pair<Files::PathContainer, std::vector<std::string> > config = readConfig();
 
     setupDataFiles (config.first);
@@ -69,11 +68,6 @@ CS::Editor::Editor (int argc, char **argv)
 
 CS::Editor::~Editor ()
 {
-    mPidFile.close();
-
-    if(mServer && boost::filesystem::exists(mPid))
-        static_cast<void> ( // silence coverity warning
-        remove(mPid.string().c_str())); // ignore any error
 }
 
 void CS::Editor::setupDataFiles (const Files::PathContainer& dataDirs)
@@ -281,74 +275,6 @@ void CS::Editor::showSettings()
     mSettings.move (QCursor::pos());
     mSettings.raise();
     mSettings.activateWindow();
-}
-
-bool CS::Editor::makeIPCServer()
-{
-    try
-    {
-        mPid = boost::filesystem::temp_directory_path();
-        mPid /= "openmw-cs.pid";
-        bool pidExists = boost::filesystem::exists(mPid);
-
-        mPidFile.open(mPid);
-
-        mLock = boost::interprocess::file_lock(mPid.string().c_str());
-        if(!mLock.try_lock())
-        {
-            Log(Debug::Error) << "Error: OpenMW-CS is already running.";
-            return false;
-        }
-
-#ifdef _WIN32
-        mPidFile << GetCurrentProcessId() << std::endl;
-#else
-        mPidFile << getpid() << std::endl;
-#endif
-
-        mServer = new QLocalServer(this);
-
-        if(pidExists)
-        {
-            // hack to get the temp directory path
-            mServer->listen("dummy");
-            QString fullPath = mServer->fullServerName();
-            mServer->close();
-            fullPath.remove(QRegExp("dummy$"));
-            fullPath += mIpcServerName;
-            if(boost::filesystem::exists(fullPath.toUtf8().constData()))
-            {
-                // TODO: compare pid of the current process with that in the file
-                Log(Debug::Info) << "Detected unclean shutdown.";
-                // delete the stale file
-                if(remove(fullPath.toUtf8().constData()))
-                    Log(Debug::Error) << "Error: can not remove stale connection file.";
-            }
-        }
-    }
-
-    catch(const std::exception& e)
-    {
-        Log(Debug::Error) << "Error: " << e.what();
-        return false;
-    }
-
-    if(mServer->listen(mIpcServerName))
-    {
-        connect(mServer, SIGNAL(newConnection()), this, SLOT(showStartup()));
-        return true;
-    }
-
-    mServer->close();
-    mServer = nullptr;
-    return false;
-}
-
-void CS::Editor::connectToIPCServer()
-{
-    mClientSocket = new QLocalSocket(this);
-    mClientSocket->connectToServer(mIpcServerName);
-    mClientSocket->close();
 }
 
 int CS::Editor::run()

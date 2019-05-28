@@ -51,7 +51,6 @@ namespace CS
             boost::filesystem::path mResources;
             boost::filesystem::path mPid;
             boost::interprocess::file_lock mLock;
-            boost::filesystem::ofstream mPidFile;
             bool mFsStrict;
             CSVTools::Merge mMerge;
 
@@ -98,12 +97,6 @@ namespace CS
             void lastDocumentDeleted();
 
             void mergeDocument (CSMDoc::Document *document);
-
-        private:
-
-            QString mIpcServerName;
-            QLocalServer *mServer;
-            QLocalSocket *mClientSocket;
     };
 }
 
