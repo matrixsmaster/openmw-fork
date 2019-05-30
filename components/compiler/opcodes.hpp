@@ -70,6 +70,9 @@ namespace Compiler
         const int opcodePlayAnimExplicit = 0x20007;
         const int opcodeLoopAnim = 0x20008;
         const int opcodeLoopAnimExplicit = 0x20009;
+
+        const int opcodeKillAnim = 0x2000314;
+        const int opcodeKillAnimExplicit = 0x2000315;
     }
 
     namespace Cell

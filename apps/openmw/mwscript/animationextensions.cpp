@@ -10,6 +10,8 @@
 #include <components/interpreter/runtime.hpp>
 #include <components/interpreter/opcodes.hpp>
 
+#include <components/sceneutil/positionattitudetransform.hpp>
+
 #include "../mwbase/environment.hpp"
 #include "../mwbase/mechanicsmanager.hpp"
 
@@ -98,16 +100,30 @@ namespace MWScript
                     MWBase::Environment::get().getMechanicsManager()->playAnimationGroup (ptr, group, mode, loops + 1, true);
                }
         };
-        
+
+        template<class R>
+        class OpKillAnim : public Interpreter::Opcode0
+		{
+            public:
+
+                virtual void execute (Interpreter::Runtime& runtime)
+                {
+                    MWWorld::Ptr obj = R()(runtime);
+                    SceneUtil::PositionAttitudeTransform* ptr = obj.getRefData().getBaseNode();
+                    ptr->setUpdateCallback(nullptr);
+                }
+		};
 
         void installOpcodes (Interpreter::Interpreter& interpreter)
         {
-            interpreter.installSegment5 (Compiler::Animation::opcodeSkipAnim, new OpSkipAnim<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Animation::opcodeSkipAnimExplicit, new OpSkipAnim<ExplicitRef>);
-            interpreter.installSegment3 (Compiler::Animation::opcodePlayAnim, new OpPlayAnim<ImplicitRef>);
-            interpreter.installSegment3 (Compiler::Animation::opcodePlayAnimExplicit, new OpPlayAnim<ExplicitRef>);
-            interpreter.installSegment3 (Compiler::Animation::opcodeLoopAnim, new OpLoopAnim<ImplicitRef>);
-            interpreter.installSegment3 (Compiler::Animation::opcodeLoopAnimExplicit, new OpLoopAnim<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Animation::opcodeSkipAnim, new OpSkipAnim<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Animation::opcodeSkipAnimExplicit, new OpSkipAnim<ExplicitRef>);
+            interpreter.installSegment3(Compiler::Animation::opcodePlayAnim, new OpPlayAnim<ImplicitRef>);
+            interpreter.installSegment3(Compiler::Animation::opcodePlayAnimExplicit, new OpPlayAnim<ExplicitRef>);
+            interpreter.installSegment3(Compiler::Animation::opcodeLoopAnim, new OpLoopAnim<ImplicitRef>);
+            interpreter.installSegment3(Compiler::Animation::opcodeLoopAnimExplicit, new OpLoopAnim<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Animation::opcodeKillAnim, new OpSkipAnim<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Animation::opcodeKillAnimExplicit, new OpSkipAnim<ExplicitRef>);
         }
     }
 }

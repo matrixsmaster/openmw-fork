@@ -79,9 +79,10 @@ namespace Compiler
     {
         void registerExtensions (Extensions& extensions)
         {
-            extensions.registerInstruction ("skipanim", "", opcodeSkipAnim, opcodeSkipAnimExplicit);
-            extensions.registerInstruction ("playgroup", "c/l", opcodePlayAnim, opcodePlayAnimExplicit);
-            extensions.registerInstruction ("loopgroup", "cl/l", opcodeLoopAnim, opcodeLoopAnimExplicit);
+            extensions.registerInstruction("skipanim", "", opcodeSkipAnim, opcodeSkipAnimExplicit);
+            extensions.registerInstruction("playgroup", "c/l", opcodePlayAnim, opcodePlayAnimExplicit);
+            extensions.registerInstruction("loopgroup", "cl/l", opcodeLoopAnim, opcodeLoopAnimExplicit);
+            extensions.registerInstruction("killanim", "", opcodeKillAnim, opcodeKillAnimExplicit);
         }
     }
 

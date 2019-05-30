@@ -463,5 +463,7 @@ op 0x2000310: EnableVMO
 op 0x2000311: EnableVMO, explicit
 op 0x2000312: SetEventSink
 op 0x2000313: SetEventSink, explicit
+op 0x2000314: KillAnim
+op 0x2000315: KillAnim, explicit
 
-opcodes 0x2000314-0x3ffffff unused
+opcodes 0x2000316-0x3ffffff unused
