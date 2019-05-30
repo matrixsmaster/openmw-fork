@@ -571,7 +571,7 @@ namespace Compiler
     {
         void registerExtensions (Extensions& extensions)
         {
-            extensions.registerInstruction("enablevmo", "", opcodeEnableVMO, opcodeEnableVMOExplicit);
+            extensions.registerInstruction("enablevmo", "ffffff", opcodeEnableVMO, opcodeEnableVMOExplicit);
             extensions.registerInstruction("seteventsink", "l", opcodeSetEventSink, opcodeSetEventSinkExplicit);
         }
     }

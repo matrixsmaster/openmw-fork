@@ -86,8 +86,23 @@ namespace MWScript
                 SceneUtil::PositionAttitudeTransform* ptr = obj.getRefData().getBaseNode();
                 osg::ref_ptr<osg::Geode> myNode = new osg::Geode();
 
+                // read arguments
+                Interpreter::Type_Float offX = runtime[0].mFloat;
+                runtime.pop();
+                Interpreter::Type_Float offY = runtime[0].mFloat;
+                runtime.pop();
+                Interpreter::Type_Float offZ = runtime[0].mFloat;
+                runtime.pop();
+                Interpreter::Type_Float szX = runtime[0].mFloat;
+                runtime.pop();
+                Interpreter::Type_Float szY = runtime[0].mFloat;
+                runtime.pop();
+                Interpreter::Type_Float szZ = runtime[0].mFloat;
+                runtime.pop();
+                printf("Creating VMO with offset (%.2f, %.2f, %.2f) and size (%.2f, %.2f, %.2f)\n",offX,offY,offZ,szX,szY,szZ);
+
                 // and add it to the scene
-                myNode->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3f(0.0f,0.0f,0.0f),50.f)));
+                myNode->addDrawable(new osg::ShapeDrawable(new osg::Box(osg::Vec3f(offX,offY,offZ),szX,szY,szZ)));
                 myNode->setName("VirtualMachineObject");
                 myNode->setDataVariance(osg::Object::DYNAMIC);
                 ptr->addChild(myNode.get());
@@ -101,14 +116,14 @@ namespace MWScript
                 stateset->setTextureAttributeAndModes(0, tex2, osg::StateAttribute::ON);
 
                 // create the VMO controller (this will lead to VM initialization)
-                osg::ref_ptr<NifOsg::VMOController> controller(new NifOsg::VMOController(0, 1));
-
-                // start up the VMO controller
-                controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
-                myNode->setUpdateCallback(controller);
-
-                // start sound
-                MWBase::Environment::get().getSoundManager()->streamVMO();
+//                osg::ref_ptr<NifOsg::VMOController> controller(new NifOsg::VMOController(0, 1));
+//
+//                // start up the VMO controller
+//                controller->setSource(std::shared_ptr<SceneUtil::ControllerSource>(new SceneUtil::FrameTimeSource));
+//                myNode->setUpdateCallback(controller);
+//
+//                // start sound
+//                MWBase::Environment::get().getSoundManager()->streamVMO();
             }
         };
 
@@ -119,21 +134,11 @@ namespace MWScript
             virtual void execute(Interpreter::Runtime &runtime)
             {
                 MWWorld::Ptr obj = R()(runtime);
-//                SceneUtil::PositionAttitudeTransform* ptr = obj.getRefData().getBaseNode();
 
                 Interpreter::Type_Integer en = runtime[0].mInteger;
                 runtime.pop();
-
                 printf("Event sink enable: %d\n",en);
 
-#if 0
-                unsigned num = ptr->getNumChildren();
-                for (unsigned i = 0; i < num; i++) {
-                    if (ptr->getChild(i)->getName() == "VirtualMachineObject") {
-                        printf("Child found!\n");
-                    }
-                }
-#else
                 if (!en) {
                     MWBase::Environment::get().getInputManager()->setEventSinks(NULL);
 
@@ -149,7 +154,6 @@ namespace MWScript
 
                     MWBase::Environment::get().getInputManager()->setEventSinks(wrapperGetEventSinks());
                 }
-#endif
             }
         };
 
