@@ -105,12 +105,26 @@ namespace MWScript
         class OpKillAnim : public Interpreter::Opcode0
 		{
             public:
-
-                virtual void execute (Interpreter::Runtime& runtime)
+                virtual void execute(Interpreter::Runtime& runtime)
                 {
                     MWWorld::Ptr obj = R()(runtime);
                     SceneUtil::PositionAttitudeTransform* ptr = obj.getRefData().getBaseNode();
-                    ptr->setUpdateCallback(nullptr);
+                    find_and_remove_callbacks(ptr);
+
+                }
+
+                void find_and_remove_callbacks(osg::Group* ptr)
+                {
+                    if (!ptr) return;
+                    for (unsigned i = 0; i < ptr->getNumChildren(); i++)
+                    {
+                        osg::Node* ch = ptr->getChild(i);
+                        if (ch) {
+                            osg::Callback* ucb = ch->getUpdateCallback();
+                            if (ucb) ch->removeUpdateCallback(ucb);
+                            find_and_remove_callbacks(ch->asGroup());
+                        }
+                    }
                 }
 		};
 
@@ -122,8 +136,8 @@ namespace MWScript
             interpreter.installSegment3(Compiler::Animation::opcodePlayAnimExplicit, new OpPlayAnim<ExplicitRef>);
             interpreter.installSegment3(Compiler::Animation::opcodeLoopAnim, new OpLoopAnim<ImplicitRef>);
             interpreter.installSegment3(Compiler::Animation::opcodeLoopAnimExplicit, new OpLoopAnim<ExplicitRef>);
-            interpreter.installSegment5(Compiler::Animation::opcodeKillAnim, new OpSkipAnim<ImplicitRef>);
-            interpreter.installSegment5(Compiler::Animation::opcodeKillAnimExplicit, new OpSkipAnim<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Animation::opcodeKillAnim, new OpKillAnim<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Animation::opcodeKillAnimExplicit, new OpKillAnim<ExplicitRef>);
         }
     }
 }
