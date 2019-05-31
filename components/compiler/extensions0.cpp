@@ -204,36 +204,37 @@ namespace Compiler
     {
         void registerExtensions (Extensions& extensions)
         {
-            extensions.registerInstruction ("enablebirthmenu", "", opcodeEnableBirthMenu);
-            extensions.registerInstruction ("enableclassmenu", "", opcodeEnableClassMenu);
-            extensions.registerInstruction ("enablenamemenu", "", opcodeEnableNameMenu);
-            extensions.registerInstruction ("enableracemenu", "", opcodeEnableRaceMenu);
-            extensions.registerInstruction ("enablestatreviewmenu", "",
-                opcodeEnableStatsReviewMenu);
+            extensions.registerInstruction("enablebirthmenu", "", opcodeEnableBirthMenu);
+            extensions.registerInstruction("enableclassmenu", "", opcodeEnableClassMenu);
+            extensions.registerInstruction("enablenamemenu", "", opcodeEnableNameMenu);
+            extensions.registerInstruction("enableracemenu", "", opcodeEnableRaceMenu);
+            extensions.registerInstruction("enablestatreviewmenu", "", opcodeEnableStatsReviewMenu);
 
-            extensions.registerInstruction ("enableinventorymenu", "", opcodeEnableInventoryMenu);
-            extensions.registerInstruction ("enablemagicmenu", "", opcodeEnableMagicMenu);
-            extensions.registerInstruction ("enablemapmenu", "", opcodeEnableMapMenu);
-            extensions.registerInstruction ("enablestatsmenu", "", opcodeEnableStatsMenu);
+            extensions.registerInstruction("enableinventorymenu", "", opcodeEnableInventoryMenu);
+            extensions.registerInstruction("enablemagicmenu", "", opcodeEnableMagicMenu);
+            extensions.registerInstruction("enablemapmenu", "", opcodeEnableMapMenu);
+            extensions.registerInstruction("enablestatsmenu", "", opcodeEnableStatsMenu);
 
-            extensions.registerInstruction ("enablerest", "", opcodeEnableRest);
-            extensions.registerInstruction ("enablelevelupmenu", "", opcodeEnableLevelupMenu);
+            extensions.registerInstruction("enablerest", "", opcodeEnableRest);
+            extensions.registerInstruction("enablelevelupmenu", "", opcodeEnableLevelupMenu);
 
-            extensions.registerInstruction ("showrestmenu", "", opcodeShowRestMenu, opcodeShowRestMenuExplicit);
+            extensions.registerInstruction("showrestmenu", "", opcodeShowRestMenu, opcodeShowRestMenuExplicit);
 
-            extensions.registerFunction ("getbuttonpressed", 'l', "", opcodeGetButtonPressed);
+            extensions.registerFunction("getbuttonpressed", 'l', "", opcodeGetButtonPressed);
 
-            extensions.registerInstruction ("togglefogofwar", "", opcodeToggleFogOfWar);
-            extensions.registerInstruction ("tfow", "", opcodeToggleFogOfWar);
+            extensions.registerInstruction("togglefogofwar", "", opcodeToggleFogOfWar);
+            extensions.registerInstruction("tfow", "", opcodeToggleFogOfWar);
 
-            extensions.registerInstruction ("togglefullhelp", "", opcodeToggleFullHelp);
-            extensions.registerInstruction ("tfh", "", opcodeToggleFullHelp);
+            extensions.registerInstruction("togglefullhelp", "", opcodeToggleFullHelp);
+            extensions.registerInstruction("tfh", "", opcodeToggleFullHelp);
 
-            extensions.registerInstruction ("showmap", "Sxxxx", opcodeShowMap);
-            extensions.registerInstruction ("fillmap", "", opcodeFillMap);
-            extensions.registerInstruction ("menutest", "/l", opcodeMenuTest);
-            extensions.registerInstruction ("togglemenus", "", opcodeToggleMenus);
-            extensions.registerInstruction ("tm", "", opcodeToggleMenus);
+            extensions.registerInstruction("showmap", "Sxxxx", opcodeShowMap);
+            extensions.registerInstruction("fillmap", "", opcodeFillMap);
+            extensions.registerInstruction("menutest", "/l", opcodeMenuTest);
+            extensions.registerInstruction("togglemenus", "", opcodeToggleMenus);
+            extensions.registerInstruction("tm", "", opcodeToggleMenus);
+
+            extensions.registerFunction("getguimode", 'l', "", opcodeGetGuiMode);
         }
     }
 

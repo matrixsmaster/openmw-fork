@@ -197,6 +197,8 @@ namespace Compiler
         const int opcodeFillMap = 0x20001a1;
         const int opcodeMenuTest = 0x2002c;
         const int opcodeToggleMenus = 0x200024b;
+
+        const int opcodeGetGuiMode = 0x2000316;
     }
 
     namespace Misc

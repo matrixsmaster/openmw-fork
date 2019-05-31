@@ -170,7 +170,7 @@ namespace MWScript
             virtual void execute (Interpreter::Runtime& runtime, unsigned int arg0)
             {
                 int arg=0;
-                if(arg0>0)
+                if (arg0>0)
                 {
                     arg = runtime[0].mInteger;
                     runtime.pop();
@@ -220,47 +220,47 @@ namespace MWScript
             }
         };
 
+        class OpGetGuiMode : public Interpreter::Opcode0
+        {
+        public:
+            virtual void execute(Interpreter::Runtime &runtime)
+            {
+                Interpreter::Type_Integer value = MWBase::Environment::get().getWindowManager()->getMode();
+                runtime.push(value);
+            }
+        };
+
         void installOpcodes (Interpreter::Interpreter& interpreter)
         {
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableBirthMenu,
-                new OpShowDialogue (MWGui::GM_Birth));
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableClassMenu,
-                new OpShowDialogue (MWGui::GM_Class));
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableNameMenu,
-                new OpShowDialogue (MWGui::GM_Name));
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableRaceMenu,
-                new OpShowDialogue (MWGui::GM_Race));
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableStatsReviewMenu,
-                new OpShowDialogue (MWGui::GM_Review));
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableLevelupMenu,
-                new OpShowDialogue (MWGui::GM_Levelup));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableBirthMenu, new OpShowDialogue(MWGui::GM_Birth));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableClassMenu, new OpShowDialogue(MWGui::GM_Class));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableNameMenu, new OpShowDialogue(MWGui::GM_Name));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableRaceMenu, new OpShowDialogue(MWGui::GM_Race));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableStatsReviewMenu, new OpShowDialogue(MWGui::GM_Review));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableLevelupMenu, new OpShowDialogue(MWGui::GM_Levelup));
 
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableInventoryMenu,
-                new OpEnableWindow (MWGui::GW_Inventory));
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableMagicMenu,
-                new OpEnableWindow (MWGui::GW_Magic));
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableMapMenu,
-                new OpEnableWindow (MWGui::GW_Map));
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableStatsMenu,
-                new OpEnableWindow (MWGui::GW_Stats));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableInventoryMenu, new OpEnableWindow(MWGui::GW_Inventory));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableMagicMenu, new OpEnableWindow(MWGui::GW_Magic));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableMapMenu, new OpEnableWindow(MWGui::GW_Map));
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableStatsMenu, new OpEnableWindow(MWGui::GW_Stats));
 
-            interpreter.installSegment5 (Compiler::Gui::opcodeEnableRest,
-                new OpEnableRest ());
+            interpreter.installSegment5(Compiler::Gui::opcodeEnableRest, new OpEnableRest());
 
-            interpreter.installSegment5 (Compiler::Gui::opcodeShowRestMenu,
-                new OpShowRestMenu<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Gui::opcodeShowRestMenuExplicit, new OpShowRestMenu<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Gui::opcodeShowRestMenu, new OpShowRestMenu<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Gui::opcodeShowRestMenuExplicit, new OpShowRestMenu<ExplicitRef>);
 
-            interpreter.installSegment5 (Compiler::Gui::opcodeGetButtonPressed, new OpGetButtonPressed);
+            interpreter.installSegment5(Compiler::Gui::opcodeGetButtonPressed, new OpGetButtonPressed);
 
-            interpreter.installSegment5 (Compiler::Gui::opcodeToggleFogOfWar, new OpToggleFogOfWar);
+            interpreter.installSegment5(Compiler::Gui::opcodeToggleFogOfWar, new OpToggleFogOfWar);
 
-            interpreter.installSegment5 (Compiler::Gui::opcodeToggleFullHelp, new OpToggleFullHelp);
+            interpreter.installSegment5(Compiler::Gui::opcodeToggleFullHelp, new OpToggleFullHelp);
 
-            interpreter.installSegment5 (Compiler::Gui::opcodeShowMap, new OpShowMap);
-            interpreter.installSegment5 (Compiler::Gui::opcodeFillMap, new OpFillMap);
-            interpreter.installSegment3 (Compiler::Gui::opcodeMenuTest, new OpMenuTest);
-            interpreter.installSegment5 (Compiler::Gui::opcodeToggleMenus, new OpToggleMenus);
+            interpreter.installSegment5(Compiler::Gui::opcodeShowMap, new OpShowMap);
+            interpreter.installSegment5(Compiler::Gui::opcodeFillMap, new OpFillMap);
+            interpreter.installSegment3(Compiler::Gui::opcodeMenuTest, new OpMenuTest);
+            interpreter.installSegment5(Compiler::Gui::opcodeToggleMenus, new OpToggleMenus);
+
+            interpreter.installSegment5(Compiler::Gui::opcodeGetGuiMode, new OpGetGuiMode);
         }
     }
 }
