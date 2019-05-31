@@ -71,6 +71,8 @@ namespace MWScript
             ///< If the script \a name has not been added as a global script yet, it is added
             /// automatically, but is not set to running state.
     };
+
+    extern bool mGameRestarted;
 }
 
 #endif

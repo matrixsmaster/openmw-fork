@@ -225,8 +225,7 @@ namespace MWScript
         public:
             virtual void execute(Interpreter::Runtime &runtime)
             {
-                Interpreter::Type_Integer value = MWBase::Environment::get().getWindowManager()->getMode();
-                runtime.push(value);
+                runtime.push(MWBase::Environment::get().getWindowManager()->getMode());
             }
         };
 

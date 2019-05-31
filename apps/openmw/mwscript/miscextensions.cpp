@@ -34,6 +34,7 @@
 
 #include "interpretercontext.hpp"
 #include "ref.hpp"
+#include "globalscripts.hpp"
 
 namespace
 {
@@ -1318,106 +1319,116 @@ namespace MWScript
             }
         };
 
+        class OpOnGameRestart : public Interpreter::Opcode0
+        {
+        public:
+            virtual void execute(Interpreter::Runtime &runtime)
+            {
+                runtime.push(MWScript::mGameRestarted);
+            }
+        };
+
         void installOpcodes (Interpreter::Interpreter& interpreter)
         {
-            interpreter.installSegment5 (Compiler::Misc::opcodeXBox, new OpXBox);
-            interpreter.installSegment5 (Compiler::Misc::opcodeOnActivate, new OpOnActivate<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeOnActivateExplicit, new OpOnActivate<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeActivate, new OpActivate<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeActivateExplicit, new OpActivate<ExplicitRef>);
-            interpreter.installSegment3 (Compiler::Misc::opcodeLock, new OpLock<ImplicitRef>);
-            interpreter.installSegment3 (Compiler::Misc::opcodeLockExplicit, new OpLock<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeUnlock, new OpUnlock<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeUnlockExplicit, new OpUnlock<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeToggleCollisionDebug, new OpToggleCollisionDebug);
-            interpreter.installSegment5 (Compiler::Misc::opcodeToggleCollisionBoxes, new OpToggleCollisionBoxes);
-            interpreter.installSegment5 (Compiler::Misc::opcodeToggleWireframe, new OpToggleWireframe);
-            interpreter.installSegment5 (Compiler::Misc::opcodeFadeIn, new OpFadeIn);
-            interpreter.installSegment5 (Compiler::Misc::opcodeFadeOut, new OpFadeOut);
-            interpreter.installSegment5 (Compiler::Misc::opcodeFadeTo, new OpFadeTo);
-            interpreter.installSegment5 (Compiler::Misc::opcodeTogglePathgrid, new OpTogglePathgrid);
-            interpreter.installSegment5 (Compiler::Misc::opcodeToggleWater, new OpToggleWater);
-            interpreter.installSegment5 (Compiler::Misc::opcodeToggleWorld, new OpToggleWorld);
-            interpreter.installSegment5 (Compiler::Misc::opcodeDontSaveObject, new OpDontSaveObject);
-            interpreter.installSegment5 (Compiler::Misc::opcodePcForce1stPerson, new OpPcForce1stPerson);
-            interpreter.installSegment5 (Compiler::Misc::opcodePcForce3rdPerson, new OpPcForce3rdPerson);
-            interpreter.installSegment5 (Compiler::Misc::opcodePcGet3rdPerson, new OpPcGet3rdPerson);
-            interpreter.installSegment5 (Compiler::Misc::opcodeToggleVanityMode, new OpToggleVanityMode);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetPcSleep, new OpGetPcSleep);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetPcJumping, new OpGetPcJumping);
-            interpreter.installSegment5 (Compiler::Misc::opcodeWakeUpPc, new OpWakeUpPc);
-            interpreter.installSegment5 (Compiler::Misc::opcodePlayBink, new OpPlayBink);
-            interpreter.installSegment5 (Compiler::Misc::opcodePayFine, new OpPayFine);
-            interpreter.installSegment5 (Compiler::Misc::opcodePayFineThief, new OpPayFineThief);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGoToJail, new OpGoToJail);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetLocked, new OpGetLocked<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetLockedExplicit, new OpGetLocked<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetEffect, new OpGetEffect<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetEffectExplicit, new OpGetEffect<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeAddSoulGem, new OpAddSoulGem<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeAddSoulGemExplicit, new OpAddSoulGem<ExplicitRef>);
-            interpreter.installSegment3 (Compiler::Misc::opcodeRemoveSoulGem, new OpRemoveSoulGem<ImplicitRef>);
-            interpreter.installSegment3 (Compiler::Misc::opcodeRemoveSoulGemExplicit, new OpRemoveSoulGem<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeDrop, new OpDrop<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeDropExplicit, new OpDrop<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeDropSoulGem, new OpDropSoulGem<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeDropSoulGemExplicit, new OpDropSoulGem<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetAttacked, new OpGetAttacked<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetAttackedExplicit, new OpGetAttacked<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetWeaponDrawn, new OpGetWeaponDrawn<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetWeaponDrawnExplicit, new OpGetWeaponDrawn<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetSpellReadied, new OpGetSpellReadied<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetSpellReadiedExplicit, new OpGetSpellReadied<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetSpellEffects, new OpGetSpellEffects<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetSpellEffectsExplicit, new OpGetSpellEffects<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetCurrentTime, new OpGetCurrentTime);
-            interpreter.installSegment5 (Compiler::Misc::opcodeSetDelete, new OpSetDelete<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeSetDeleteExplicit, new OpSetDelete<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetSquareRoot, new OpGetSquareRoot);
-            interpreter.installSegment5 (Compiler::Misc::opcodeFall, new OpFall<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeFallExplicit, new OpFall<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetStandingPc, new OpGetStandingPc<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetStandingPcExplicit, new OpGetStandingPc<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetStandingActor, new OpGetStandingActor<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetStandingActorExplicit, new OpGetStandingActor<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetCollidingPc, new OpGetCollidingPc<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetCollidingPcExplicit, new OpGetCollidingPc<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetCollidingActor, new OpGetCollidingActor<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetCollidingActorExplicit, new OpGetCollidingActor<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeHurtStandingActor, new OpHurtStandingActor<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeHurtStandingActorExplicit, new OpHurtStandingActor<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeHurtCollidingActor, new OpHurtCollidingActor<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeHurtCollidingActorExplicit, new OpHurtCollidingActor<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetWindSpeed, new OpGetWindSpeed);
-            interpreter.installSegment5 (Compiler::Misc::opcodeHitOnMe, new OpHitOnMe<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeHitOnMeExplicit, new OpHitOnMe<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeHitAttemptOnMe, new OpHitAttemptOnMe<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeHitAttemptOnMeExplicit, new OpHitAttemptOnMe<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeDisableTeleporting, new OpEnableTeleporting<false>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeEnableTeleporting, new OpEnableTeleporting<true>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeShowVars, new OpShowVars<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeShowVarsExplicit, new OpShowVars<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeShow, new OpShow<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeShowExplicit, new OpShow<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeToggleGodMode, new OpToggleGodMode);
-            interpreter.installSegment5 (Compiler::Misc::opcodeToggleScripts, new OpToggleScripts);
-            interpreter.installSegment5 (Compiler::Misc::opcodeDisableLevitation, new OpEnableLevitation<false>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeEnableLevitation, new OpEnableLevitation<true>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeCast, new OpCast<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeCastExplicit, new OpCast<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeExplodeSpell, new OpExplodeSpell<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeExplodeSpellExplicit, new OpExplodeSpell<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetPcInJail, new OpGetPcInJail);
-            interpreter.installSegment5 (Compiler::Misc::opcodeGetPcTraveling, new OpGetPcTraveling);
-            interpreter.installSegment3 (Compiler::Misc::opcodeBetaComment, new OpBetaComment<ImplicitRef>);
-            interpreter.installSegment3 (Compiler::Misc::opcodeBetaCommentExplicit, new OpBetaComment<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeAddToLevCreature, new OpAddToLevCreature);
-            interpreter.installSegment5 (Compiler::Misc::opcodeRemoveFromLevCreature, new OpRemoveFromLevCreature);
-            interpreter.installSegment5 (Compiler::Misc::opcodeAddToLevItem, new OpAddToLevItem);
-            interpreter.installSegment5 (Compiler::Misc::opcodeRemoveFromLevItem, new OpRemoveFromLevItem);
-            interpreter.installSegment3 (Compiler::Misc::opcodeShowSceneGraph, new OpShowSceneGraph<ImplicitRef>);
-            interpreter.installSegment3 (Compiler::Misc::opcodeShowSceneGraphExplicit, new OpShowSceneGraph<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Misc::opcodeToggleBorders, new OpToggleBorders);
+            interpreter.installSegment5(Compiler::Misc::opcodeXBox, new OpXBox);
+            interpreter.installSegment5(Compiler::Misc::opcodeOnActivate, new OpOnActivate<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeOnActivateExplicit, new OpOnActivate<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeActivate, new OpActivate<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeActivateExplicit, new OpActivate<ExplicitRef>);
+            interpreter.installSegment3(Compiler::Misc::opcodeLock, new OpLock<ImplicitRef>);
+            interpreter.installSegment3(Compiler::Misc::opcodeLockExplicit, new OpLock<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeUnlock, new OpUnlock<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeUnlockExplicit, new OpUnlock<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeToggleCollisionDebug, new OpToggleCollisionDebug);
+            interpreter.installSegment5(Compiler::Misc::opcodeToggleCollisionBoxes, new OpToggleCollisionBoxes);
+            interpreter.installSegment5(Compiler::Misc::opcodeToggleWireframe, new OpToggleWireframe);
+            interpreter.installSegment5(Compiler::Misc::opcodeFadeIn, new OpFadeIn);
+            interpreter.installSegment5(Compiler::Misc::opcodeFadeOut, new OpFadeOut);
+            interpreter.installSegment5(Compiler::Misc::opcodeFadeTo, new OpFadeTo);
+            interpreter.installSegment5(Compiler::Misc::opcodeTogglePathgrid, new OpTogglePathgrid);
+            interpreter.installSegment5(Compiler::Misc::opcodeToggleWater, new OpToggleWater);
+            interpreter.installSegment5(Compiler::Misc::opcodeToggleWorld, new OpToggleWorld);
+            interpreter.installSegment5(Compiler::Misc::opcodeDontSaveObject, new OpDontSaveObject);
+            interpreter.installSegment5(Compiler::Misc::opcodePcForce1stPerson, new OpPcForce1stPerson);
+            interpreter.installSegment5(Compiler::Misc::opcodePcForce3rdPerson, new OpPcForce3rdPerson);
+            interpreter.installSegment5(Compiler::Misc::opcodePcGet3rdPerson, new OpPcGet3rdPerson);
+            interpreter.installSegment5(Compiler::Misc::opcodeToggleVanityMode, new OpToggleVanityMode);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetPcSleep, new OpGetPcSleep);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetPcJumping, new OpGetPcJumping);
+            interpreter.installSegment5(Compiler::Misc::opcodeWakeUpPc, new OpWakeUpPc);
+            interpreter.installSegment5(Compiler::Misc::opcodePlayBink, new OpPlayBink);
+            interpreter.installSegment5(Compiler::Misc::opcodePayFine, new OpPayFine);
+            interpreter.installSegment5(Compiler::Misc::opcodePayFineThief, new OpPayFineThief);
+            interpreter.installSegment5(Compiler::Misc::opcodeGoToJail, new OpGoToJail);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetLocked, new OpGetLocked<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetLockedExplicit, new OpGetLocked<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetEffect, new OpGetEffect<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetEffectExplicit, new OpGetEffect<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeAddSoulGem, new OpAddSoulGem<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeAddSoulGemExplicit, new OpAddSoulGem<ExplicitRef>);
+            interpreter.installSegment3(Compiler::Misc::opcodeRemoveSoulGem, new OpRemoveSoulGem<ImplicitRef>);
+            interpreter.installSegment3(Compiler::Misc::opcodeRemoveSoulGemExplicit, new OpRemoveSoulGem<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeDrop, new OpDrop<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeDropExplicit, new OpDrop<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeDropSoulGem, new OpDropSoulGem<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeDropSoulGemExplicit, new OpDropSoulGem<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetAttacked, new OpGetAttacked<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetAttackedExplicit, new OpGetAttacked<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetWeaponDrawn, new OpGetWeaponDrawn<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetWeaponDrawnExplicit, new OpGetWeaponDrawn<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetSpellReadied, new OpGetSpellReadied<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetSpellReadiedExplicit, new OpGetSpellReadied<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetSpellEffects, new OpGetSpellEffects<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetSpellEffectsExplicit, new OpGetSpellEffects<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetCurrentTime, new OpGetCurrentTime);
+            interpreter.installSegment5(Compiler::Misc::opcodeSetDelete, new OpSetDelete<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeSetDeleteExplicit, new OpSetDelete<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetSquareRoot, new OpGetSquareRoot);
+            interpreter.installSegment5(Compiler::Misc::opcodeFall, new OpFall<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeFallExplicit, new OpFall<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetStandingPc, new OpGetStandingPc<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetStandingPcExplicit, new OpGetStandingPc<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetStandingActor, new OpGetStandingActor<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetStandingActorExplicit, new OpGetStandingActor<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetCollidingPc, new OpGetCollidingPc<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetCollidingPcExplicit, new OpGetCollidingPc<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetCollidingActor, new OpGetCollidingActor<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetCollidingActorExplicit, new OpGetCollidingActor<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeHurtStandingActor, new OpHurtStandingActor<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeHurtStandingActorExplicit, new OpHurtStandingActor<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeHurtCollidingActor, new OpHurtCollidingActor<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeHurtCollidingActorExplicit, new OpHurtCollidingActor<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetWindSpeed, new OpGetWindSpeed);
+            interpreter.installSegment5(Compiler::Misc::opcodeHitOnMe, new OpHitOnMe<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeHitOnMeExplicit, new OpHitOnMe<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeHitAttemptOnMe, new OpHitAttemptOnMe<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeHitAttemptOnMeExplicit, new OpHitAttemptOnMe<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeDisableTeleporting, new OpEnableTeleporting<false>);
+            interpreter.installSegment5(Compiler::Misc::opcodeEnableTeleporting, new OpEnableTeleporting<true>);
+            interpreter.installSegment5(Compiler::Misc::opcodeShowVars, new OpShowVars<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeShowVarsExplicit, new OpShowVars<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeShow, new OpShow<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeShowExplicit, new OpShow<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeToggleGodMode, new OpToggleGodMode);
+            interpreter.installSegment5(Compiler::Misc::opcodeToggleScripts, new OpToggleScripts);
+            interpreter.installSegment5(Compiler::Misc::opcodeDisableLevitation, new OpEnableLevitation<false>);
+            interpreter.installSegment5(Compiler::Misc::opcodeEnableLevitation, new OpEnableLevitation<true>);
+            interpreter.installSegment5(Compiler::Misc::opcodeCast, new OpCast<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeCastExplicit, new OpCast<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeExplodeSpell, new OpExplodeSpell<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeExplodeSpellExplicit, new OpExplodeSpell<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetPcInJail, new OpGetPcInJail);
+            interpreter.installSegment5(Compiler::Misc::opcodeGetPcTraveling, new OpGetPcTraveling);
+            interpreter.installSegment3(Compiler::Misc::opcodeBetaComment, new OpBetaComment<ImplicitRef>);
+            interpreter.installSegment3(Compiler::Misc::opcodeBetaCommentExplicit, new OpBetaComment<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeAddToLevCreature, new OpAddToLevCreature);
+            interpreter.installSegment5(Compiler::Misc::opcodeRemoveFromLevCreature, new OpRemoveFromLevCreature);
+            interpreter.installSegment5(Compiler::Misc::opcodeAddToLevItem, new OpAddToLevItem);
+            interpreter.installSegment5(Compiler::Misc::opcodeRemoveFromLevItem, new OpRemoveFromLevItem);
+            interpreter.installSegment3(Compiler::Misc::opcodeShowSceneGraph, new OpShowSceneGraph<ImplicitRef>);
+            interpreter.installSegment3(Compiler::Misc::opcodeShowSceneGraphExplicit, new OpShowSceneGraph<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Misc::opcodeToggleBorders, new OpToggleBorders);
+            interpreter.installSegment5(Compiler::Misc::opcodeOnGameRestart, new OpOnGameRestart);
         }
     }
 }

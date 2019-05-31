@@ -16,6 +16,8 @@
 
 namespace MWScript
 {
+    bool mGameRestarted = true;
+
     GlobalScriptDesc::GlobalScriptDesc() : mRunning (false) {}
 
 
@@ -82,6 +84,7 @@ namespace MWScript
                 MWBase::Environment::get().getScriptManager()->run (iter->first, interpreterContext);
             }
         }
+        mGameRestarted = false;
     }
 
     void GlobalScripts::clear()

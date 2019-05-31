@@ -466,5 +466,6 @@ op 0x2000313: SetEventSink, explicit
 op 0x2000314: KillAnim
 op 0x2000315: KillAnim, explicit
 op 0x2000316: GetGuiMode
+op 0x2000317: OnGameRestart
 
-opcodes 0x2000317-0x3ffffff unused
+opcodes 0x2000318-0x3ffffff unused

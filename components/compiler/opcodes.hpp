@@ -301,6 +301,8 @@ namespace Compiler
         const int opcodeShowSceneGraph = 0x2002f;
         const int opcodeShowSceneGraphExplicit = 0x20030;
         const int opcodeToggleBorders = 0x2000307;
+
+        const int opcodeOnGameRestart = 0x2000317;
     }
 
     namespace Sky
