@@ -348,23 +348,20 @@ namespace Compiler
     {
         void registerExtensions (Extensions& extensions)
         {
-            extensions.registerInstruction ("say", "SS", opcodeSay, opcodeSayExplicit);
-            extensions.registerFunction ("saydone", 'l', "", opcodeSayDone, opcodeSayDoneExplicit);
-            extensions.registerInstruction ("streammusic", "S", opcodeStreamMusic);
-            extensions.registerInstruction ("playsound", "cXX", opcodePlaySound);
-            extensions.registerInstruction ("playsoundvp", "cff", opcodePlaySoundVP);
-            extensions.registerInstruction ("playsound3d", "cXX", opcodePlaySound3D,
-                opcodePlaySound3DExplicit);
-            extensions.registerInstruction ("playsound3dvp", "cff", opcodePlaySound3DVP,
-                opcodePlaySound3DVPExplicit);
-            extensions.registerInstruction ("playloopsound3d", "c", opcodePlayLoopSound3D,
-                opcodePlayLoopSound3DExplicit);
-            extensions.registerInstruction ("playloopsound3dvp", "cff", opcodePlayLoopSound3DVP,
-                opcodePlayLoopSound3DVPExplicit);
-            extensions.registerInstruction ("stopsound", "c", opcodeStopSound,
-                opcodeStopSoundExplicit);
-            extensions.registerFunction ("getsoundplaying", 'l', "c", opcodeGetSoundPlaying,
-                opcodeGetSoundPlayingExplicit);
+            extensions.registerInstruction("say", "SS", opcodeSay, opcodeSayExplicit);
+            extensions.registerFunction("saydone", 'l', "", opcodeSayDone, opcodeSayDoneExplicit);
+            extensions.registerInstruction("streammusic", "S", opcodeStreamMusic);
+            extensions.registerInstruction("playsound", "cXX", opcodePlaySound);
+            extensions.registerInstruction("playsoundvp", "cff", opcodePlaySoundVP);
+            extensions.registerInstruction("playsound3d", "cXX", opcodePlaySound3D, opcodePlaySound3DExplicit);
+            extensions.registerInstruction("playsound3dvp", "cff", opcodePlaySound3DVP, opcodePlaySound3DVPExplicit);
+            extensions.registerInstruction("playloopsound3d", "c", opcodePlayLoopSound3D, opcodePlayLoopSound3DExplicit);
+            extensions.registerInstruction("playloopsound3dvp", "cff", opcodePlayLoopSound3DVP, opcodePlayLoopSound3DVPExplicit);
+            extensions.registerInstruction("stopsound", "c", opcodeStopSound, opcodeStopSoundExplicit);
+            extensions.registerFunction("getsoundplaying", 'l', "c", opcodeGetSoundPlaying, opcodeGetSoundPlayingExplicit);
+
+            extensions.registerFunction("getgamevolume", 'f', "c", opcodeGetGameVolume);
+            extensions.registerInstruction("setgamevolume", "cf", opcodeSetGameVolume);
         }
     }
 

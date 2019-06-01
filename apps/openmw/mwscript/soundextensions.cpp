@@ -3,6 +3,8 @@
 #include <components/compiler/extensions.hpp>
 #include <components/compiler/opcodes.hpp>
 
+#include <components/settings/settings.hpp>
+
 #include <components/interpreter/interpreter.hpp>
 #include <components/interpreter/runtime.hpp>
 #include <components/interpreter/opcodes.hpp>
@@ -205,35 +207,73 @@ namespace MWScript
                 }
         };
 
+        class OpGetGameVolume : public Interpreter::Opcode0
+        {
+        public:
+
+            virtual void execute (Interpreter::Runtime& runtime)
+            {
+                std::string kind = runtime.getStringLiteral(runtime[0].mInteger);
+                runtime.pop();
+
+                Interpreter::Type_Float ret = 0;
+
+                if (kind == "a") ret = Settings::Manager::getFloat("master volume", "Sound");
+                else if (kind == "m") ret = Settings::Manager::getFloat("music volume", "Sound");
+                else if (kind == "s") ret = Settings::Manager::getFloat("sfx volume", "Sound");
+                else if (kind == "f") ret = Settings::Manager::getFloat("footsteps volume", "Sound");
+                else if (kind == "v") ret = Settings::Manager::getFloat("voice volume", "Sound");
+
+                runtime.push(ret);
+            }
+        };
+
+        class OpSetGameVolume : public Interpreter::Opcode0
+        {
+        public:
+
+            virtual void execute (Interpreter::Runtime& runtime)
+            {
+                std::string kind = runtime.getStringLiteral(runtime[0].mInteger);
+                runtime.pop();
+
+                Interpreter::Type_Float vol = runtime[0].mFloat;
+                runtime.pop();
+
+                if (kind == "a") Settings::Manager::setFloat("master volume", "Sound", vol);
+                else if (kind == "m") Settings::Manager::setFloat("music volume", "Sound", vol);
+                else if (kind == "s") Settings::Manager::setFloat("sfx volume", "Sound", vol);
+                else if (kind == "f") Settings::Manager::setFloat("footsteps volume", "Sound", vol);
+                else if (kind == "v") Settings::Manager::setFloat("voice volume", "Sound", vol);
+
+                MWBase::Environment::get().getSoundManager()->processChangedSettings(Settings::Manager::apply());
+            }
+        };
 
         void installOpcodes (Interpreter::Interpreter& interpreter)
         {
-            interpreter.installSegment5 (Compiler::Sound::opcodeSay, new OpSay<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Sound::opcodeSayDone, new OpSayDone<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Sound::opcodeStreamMusic, new OpStreamMusic);
-            interpreter.installSegment5 (Compiler::Sound::opcodePlaySound, new OpPlaySound);
-            interpreter.installSegment5 (Compiler::Sound::opcodePlaySoundVP, new OpPlaySoundVP);
-            interpreter.installSegment5 (Compiler::Sound::opcodePlaySound3D, new OpPlaySound3D<ImplicitRef> (false));
-            interpreter.installSegment5 (Compiler::Sound::opcodePlaySound3DVP, new OpPlaySoundVP3D<ImplicitRef> (false));
-            interpreter.installSegment5 (Compiler::Sound::opcodePlayLoopSound3D, new OpPlaySound3D<ImplicitRef> (true));
-            interpreter.installSegment5 (Compiler::Sound::opcodePlayLoopSound3DVP,
-                new OpPlaySoundVP3D<ImplicitRef> (true));
-            interpreter.installSegment5 (Compiler::Sound::opcodeStopSound, new OpStopSound<ImplicitRef>);
-            interpreter.installSegment5 (Compiler::Sound::opcodeGetSoundPlaying, new OpGetSoundPlaying<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Sound::opcodeSay, new OpSay<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Sound::opcodeSayExplicit, new OpSay<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Sound::opcodeSayDone, new OpSayDone<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Sound::opcodeSayDoneExplicit, new OpSayDone<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Sound::opcodeStreamMusic, new OpStreamMusic);
+            interpreter.installSegment5(Compiler::Sound::opcodePlaySound, new OpPlaySound);
+            interpreter.installSegment5(Compiler::Sound::opcodePlaySoundVP, new OpPlaySoundVP);
+            interpreter.installSegment5(Compiler::Sound::opcodePlaySound3D, new OpPlaySound3D<ImplicitRef> (false));
+            interpreter.installSegment5(Compiler::Sound::opcodePlaySound3DExplicit, new OpPlaySound3D<ExplicitRef> (false));
+            interpreter.installSegment5(Compiler::Sound::opcodePlaySound3DVP, new OpPlaySoundVP3D<ImplicitRef> (false));
+            interpreter.installSegment5(Compiler::Sound::opcodePlaySound3DVPExplicit, new OpPlaySoundVP3D<ExplicitRef> (false));
+            interpreter.installSegment5(Compiler::Sound::opcodePlayLoopSound3D, new OpPlaySound3D<ImplicitRef> (true));
+            interpreter.installSegment5(Compiler::Sound::opcodePlayLoopSound3DExplicit, new OpPlaySound3D<ExplicitRef> (true));
+            interpreter.installSegment5(Compiler::Sound::opcodePlayLoopSound3DVP, new OpPlaySoundVP3D<ImplicitRef> (true));
+            interpreter.installSegment5(Compiler::Sound::opcodePlayLoopSound3DVPExplicit, new OpPlaySoundVP3D<ExplicitRef> (true));
+            interpreter.installSegment5(Compiler::Sound::opcodeStopSound, new OpStopSound<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Sound::opcodeStopSoundExplicit, new OpStopSound<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Sound::opcodeGetSoundPlaying, new OpGetSoundPlaying<ImplicitRef>);
+            interpreter.installSegment5(Compiler::Sound::opcodeGetSoundPlayingExplicit, new OpGetSoundPlaying<ExplicitRef>);
 
-            interpreter.installSegment5 (Compiler::Sound::opcodeSayExplicit, new OpSay<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Sound::opcodeSayDoneExplicit, new OpSayDone<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Sound::opcodePlaySound3DExplicit,
-                new OpPlaySound3D<ExplicitRef> (false));
-            interpreter.installSegment5 (Compiler::Sound::opcodePlaySound3DVPExplicit,
-                new OpPlaySoundVP3D<ExplicitRef> (false));
-            interpreter.installSegment5 (Compiler::Sound::opcodePlayLoopSound3DExplicit,
-                new OpPlaySound3D<ExplicitRef> (true));
-            interpreter.installSegment5 (Compiler::Sound::opcodePlayLoopSound3DVPExplicit,
-                new OpPlaySoundVP3D<ExplicitRef> (true));
-            interpreter.installSegment5 (Compiler::Sound::opcodeStopSoundExplicit, new OpStopSound<ExplicitRef>);
-            interpreter.installSegment5 (Compiler::Sound::opcodeGetSoundPlayingExplicit,
-                new OpGetSoundPlaying<ExplicitRef>);
+            interpreter.installSegment5(Compiler::Sound::opcodeGetGameVolume, new OpGetGameVolume);
+            interpreter.installSegment5(Compiler::Sound::opcodeSetGameVolume, new OpSetGameVolume);
         }
     }
 }

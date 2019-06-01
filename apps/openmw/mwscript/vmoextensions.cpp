@@ -133,6 +133,8 @@ namespace MWScript
         public:
             virtual void execute(Interpreter::Runtime &runtime)
             {
+                // Currently, we aren't using the object's ref. This will be useful when I start
+                // using libdoscard instead of libdosbox (will be possible to have multiple VMs simultaneously)
                 MWWorld::Ptr obj = R()(runtime);
 
                 Interpreter::Type_Integer en = runtime[0].mInteger;

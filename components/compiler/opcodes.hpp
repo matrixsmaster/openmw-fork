@@ -339,6 +339,9 @@ namespace Compiler
         const int opcodePlayLoopSound3DVPExplicit = 0x200001e;
         const int opcodeStopSoundExplicit = 0x200001f;
         const int opcodeGetSoundPlayingExplicit = 0x2000020;
+
+        const int opcodeGetGameVolume = 0x2000318;
+        const int opcodeSetGameVolume = 0x2000319;
     }
 
     namespace Stats

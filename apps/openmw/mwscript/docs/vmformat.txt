@@ -455,6 +455,7 @@ op 0x2000304: Show
 op 0x2000305: Show, explicit
 op 0x2000306: OnActivate, explicit
 op 0x2000307: ToggleBorders, tb
+
 op 0x200030c: Bring
 op 0x200030d: Bring, explicit
 op 0x200030e: PositionAtPc
@@ -467,5 +468,9 @@ op 0x2000314: KillAnim
 op 0x2000315: KillAnim, explicit
 op 0x2000316: GetGuiMode
 op 0x2000317: OnGameRestart
+op 0x2000318: GetGameVolume
+op 0x2000319: SetGameVolume
+op 0x200031a: GetEventSink
+op 0x200031b: GetEventSink, explicit
 
 opcodes 0x2000318-0x3ffffff unused
