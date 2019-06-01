@@ -159,12 +159,28 @@ namespace MWScript
             }
         };
 
+        template <class R>
+        class OpGetEventSink : public Interpreter::Opcode0
+        {
+        public:
+            virtual void execute(Interpreter::Runtime &runtime)
+            {
+                MWWorld::Ptr obj = R()(runtime);
+
+                Interpreter::Type_Integer en = MWBase::Environment::get().getInputManager()->isEventSinkEnabled();
+                printf("Is event sink enabled: %d\n",en);
+                runtime.push(en);
+            }
+        };
+
         void installOpcodes(Interpreter::Interpreter& interpreter)
         {
             interpreter.installSegment5(Compiler::VMO::opcodeEnableVMO, new OpEnableVMO<ImplicitRef>);
             interpreter.installSegment5(Compiler::VMO::opcodeEnableVMOExplicit, new OpEnableVMO<ExplicitRef>);
             interpreter.installSegment5(Compiler::VMO::opcodeSetEventSink, new OpSetEventSink<ImplicitRef>);
             interpreter.installSegment5(Compiler::VMO::opcodeSetEventSinkExplicit, new OpSetEventSink<ExplicitRef>);
+            interpreter.installSegment5(Compiler::VMO::opcodeGetEventSink, new OpGetEventSink<ImplicitRef>);
+            interpreter.installSegment5(Compiler::VMO::opcodeGetEventSinkExplicit, new OpGetEventSink<ExplicitRef>);
         }
     }
 }

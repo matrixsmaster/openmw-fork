@@ -573,6 +573,7 @@ namespace Compiler
         {
             extensions.registerInstruction("enablevmo", "ffffff", opcodeEnableVMO, opcodeEnableVMOExplicit);
             extensions.registerInstruction("seteventsink", "l", opcodeSetEventSink, opcodeSetEventSinkExplicit);
+            extensions.registerFunction("geteventsink", 'l', "", opcodeGetEventSink, opcodeGetEventSinkExplicit);
         }
     }
 }

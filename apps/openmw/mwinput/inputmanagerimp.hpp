@@ -118,6 +118,7 @@ namespace MWInput
         virtual void readRecord(ESM::ESMReader& reader, uint32_t type);
 
         virtual void setEventSinks(wrapperEventSinkType* to);
+        virtual bool isEventSinkEnabled() const;
 
     private:
         SDL_Window* mWindow;

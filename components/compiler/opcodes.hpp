@@ -538,6 +538,8 @@ namespace Compiler
         const int opcodeEnableVMOExplicit = 0x2000311;
         const int opcodeSetEventSink = 0x2000312;
         const int opcodeSetEventSinkExplicit = 0x2000313;
+        const int opcodeGetEventSink = 0x200031a;
+        const int opcodeGetEventSinkExplicit = 0x200031b;
     }
 }
 

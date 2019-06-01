@@ -1263,4 +1263,9 @@ namespace MWInput
         mEventSinks = *to;
         mEventSinkEnabled = true;
     }
+
+    bool InputManager::isEventSinkEnabled() const
+    {
+        return mEventSinkEnabled;
+    }
 }

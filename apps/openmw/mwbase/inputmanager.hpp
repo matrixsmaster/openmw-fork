@@ -65,6 +65,7 @@ namespace MWBase
             virtual void readRecord(ESM::ESMReader& reader, uint32_t type) = 0;
 
             virtual void setEventSinks(wrapperEventSinkType* to) = 0;
+            virtual bool isEventSinkEnabled() const = 0;
     };
 }
 
