@@ -170,10 +170,10 @@ int scan(bool write, char* in, char* out)
 
 int main(int argc, char* argv[])
 {
-    assert(argc > 3);
+    if (argc > 1)
+        printf("read = %d\n", scan(false, argv[1], NULL));
+    if (argc > 3)
+        printf("write = %d\n", scan(true, argv[2], argv[3]));
 
-    printf("read = %d\n", scan(false, argv[1], NULL));
-    printf("write = %d\n", scan(true, argv[2], argv[3]));
-    
     return 0;
 }
