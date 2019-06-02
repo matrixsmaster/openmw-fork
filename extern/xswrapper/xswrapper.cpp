@@ -357,7 +357,7 @@ int wrapperInit()
     setts->mem.total_ram = 64;
     setts->cpu.core = ALDB_CPU::LDB_CPU_NORMAL;
 //    setts->cpu.cycle_limit = ALDB_CPU::LDB_CPU_CYCLE_MAX;
-    setts->cpu.family = CPU_ARCHTYPE_386FAST;
+    setts->cpu.family = CPU_ARCHTYPE_486NEWSLOW;
     setts->frameskip = 0;
     doscard->SetConfig(setts);
 
