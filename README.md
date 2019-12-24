@@ -1,13 +1,7 @@
 OpenMW-Fork
 ===========
 
-Disclaimer
-----------
- * I don't recommend using this branch to anyone! Proceed at your own risk.
- * This branch is __NOT__ designed to be pulled into the main project, it's just a __personal__ "having fun" branch
- * This branch is deliberately breaks compatibility with mac and droid (probably win32 as well, as I'm a Linux-only user)
- * This branch _could_ possibly be incompatible with upstream (maybe I will try to avoid that, though)
- * This branch _should_ be somewhat incompatible with vanilla Morrowind
+This is a personal OpenMW fork created for experiments and fun engine-tweaking.
 
 Changes
 -------
@@ -22,7 +16,7 @@ So far it does:
 
 1) Removes version information read from "resources/version" file. Switched to hard-coded implementation (I have too many versions of ELF, and only one environment, so they all reported the same version, which is definitely not what I want)
 
-1) Removes CI
+1) Removes CI support
 
 1) Most important: fixed system memory leak (a lot of infinitely hanging dead openmw processes still in RAM) by a kludge: crashcatcher is not installed anymore
 
@@ -35,6 +29,8 @@ So far it does:
 1) Fixed inconsistent docstring formatting in a couple of core headers (more to do)
 
 1) CommandHumanoid spell with a maximum magnitude will now create a temporary companion for a duration of the spell (adds ability to re-equip NPCs)
+
+1) Adds a simple hack for RaceMenu UI, so it's possible now to make cosmetic changes without complete reset of the player character
 
 1) Simplifies the OpenCS record filter feature (much easier to use without worrying about the special syntax)
 
