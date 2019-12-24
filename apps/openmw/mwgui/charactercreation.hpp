@@ -72,6 +72,7 @@ namespace MWGui
     std::string mPlayerRaceId;
     std::string mPlayerBirthSignId;
     ESM::Class mPlayerClass;
+    bool mPlayerRegen;
 
     //Class generation vars
     unsigned mGenerateClassStep;                 // Keeps track of current step in Generate Class dialog

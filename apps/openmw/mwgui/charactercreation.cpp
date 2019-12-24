@@ -15,6 +15,7 @@
 #include "../mwworld/class.hpp"
 #include "../mwworld/esmstore.hpp"
 #include "../mwworld/player.hpp"
+#include "../mwworld/ptr.hpp"
 
 #include "textinput.hpp"
 #include "race.hpp"
@@ -76,6 +77,7 @@ namespace MWGui
         , mCreateClassDialog(0)
         , mBirthSignDialog(0)
         , mReviewDialog(0)
+        , mPlayerRegen(false)
         , mGenerateClassStep(0)
     {
         mCreationStage = CSE_NotStarted;
@@ -142,6 +144,15 @@ namespace MWGui
 
     void CharacterCreation::spawnDialog(const char id)
     {
+        // hack!
+        if (id == GM_Race) {
+            // check if we're leveled up and just want some cosmetics adjustments
+            MWWorld::Ptr ptr = MWBase::Environment::get().getWorld()->getPlayerPtr();
+            MWMechanics::CreatureStats& creatureStats = ptr.getClass().getCreatureStats(ptr);
+            mPlayerRegen = (creatureStats.getLevel() > 1);
+        } else
+            mPlayerRegen = false; //assume we want change only hair/face, and not class,sign,etc
+
         try
         {
             switch (id)
@@ -161,12 +172,15 @@ namespace MWGui
                     MWBase::Environment::get().getWindowManager()->removeDialog(mRaceDialog);
                     mRaceDialog = 0;
                     mRaceDialog = new RaceDialog(mParent, mResourceSystem);
-                    mRaceDialog->setNextButtonShow(mCreationStage >= CSE_RaceChosen);
+                    if (mPlayerRegen)
+                        mRaceDialog->setNextButtonShow(false);
+                    else
+                        mRaceDialog->setNextButtonShow(mCreationStage >= CSE_RaceChosen);
                     mRaceDialog->setRaceId(mPlayerRaceId);
                     mRaceDialog->eventDone += MyGUI::newDelegate(this, &CharacterCreation::onRaceDialogDone);
                     mRaceDialog->eventBack += MyGUI::newDelegate(this, &CharacterCreation::onRaceDialogBack);
                     mRaceDialog->setVisible(true);
-                    if (mCreationStage < CSE_NameChosen)
+                    if (!mPlayerRegen && mCreationStage < CSE_NameChosen)
                         mCreationStage = CSE_NameChosen;
                     break;
 
@@ -690,6 +704,8 @@ namespace MWGui
     void CharacterCreation::handleDialogDone(CSE currentStage, int nextMode)
     {
         MWBase::Environment::get().getWindowManager()->popGuiMode();
+        if (mPlayerRegen) return;
+
         if (mCreationStage == CSE_ReviewNext)
         {
             MWBase::Environment::get().getWindowManager()->pushGuiMode(GM_Review);

@@ -77,6 +77,12 @@ namespace MWMechanics
         MWMechanics::CreatureStats& creatureStats = ptr.getClass().getCreatureStats (ptr);
         MWMechanics::NpcStats& npcStats = ptr.getClass().getNpcStats (ptr);
 
+        // crude hack to get rid of full reset in case of RaceMenu shown not during chargen
+        if (creatureStats.getLevel() > 1) {
+            mActors.updateActor(ptr, 0);
+            return;
+        }
+
         npcStats.setNeedRecalcDynamicStats(true);
 
         const ESM::NPC *player = ptr.get<ESM::NPC>()->mBase;
