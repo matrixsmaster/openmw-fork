@@ -32,6 +32,8 @@ So far it does:
 
 1) Adds a simple hack for RaceMenu UI, so it's possible now to make cosmetic changes without complete reset of the player character
 
+1) Enables collisions with user-placed objects
+
 1) Simplifies the OpenCS record filter feature (much easier to use without worrying about the special syntax)
 
 1) Simplifies the input subsystem, and removes joystick/gamepad support (I'm not using them)

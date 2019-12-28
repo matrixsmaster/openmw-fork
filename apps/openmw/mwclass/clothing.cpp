@@ -1,6 +1,7 @@
 #include "clothing.hpp"
 
 #include <components/esm/loadclot.hpp>
+#include <components/settings/settings.hpp>
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/world.hpp"
@@ -32,7 +33,9 @@ namespace MWClass
 
     void Clothing::insertObject(const MWWorld::Ptr& ptr, const std::string& model, MWPhysics::PhysicsSystem& physics) const
     {
-        // TODO: add option somewhere to enable collision for placeable objects
+        if (Settings::Manager::getBool("collision with cloths", "General")) {
+            if (!model.empty()) physics.addObject(ptr, model);
+        }
     }
 
     std::string Clothing::getModel(const MWWorld::ConstPtr &ptr) const

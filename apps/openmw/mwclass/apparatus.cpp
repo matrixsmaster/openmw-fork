@@ -1,6 +1,7 @@
 #include "apparatus.hpp"
 
 #include <components/esm/loadappa.hpp>
+#include <components/settings/settings.hpp>
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/world.hpp"
@@ -30,7 +31,9 @@ namespace MWClass
 
     void Apparatus::insertObject(const MWWorld::Ptr& ptr, const std::string& model, MWPhysics::PhysicsSystem& physics) const
     {
-        // TODO: add option somewhere to enable collision for placeable objects
+        if (Settings::Manager::getBool("collision with apparatus", "General")) {
+            if (!model.empty()) physics.addObject(ptr, model);
+        }
     }
 
     std::string Apparatus::getModel(const MWWorld::ConstPtr &ptr) const

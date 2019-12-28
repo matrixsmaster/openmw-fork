@@ -1,6 +1,7 @@
 #include "book.hpp"
 
 #include <components/esm/loadbook.hpp>
+#include <components/settings/settings.hpp>
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/world.hpp"
@@ -33,7 +34,9 @@ namespace MWClass
 
     void Book::insertObject(const MWWorld::Ptr& ptr, const std::string& model, MWPhysics::PhysicsSystem& physics) const
     {
-        // TODO: add option somewhere to enable collision for placeable objects
+        if (Settings::Manager::getBool("collision with books", "General")) {
+            if (!model.empty()) physics.addObject(ptr, model);
+        }
     }
 
     std::string Book::getModel(const MWWorld::ConstPtr &ptr) const

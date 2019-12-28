@@ -3,6 +3,7 @@
 #include <components/esm/loadarmo.hpp>
 #include <components/esm/loadskil.hpp>
 #include <components/esm/loadgmst.hpp>
+#include <components/settings/settings.hpp>
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/world.hpp"
@@ -36,7 +37,9 @@ namespace MWClass
 
     void Armor::insertObject(const MWWorld::Ptr& ptr, const std::string& model, MWPhysics::PhysicsSystem& physics) const
     {
-        // TODO: add option somewhere to enable collision for placeable objects
+        if (Settings::Manager::getBool("collision with armor", "General")) {
+            if (!model.empty()) physics.addObject(ptr, model);
+        }
     }
 
     std::string Armor::getModel(const MWWorld::ConstPtr &ptr) const
@@ -222,7 +225,7 @@ namespace MWClass
             typeText = "";
         else
         {
-            int armorType = getEquipmentSkill(ptr);       
+            int armorType = getEquipmentSkill(ptr);
             if (armorType == ESM::Skill::LightArmor)
                 typeText = "#{sLight}";
             else if (armorType == ESM::Skill::MediumArmor)

@@ -35,7 +35,9 @@ namespace MWClass
 
     void Weapon::insertObject(const MWWorld::Ptr& ptr, const std::string& model, MWPhysics::PhysicsSystem& physics) const
     {
-        // TODO: add option somewhere to enable collision for placeable objects
+        if (Settings::Manager::getBool("collision with weapons", "General")) {
+            if (!model.empty()) physics.addObject(ptr, model);
+        }
     }
 
     std::string Weapon::getModel(const MWWorld::ConstPtr &ptr) const

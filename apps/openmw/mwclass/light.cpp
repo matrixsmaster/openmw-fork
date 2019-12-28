@@ -43,9 +43,14 @@ namespace MWClass
             ptr.get<ESM::Light>();
         assert (ref->mBase != nullptr);
 
-        // TODO: add option somewhere to enable collision for placeable objects
-        if (!model.empty() && (ref->mBase->mData.mFlags & ESM::Light::Carry) == 0)
-            physics.addObject(ptr, model);
+        if (Settings::Manager::getBool("collision with lights", "General")) {
+            if (!model.empty()) physics.addObject(ptr, model);
+//            Log(Debug::Info) << "Should've added the collision mesh now!";
+        } else {
+//            Log(Debug::Info) << "NOT ENABLED";
+            if (!model.empty() && (ref->mBase->mData.mFlags & ESM::Light::Carry) == 0)
+                physics.addObject(ptr, model);
+        }
 
         if (!ref->mBase->mSound.empty() && !(ref->mBase->mData.mFlags & ESM::Light::OffDefault))
             MWBase::Environment::get().getSoundManager()->playSound3D(ptr, ref->mBase->mSound, 1.0, 1.0,

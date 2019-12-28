@@ -1,6 +1,7 @@
 #include "probe.hpp"
 
 #include <components/esm/loadprob.hpp>
+#include <components/settings/settings.hpp>
 
 #include "../mwbase/environment.hpp"
 #include "../mwbase/mechanicsmanager.hpp"
@@ -32,7 +33,9 @@ namespace MWClass
 
     void Probe::insertObject(const MWWorld::Ptr& ptr, const std::string& model, MWPhysics::PhysicsSystem& physics) const
     {
-        // TODO: add option somewhere to enable collision for placeable objects
+        if (Settings::Manager::getBool("collision with picktools", "General")) {
+            if (!model.empty()) physics.addObject(ptr, model);
+        }
     }
 
     std::string Probe::getModel(const MWWorld::ConstPtr &ptr) const
