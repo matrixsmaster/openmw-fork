@@ -34,6 +34,8 @@ So far it does:
 
 1) Enables collisions with user-placed objects
 
+1) Removes company logo video playback (actually, I made it optional, but disabled by default) - I'm tired of Esc'ing it for almost 17 years!
+
 1) Simplifies the OpenCS record filter feature (much easier to use without worrying about the special syntax)
 
 1) Simplifies the input subsystem, and removes joystick/gamepad support (I'm not using them)

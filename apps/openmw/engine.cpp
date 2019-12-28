@@ -499,7 +499,8 @@ void OMW::Engine::prepareEngine (Settings::Manager & settings)
     // Create sound system
     mEnvironment.setSoundManager (new MWSound::SoundManager(mVFS.get(), mFallbackMap, mUseSound));
 
-    if (!mSkipMenu)
+    // Play videos noone watching anymore 17 years after game release X))
+    if (!mSkipMenu && Settings::Manager::getBool("show company logo", "General"))
     {
         std::string logo = mFallbackMap["Movies_Company_Logo"];
         if (!logo.empty())
