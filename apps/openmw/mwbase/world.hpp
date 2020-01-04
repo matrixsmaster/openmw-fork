@@ -615,6 +615,8 @@ namespace MWBase
             virtual void preloadEffects(const ESM::EffectList* effectList) = 0;
 
             virtual Resource::ResourceSystem* getResourceSystem() = 0;
+
+            virtual void executeStartupScript() = 0;
     };
 }
 

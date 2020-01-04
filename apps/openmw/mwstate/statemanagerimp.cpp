@@ -547,6 +547,9 @@ void MWState::StateManager::loadGame (const Character *character, const std::str
         // Since we passed "changeEvent=false" to changeCell, we shouldn't have triggered the cell change flag.
         // But make sure the flag is cleared anyway in case it was set from an earlier game.
         MWBase::Environment::get().getWorld()->markCellAsUnchanged();
+
+        // Run startup batch file (if present)
+        MWBase::Environment::get().getWorld()->executeStartupScript();
     }
     catch (const std::exception& e)
     {

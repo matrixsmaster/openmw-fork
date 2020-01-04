@@ -40,6 +40,8 @@ Changelist
     1) OICS
     1) TinyXML
 
+1) Add an ability to execute startup batch file after loading a saved game (especially useful for rapid mod prototyping and debugging)
+
 1) Remove company logo video playback (actually, I made it optional, but disabled by default) - I'm tired of Esc'ing it for almost 17 years!
 
 1) Fix inconsistent docstring formatting in a couple of core headers

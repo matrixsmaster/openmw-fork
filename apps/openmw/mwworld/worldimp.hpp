@@ -702,6 +702,8 @@ namespace MWWorld
             void preloadEffects(const ESM::EffectList* effectList) override;
 
             Resource::ResourceSystem* getResourceSystem() override;
+
+            void executeStartupScript() override;
     };
 }
 

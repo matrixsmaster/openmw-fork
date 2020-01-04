@@ -3714,4 +3714,10 @@ namespace MWWorld
     {
         return mResourceSystem;
     }
+
+    void World::executeStartupScript()
+    {
+        if (!mStartupScript.empty())
+            MWBase::Environment::get().getWindowManager()->executeInConsole(mStartupScript);
+    }
 }
