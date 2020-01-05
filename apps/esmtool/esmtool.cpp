@@ -1,4 +1,5 @@
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <deque>
 #include <list>
@@ -63,15 +64,26 @@ struct Arguments
 
     std::vector<std::string> types;
     std::string name;
+    std::string readback;
 
     ESMData data;
     ESM::ESMReader reader;
     ESM::ESMWriter writer;
+
+    std::vector<std::string> storage;
 };
 
 bool parseOptions (int argc, char** argv, Arguments &info)
 {
-    bpo::options_description desc("Inspect and extract from Morrowind ES files (ESM, ESP, ESS)\nSyntax: esmtool [options] mode infile [outfile]\nAllowed modes:\n  dump\t Dumps all readable data from the input file.\n  clone\t Clones the input file to the output file.\n  comp\t Compares the given files.\n\nAllowed options");
+    bpo::options_description desc(  "Inspect and extract from Morrowind ES files (ESM, ESP, ESS)\n"
+                                    "Syntax: esmtool [options] mode infile [outfile]\n"
+                                    "Allowed modes:\n"
+                                    "\tdump\t Dumps all readable data from the input file.\n"
+                                    "\tclone\t Clones the input file to the output file.\n"
+                                    "\tcomp\t Compares the given files.\n"
+                                    "\tstrings\t Dump all strings and textual information.\n\n"
+                                    "Allowed options:"
+                                );
 
     desc.add_options()
         ("help,h", "print help message.")
@@ -89,6 +101,8 @@ bool parseOptions (int argc, char** argv, Arguments &info)
          "Only affects dump mode.")
         ("quiet,q", "Supress all record information. Useful for speed tests.")
         ("loadcells,C", "Browse through contents of all cells.")
+        ("readback,B",  bpo::value<std::string>(),
+         "Read-back the strings dump from a file to recreate a new esp file.")
 
         ( "encoding,e", bpo::value<std::string>(&(info.encoding))->
           default_value("win1252"),
@@ -157,9 +171,11 @@ bool parseOptions (int argc, char** argv, Arguments &info)
         info.types = variables["type"].as< std::vector<std::string> >();
     if (variables.count("name") > 0)
         info.name = variables["name"].as<std::string>();
+    if (variables.count("readback") > 0)
+        info.readback = variables["readback"].as<std::string>();
 
     info.mode = variables["mode"].as<std::string>();
-    if (!(info.mode == "dump" || info.mode == "clone" || info.mode == "comp"))
+    if (!(info.mode == "dump" || info.mode == "clone" || info.mode == "comp" || info.mode == "strings"))
     {
         std::cout << std::endl << "ERROR: invalid mode \"" << info.mode << "\"" << std::endl << std::endl
                   << desc << finalText << std::endl;
@@ -200,42 +216,6 @@ bool parseOptions (int argc, char** argv, Arguments &info)
     std::cout << ToUTF8::encodingUsingMessage(info.encoding) << std::endl;
 
     return true;
-}
-
-void printRaw(ESM::ESMReader &esm);
-void loadCell(ESM::Cell &cell, ESM::ESMReader &esm, Arguments& info);
-
-int load(Arguments& info);
-int clone(Arguments& info);
-int comp(Arguments& info);
-
-int main(int argc, char**argv)
-{
-    try
-    {
-        Arguments info;
-        if(!parseOptions (argc, argv, info))
-            return 1;
-
-        if (info.mode == "dump")
-            return load(info);
-        else if (info.mode == "clone")
-            return clone(info);
-        else if (info.mode == "comp")
-            return comp(info);
-        else
-        {
-            std::cout << "Invalid or no mode specified, dying horribly. Have a nice day." << std::endl;
-            return 1;
-        }
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "ERROR: " << e.what() << std::endl;
-        return 1;
-    }
-
-    return 0;
 }
 
 void loadCell(ESM::Cell &cell, ESM::ESMReader &esm, Arguments& info)
@@ -424,8 +404,6 @@ int load(Arguments& info)
     return 0;
 }
 
-#include <iomanip>
-
 int clone(Arguments& info)
 {
     if (info.outname.empty())
@@ -563,8 +541,189 @@ int comp(Arguments& info)
         return 1;
     }
 
+    return 0;
+}
 
+int readback_update(Arguments& info, int num, std::string content)
+{
 
+}
+
+int readback_prepare(Arguments& info)
+{
+    if (info.readback.empty()) return 0;
+
+    std::ifstream mfl(info.readback);
+    if (!mfl.is_open()) {
+        std::cerr << "ERROR: Unable to open file " << info.readback << std::endl;
+        return 1;
+    }
+
+    int num = -1;
+    char cur[8192];
+    std::string accum;
+
+    while (!mfl.eof()) {
+        mfl.getline(cur,8192);
+        std::string c(cur);
+
+        if (c.empty()) continue;
+        if (c.substr(0,2) == "$$") {
+            readback_update(info,num,accum);
+            accum.clear();
+            int nnum = atoi(cur+2);
+
+        }
+    }
+
+    return 0;
+}
+
+int readback(Arguments& info)
+{
+    if (info.outname.empty())
+    {
+        std::cout << "You need to specify an output name" << std::endl;
+        return 1;
+    }
+
+    if (readback_prepare(info)) return 1;
+
+    std::cout << std::endl << "Saving records to: " << info.outname << "..." << std::endl;
+
+    ESM::ESMWriter& esm = info.writer;
+    ToUTF8::Utf8Encoder encoder (ToUTF8::calculateEncoding(info.encoding));
+    esm.setEncoder(&encoder);
+    esm.setAuthor(info.data.author);
+    esm.setDescription(info.data.description);
+    esm.setVersion(info.data.version);
+    esm.setRecordCount(info.data.mRecords.size());
+
+    for (std::vector<ESM::Header::MasterData>::iterator it = info.data.masters.begin(); it != info.data.masters.end(); ++it)
+        esm.addMaster(it->name, it->size);
+
+    std::fstream save(info.outname.c_str(), std::fstream::out | std::fstream::binary);
+    esm.save(save);
+
+    int saved = 0;
+    typedef std::deque<EsmTool::RecordBase *> Records;
+    Records &records = info.data.mRecords;
+    for (Records::iterator it = records.begin(); it != records.end(); ++it)
+    {
+        EsmTool::RecordBase *record = *it;
+        const ESM::NAME& typeName = record->getType();
+
+        esm.startRecord(typeName.toString(), record->getFlags());
+
+        record->save(esm);
+        if (typeName.intval == ESM::REC_CELL) {
+            ESM::Cell *ptr = &record->cast<ESM::Cell>()->get();
+            if (!info.data.mCellRefs[ptr].empty()) {
+                typedef std::deque<std::pair<ESM::CellRef, bool> > RefList;
+                RefList &refs = info.data.mCellRefs[ptr];
+                for (RefList::iterator refIt = refs.begin(); refIt != refs.end(); ++refIt)
+                {
+                    refIt->first.save(esm, refIt->second);
+                }
+            }
+        }
+
+        esm.endRecord(typeName.toString());
+
+        saved++;
+        int perc = (int)((saved / (float)info.data.mRecords.size())*100);
+        if (perc % 10 == 0)
+        {
+            std::cerr << "\r" << perc << "%";
+        }
+    }
+
+    std::cout << "\rDone!" << std::endl;
+
+    esm.close();
+    save.close();
+
+    return 0;
+}
+
+int strings(Arguments& info)
+{
+    ESM::ESMReader& esm = info.reader;
+    ToUTF8::Utf8Encoder encoder (ToUTF8::calculateEncoding(info.encoding));
+    esm.setEncoder(&encoder);
+
+    std::string filename = info.filename;
+    esm.open(filename);
+
+    info.data.author = esm.getAuthor();
+    info.data.description = esm.getDesc();
+    info.data.masters = esm.getGameFiles();
+    info.storage.push_back(esm.getAuthor());
+    info.storage.push_back(esm.getDesc());
+
+    // Loop through all records
+    while(esm.hasMoreRecs())
+    {
+        ESM::NAME n = esm.getRecName();
+        uint32_t flags;
+        esm.getRecHeader(flags);
+
+        EsmTool::RecordBase *record = EsmTool::RecordBase::create(n);
+        if (!record) {
+            std::cerr << "ERROR: No reader for " << n.toString() << std::endl;
+            return 1;
+        }
+
+        record->setFlags(static_cast<int>(flags));
+        record->setPrintPlain(info.plain_given);
+        record->load(esm);
+
+        info.storage.push_back(n.toString());
+        info.storage.push_back(record->getId());
+        record->textdump(info.storage);
+
+        info.data.mRecords.push_back(record);
+        ++info.data.mRecordStats[n.intval];
+    }
+
+    if (info.readback.empty()) {
+        //Print all info
+        int num = 0;
+        for (auto &i : info.storage)
+            printf("$$%d %s\n",num++,i.c_str());
+
+    } else {
+        std::cout << "Read-back mode" << std::endl;
+        return readback(info);
+    }
+
+    return 0;
+}
+
+int main(int argc, char**argv)
+{
+    try
+    {
+        Arguments info;
+        if(!parseOptions (argc, argv, info))
+            return 1;
+
+        if (info.mode == "dump")
+            return load(info);
+        else if (info.mode == "clone")
+            return clone(info);
+        else if (info.mode == "comp")
+            return comp(info);
+        else if (info.mode == "strings")
+            return strings(info);
+        else
+            return 1;
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "ERROR: " << e.what() << std::endl;
+        return 1;
+    }
 
     return 0;
 }

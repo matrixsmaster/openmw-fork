@@ -54,6 +54,8 @@ namespace EsmTool
         virtual void save(ESM::ESMWriter &esm) = 0;
         virtual void print() = 0;
 
+        virtual void textdump(std::vector<std::string> &coll) = 0;
+
         static RecordBase *create(ESM::NAME type);
 
         // just make it a bit shorter
@@ -91,8 +93,9 @@ namespace EsmTool
         }
 
         void print();
+        void textdump(std::vector<std::string> &coll);
     };
-    
+
     template<> std::string Record<ESM::Cell>::getId() const;
     template<> std::string Record<ESM::Land>::getId() const;
     template<> std::string Record<ESM::MagicEffect>::getId() const;
