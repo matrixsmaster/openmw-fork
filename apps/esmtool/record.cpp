@@ -235,32 +235,60 @@ RecordBase::create(ESM::NAME type)
     return record;
 }
 
-template<>
-std::string Record<ESM::Cell>::getId() const
+template<> std::string Record<ESM::Cell>::getId() const
 {
     return mData.mName;
 }
 
-template<>
-std::string Record<ESM::Land>::getId() const
+template<> std::string Record<ESM::Land>::getId() const { return std::string(); }
+template<> std::string Record<ESM::MagicEffect>::getId() const { return std::string(); }
+template<> std::string Record<ESM::Pathgrid>::getId() const { return std::string(); }
+template<> std::string Record<ESM::Skill>::getId() const { return std::string(); }
+
+template<> void Record<ESM::Cell>::setId(std::string id)
 {
-    return ""; // No ID for Land record
+    mData.mName = id;
 }
 
-template<>
-std::string Record<ESM::MagicEffect>::getId() const
-{
-    return ""; // No ID for MagicEffect record
-}
+template<> void Record<ESM::Land>::setId(std::string id) {} //no mId
+template<> void Record<ESM::MagicEffect>::setId(std::string id) {} //no mId
+template<> void Record<ESM::Pathgrid>::setId(std::string id) {} //no mId
+template<> void Record<ESM::Skill>::setId(std::string id) {} //no mId
 
-template<>
-std::string Record<ESM::Pathgrid>::getId() const
-{
-    return ""; // No ID for Pathgrid record
-}
+template<> std::string Record<ESM::BodyPart>::getName() const { return std::string(); }
+template<> std::string Record<ESM::CreatureLevList>::getName() const { return std::string(); }
+template<> std::string Record<ESM::Dialogue>::getName() const { return std::string(); }
+template<> std::string Record<ESM::DialInfo>::getName() const { return std::string(); }
+template<> std::string Record<ESM::Enchantment>::getName() const { return std::string(); }
+template<> std::string Record<ESM::Global>::getName() const { return std::string(); }
+template<> std::string Record<ESM::GameSetting>::getName() const { return std::string(); }
+template<> std::string Record<ESM::ItemLevList>::getName() const { return std::string(); }
+template<> std::string Record<ESM::Land>::getName() const { return std::string(); }
+template<> std::string Record<ESM::LandTexture>::getName() const { return std::string(); }
+template<> std::string Record<ESM::MagicEffect>::getName() const { return std::string(); }
+template<> std::string Record<ESM::Pathgrid>::getName() const { return std::string(); }
+template<> std::string Record<ESM::Script>::getName() const { return std::string(); }
+template<> std::string Record<ESM::StartScript>::getName() const { return std::string(); }
+template<> std::string Record<ESM::Skill>::getName() const { return std::string(); }
+template<> std::string Record<ESM::Sound>::getName() const { return std::string(); }
+template<> std::string Record<ESM::SoundGenerator>::getName() const { return std::string(); }
+template<> std::string Record<ESM::Static>::getName() const { return std::string(); }
 
-template<>
-std::string Record<ESM::Skill>::getId() const
-{
-    return ""; // No ID for Skill record
-}
+template<> void Record<ESM::BodyPart>::setName(std::string n) {}
+template<> void Record<ESM::CreatureLevList>::setName(std::string n) {}
+template<> void Record<ESM::Dialogue>::setName(std::string n) {}
+template<> void Record<ESM::DialInfo>::setName(std::string n) {}
+template<> void Record<ESM::Enchantment>::setName(std::string n) {}
+template<> void Record<ESM::Global>::setName(std::string n) {}
+template<> void Record<ESM::GameSetting>::setName(std::string n) {}
+template<> void Record<ESM::ItemLevList>::setName(std::string n) {}
+template<> void Record<ESM::Land>::setName(std::string n) {}
+template<> void Record<ESM::LandTexture>::setName(std::string n) {}
+template<> void Record<ESM::MagicEffect>::setName(std::string n) {}
+template<> void Record<ESM::Pathgrid>::setName(std::string n) {}
+template<> void Record<ESM::Script>::setName(std::string n) {}
+template<> void Record<ESM::StartScript>::setName(std::string n) {}
+template<> void Record<ESM::Skill>::setName(std::string n) {}
+template<> void Record<ESM::Sound>::setName(std::string n) {}
+template<> void Record<ESM::SoundGenerator>::setName(std::string n) {}
+template<> void Record<ESM::Static>::setName(std::string n) {}

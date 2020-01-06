@@ -7,6 +7,7 @@
 #include <set>
 #include <fstream>
 #include <cmath>
+#include <algorithm>
 
 #include <boost/program_options.hpp>
 
@@ -65,6 +66,7 @@ struct Arguments
     std::vector<std::string> types;
     std::string name;
     std::string readback;
+    std::string master;
 
     ESMData data;
     ESM::ESMReader reader;
@@ -81,7 +83,8 @@ bool parseOptions (int argc, char** argv, Arguments &info)
                                     "\tdump\t Dumps all readable data from the input file.\n"
                                     "\tclone\t Clones the input file to the output file.\n"
                                     "\tcomp\t Compares the given files.\n"
-                                    "\tstrings\t Dump all strings and textual information.\n\n"
+                                    "\tstrings\t Dumps (or reads back) all strings and textual information.\n"
+                                    "\trevert\t Reverts all FNAMs within a plugin back to original values.\n\n"
                                     "Allowed options:"
                                 );
 
@@ -103,6 +106,8 @@ bool parseOptions (int argc, char** argv, Arguments &info)
         ("loadcells,C", "Browse through contents of all cells.")
         ("readback,B",  bpo::value<std::string>(),
          "Read-back the strings dump from a file to recreate a new esp file.")
+     	("master,M",  bpo::value<std::string>(),
+		 "Master file (not necessarily ESM) to revert data from.")
 
         ( "encoding,e", bpo::value<std::string>(&(info.encoding))->
           default_value("win1252"),
@@ -173,14 +178,10 @@ bool parseOptions (int argc, char** argv, Arguments &info)
         info.name = variables["name"].as<std::string>();
     if (variables.count("readback") > 0)
         info.readback = variables["readback"].as<std::string>();
+    if (variables.count("master") > 0)
+        info.master = variables["master"].as<std::string>();
 
-    info.mode = variables["mode"].as<std::string>();
-    if (!(info.mode == "dump" || info.mode == "clone" || info.mode == "comp" || info.mode == "strings"))
-    {
-        std::cout << std::endl << "ERROR: invalid mode \"" << info.mode << "\"" << std::endl << std::endl
-                  << desc << finalText << std::endl;
-        return false;
-    }
+    info.mode = variables["mode"].as<std::string>(); // checked later, in main mode switch
 
     if ( !variables.count("input-file") )
     {
@@ -188,14 +189,6 @@ bool parseOptions (int argc, char** argv, Arguments &info)
         std::cout << desc << finalText << std::endl;
         return false;
     }
-
-    // handling gracefully the user adding multiple files
-/*    if (variables["input-file"].as< std::vector<std::string> >().size() > 1)
-      {
-      std::cout << "\nERROR: more than one ES file specified\n\n";
-      std::cout << desc << finalText << std::endl;
-      return false;
-      }*/
 
     info.filename = variables["input-file"].as< std::vector<std::string> >()[0];
     if (variables["input-file"].as< std::vector<std::string> >().size() > 1)
@@ -488,7 +481,7 @@ int clone(Arguments& info)
         int perc = (int)((saved / (float)recordCount)*100);
         if (perc % 10 == 0)
         {
-            std::cerr << "\r" << perc << "%";
+            std::cout << "\r" << perc << "%";
         }
     }
 
@@ -617,8 +610,7 @@ int readback_file(Arguments& info)
 
 int readback(Arguments& info)
 {
-    if (info.outname.empty())
-    {
+    if (info.outname.empty()) {
         std::cout << "You need to specify an output name" << std::endl;
         return 1;
     }
@@ -645,8 +637,7 @@ int readback(Arguments& info)
     int saved = 0;
     typedef std::deque<EsmTool::RecordBase *> Records;
     Records &records = info.data.mRecords;
-    for (Records::iterator it = records.begin(); it != records.end(); ++it)
-    {
+    for (Records::iterator it = records.begin(); it != records.end(); ++it) {
         EsmTool::RecordBase *record = *it;
         const ESM::NAME& typeName = record->getType();
         if (typeName.toString() != *sit) {
@@ -751,6 +742,117 @@ int strings(Arguments& info)
     return 0;
 }
 
+int write_original_names(Arguments& mast, Arguments& plug, Arguments& out)
+{
+    std::cout << std::endl << "Saving records to: " << out.outname << "..." << std::endl;
+
+    ESM::ESMWriter& esm = out.writer;
+    ToUTF8::Utf8Encoder encoder (ToUTF8::calculateEncoding(out.encoding));
+    esm.setEncoder(&encoder);
+    esm.setAuthor(plug.data.author);
+    esm.setDescription(plug.data.description);
+    esm.setVersion(plug.data.version);
+    esm.setRecordCount(plug.data.mRecords.size());
+
+    for (std::vector<ESM::Header::MasterData>::iterator it = plug.data.masters.begin(); it != plug.data.masters.end(); ++it)
+        esm.addMaster(it->name, it->size);
+
+    std::fstream save(out.outname.c_str(), std::fstream::out | std::fstream::binary);
+    esm.save(save);
+
+    int saved = 0;
+    typedef std::deque<EsmTool::RecordBase *> Records;
+    Records &records = plug.data.mRecords;
+    Records &mrecords = mast.data.mRecords;
+    for (auto &r : records) {
+        EsmTool::RecordBase* rec = r;
+        auto org = std::find_if(mrecords.begin(),mrecords.end(),
+                [rec] (EsmTool::RecordBase* a) { return a->getId() == rec->getId(); });
+
+        if (org != mrecords.end() && (*org)->getName() != rec->getName()) {
+            printf("DEBUG: replacing record name from '%s' to '%s'\n",rec->getName().c_str(),(*org)->getName().c_str());
+            rec->setName((*org)->getName());
+        } else
+            continue;
+
+        const ESM::NAME& typeName = rec->getType();
+        esm.startRecord(typeName.toString(), rec->getFlags());
+        rec->save(esm);
+
+        if (typeName.intval == ESM::REC_CELL) {
+            ESM::Cell *ptr = &rec->cast<ESM::Cell>()->get();
+            if (!plug.data.mCellRefs[ptr].empty()) {
+                typedef std::deque<std::pair<ESM::CellRef, bool> > RefList;
+                RefList &refs = plug.data.mCellRefs[ptr];
+                for (RefList::iterator refIt = refs.begin(); refIt != refs.end(); ++refIt)
+                {
+                    refIt->first.save(esm, refIt->second);
+                }
+            }
+        }
+
+        esm.endRecord(typeName.toString());
+
+        saved++;
+        int perc = (int)((saved / (float)plug.data.mRecords.size())*100);
+        if (perc % 10 == 0)
+        {
+            std::cout << "\r" << perc << "%";
+        }
+    }
+
+    std::cout << "\rDone!" << std::endl;
+
+    esm.close();
+    save.close();
+
+    return 0;
+}
+
+int revert(Arguments& info)
+{
+    if (info.filename.empty() || info.outname.empty()) {
+        std::cout << "You need to specify input and output files" << std::endl;
+        return 1;
+    }
+    if (info.master.empty()) {
+        std::cout << "You need to specify master file" << std::endl;
+        return 1;
+    }
+
+    Arguments mast;
+    Arguments plug;
+
+    mast.quiet_given = true;
+    plug.quiet_given = true;
+
+    mast.raw_given = 0;
+    plug.raw_given = 0;
+
+    mast.mode = "clone";
+    plug.mode = "clone";
+
+    mast.encoding = info.encoding;
+    plug.encoding = info.encoding;
+
+    mast.filename = info.master;
+    plug.filename = info.filename;
+
+    if (load(mast) != 0)
+    {
+        std::cout << "Failed to load " << info.filename << ", aborting comparison." << std::endl;
+        return 1;
+    }
+
+    if (load(plug) != 0)
+    {
+        std::cout << "Failed to load " << info.outname << ", aborting comparison." << std::endl;
+        return 1;
+    }
+
+    return write_original_names(mast,plug,info); //guts
+}
+
 int main(int argc, char**argv)
 {
     try
@@ -767,8 +869,12 @@ int main(int argc, char**argv)
             return comp(info);
         else if (info.mode == "strings")
             return strings(info);
-        else
+        else if (info.mode == "revert")
+            return revert(info);
+        else {
+            printf("ERROR: Invalid mode %s\n",info.mode.c_str());
             return 1;
+        }
     }
     catch (std::exception& e)
     {
