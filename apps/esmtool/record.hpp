@@ -33,6 +33,9 @@ namespace EsmTool
         virtual ~RecordBase() {}
 
         virtual std::string getId() const = 0;
+        void setId(std::string id) {
+        	mId = id;
+        }
 
         uint32_t getFlags() const {
             return mFlags;
@@ -55,6 +58,7 @@ namespace EsmTool
         virtual void print() = 0;
 
         virtual void textdump(std::vector<std::string> &coll) = 0;
+        virtual void fromtext(std::vector<std::string>::iterator &cit) = 0;
 
         static RecordBase *create(ESM::NAME type);
 
@@ -94,6 +98,7 @@ namespace EsmTool
 
         void print();
         void textdump(std::vector<std::string> &coll);
+        void fromtext(std::vector<std::string>::iterator &cit);
     };
 
     template<> std::string Record<ESM::Cell>::getId() const;

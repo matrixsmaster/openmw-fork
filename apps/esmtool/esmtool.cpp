@@ -16,7 +16,7 @@
 
 #include "record.hpp"
 
-#define ESMTOOL_VERSION 1.2
+#define ESMTOOL_VERSION 1.3
 
 // Create a local alias for brevity
 namespace bpo = boost::program_options;
@@ -544,12 +544,20 @@ int comp(Arguments& info)
     return 0;
 }
 
-int readback_update(Arguments& info, int num, std::string content)
+int readback_line(Arguments& info, int num, std::string content)
 {
+	if (num < 0) return 0;
+	if (num >= int(info.storage.size())) return 1;
 
+	if (content.at(content.size()-1) == '\n') content.resize(content.size()-1);
+
+	printf("DEBUG: Num %d String '%s'\n",num,content.c_str());
+	info.storage[num] = content;
+
+	return 0;
 }
 
-int readback_prepare(Arguments& info)
+int readback_file(Arguments& info)
 {
     if (info.readback.empty()) return 0;
 
@@ -560,23 +568,51 @@ int readback_prepare(Arguments& info)
     }
 
     int num = -1;
-    char cur[8192];
+    int fsm = 0;
+    int ch;
     std::string accum;
 
-    while (!mfl.eof()) {
-        mfl.getline(cur,8192);
-        std::string c(cur);
+    while (1) {
+    	ch = mfl.get();
+    	if (mfl.eof()) break;
 
-        if (c.empty()) continue;
-        if (c.substr(0,2) == "$$") {
-            readback_update(info,num,accum);
-            accum.clear();
-            int nnum = atoi(cur+2);
-
-        }
+    	switch (fsm) {
+    	case 0:
+    		if (ch == '$' && mfl.peek() == '$') {
+    			if (readback_line(info,num,accum)) {
+    				mfl.close();
+    				return 1;
+    			}
+    			accum.clear();
+    			mfl.get();
+    			fsm = 1;
+    		} else
+    			accum += ch;
+    		break;
+    	case 1:
+    		if (ch == ' ') {
+    			int tmp = atoi(accum.c_str());
+    			if (tmp != ++num) {
+    				printf("ERROR: Line numbers are out of sync: epxected %d, got %d\n",num,tmp);
+    				mfl.close();
+    				return 1;
+    			}
+    			num = tmp;
+    			accum.clear();
+    			fsm = 0;
+    		} else
+    			accum += ch;
+    		break;
+    	default:
+    		abort();
+    	}
     }
+    mfl.close();
 
-    return 0;
+    if (fsm == 0 && !accum.empty())
+    	return readback_line(info,num,accum);
+    else
+    	return 0;
 }
 
 int readback(Arguments& info)
@@ -587,15 +623,16 @@ int readback(Arguments& info)
         return 1;
     }
 
-    if (readback_prepare(info)) return 1;
+    if (readback_file(info)) return 1;
 
     std::cout << std::endl << "Saving records to: " << info.outname << "..." << std::endl;
 
+    std::vector<std::string>::iterator sit = info.storage.begin();
     ESM::ESMWriter& esm = info.writer;
     ToUTF8::Utf8Encoder encoder (ToUTF8::calculateEncoding(info.encoding));
     esm.setEncoder(&encoder);
-    esm.setAuthor(info.data.author);
-    esm.setDescription(info.data.description);
+    esm.setAuthor(*sit++);
+    esm.setDescription(*sit++);
     esm.setVersion(info.data.version);
     esm.setRecordCount(info.data.mRecords.size());
 
@@ -612,10 +649,24 @@ int readback(Arguments& info)
     {
         EsmTool::RecordBase *record = *it;
         const ESM::NAME& typeName = record->getType();
+        if (typeName.toString() != *sit) {
+        	printf("ERROR: Wrong Type Name at record %d (expected %s, got %s)\n",saved,typeName.toString().c_str(),sit->c_str());
+        	esm.close();
+        	save.close();
+        	return 1;
+        }
+
+        if (record->getId() != *++sit) {
+        	printf("Replacing ID '%s' with new ID '%s'\n",record->getId().c_str(),sit->c_str());
+        	record->setId(*sit);
+        }
+        ++sit;
 
         esm.startRecord(typeName.toString(), record->getFlags());
 
+        record->fromtext(sit);
         record->save(esm);
+
         if (typeName.intval == ESM::REC_CELL) {
             ESM::Cell *ptr = &record->cast<ESM::Cell>()->get();
             if (!info.data.mCellRefs[ptr].empty()) {
@@ -634,7 +685,7 @@ int readback(Arguments& info)
         int perc = (int)((saved / (float)info.data.mRecords.size())*100);
         if (perc % 10 == 0)
         {
-            std::cerr << "\r" << perc << "%";
+            std::cout << "\r" << perc << "%";
         }
     }
 

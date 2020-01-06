@@ -6,6 +6,7 @@
 #include "labels.hpp"
 #include "printers.hpp"
 #include "dumpers.hpp"
+#include "simport.hpp"
 
 using namespace EsmTool;
 
