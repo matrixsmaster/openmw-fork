@@ -772,8 +772,7 @@ int write_original_names(Arguments& mast, Arguments& plug, Arguments& out)
         if (org != mrecords.end() && (*org)->getName() != rec->getName()) {
             printf("DEBUG: replacing record name from '%s' to '%s'\n",rec->getName().c_str(),(*org)->getName().c_str());
             rec->setName((*org)->getName());
-        } else
-            continue;
+        }
 
         const ESM::NAME& typeName = rec->getType();
         esm.startRecord(typeName.toString(), rec->getFlags());
