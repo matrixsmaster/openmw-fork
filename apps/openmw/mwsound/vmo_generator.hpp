@@ -19,7 +19,7 @@ namespace MWSound
         virtual size_t getSampleOffset() { return 0; }
 
         VMO_Generator();
-        virtual ~VMO_Generator() {}
+        virtual ~VMO_Generator();
     };
 
 }

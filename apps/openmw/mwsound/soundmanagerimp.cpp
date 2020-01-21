@@ -392,9 +392,14 @@ namespace MWSound
     void SoundManager::streamVMO()
     {
         if (!mOutput->isInitialized()) return;
-        if (mVMOStream) return;
-
-        Log(Debug::Info) << "Started VMO Streaming";
+        if (mVMOStream) {
+            mOutput->finishStream(mVMOStream);
+            mUnusedStreams.push_back(mVMOStream);
+            mVMOStream = nullptr;
+            Log(Debug::Info) << "Restarted VMO Streaming";
+//            return;
+        } else
+            Log(Debug::Info) << "Started VMO Streaming";
 
         DecoderPtr decoder = std::shared_ptr<VMO_Generator>(new VMO_Generator());
 

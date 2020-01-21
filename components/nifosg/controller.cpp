@@ -480,7 +480,7 @@ VMOController::VMOController(const VMOController &copy, const osg::CopyOp &copyo
 
 VMOController::~VMOController()
 {
-    wrapperKill();
+    wrapperPause(true);
     printf("VMO Destroyed\n");
 }
 
@@ -488,6 +488,7 @@ void VMOController::initVM()
 {
     mStatus = !wrapperInit();
     printf("VMO Created, status = %d\n",mStatus);
+    if (mStatus) wrapperPause(false);
 }
 
 void VMOController::apply(osg::StateSet* stateset, osg::NodeVisitor* nv)

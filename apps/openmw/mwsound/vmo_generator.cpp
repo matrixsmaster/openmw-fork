@@ -10,7 +10,12 @@ namespace MWSound
 VMO_Generator::VMO_Generator() :
     Sound_Decoder(nullptr)
 {
-    printf("VMO Generator Created\n");
+    printf("VMO Sound Generator Created\n");
+}
+
+VMO_Generator::~VMO_Generator()
+{
+    printf("VMO Sound Generator Destroyed\n");
 }
 
 void VMO_Generator::getInfo(int *samplerate, ChannelConfig *chans, SampleType *type)
@@ -38,7 +43,7 @@ void VMO_Generator::getInfo(int *samplerate, ChannelConfig *chans, SampleType *t
 size_t VMO_Generator::read(char *buffer, size_t bytes)
 {
     int r = wrapperGetSound((uint8_t*)buffer,bytes);
-    printf("read(): %d\n",r);
+    //printf("read(): %d\n",r);
     return r;
 }
 

@@ -51,6 +51,7 @@ static bool outtex_valid = false;
 osg::ref_ptr<osg::Texture2D> outtexture;
 static dosbox::LDB_SoundInfo sndinfo;
 static bool got_sndinfo = false;
+static bool inited = false;
 
 #define FRAMESKIP_MAX 10
 
@@ -169,45 +170,6 @@ int32_t XS_GetTicks(void* buf, size_t len)
     return 0;
 }
 
-static void XS_ldb_register()
-{
-    doscard->RegisterCallback(DBCB_GetTicks,&XS_GetTicks);
-    doscard->RegisterCallback(DBCB_PushScreen,&XS_UpdateScreenBuffer);
-    doscard->RegisterCallback(DBCB_PushSound,&XS_UpdateSoundBuffer);
-    doscard->RegisterCallback(DBCB_PullUIEvents,&XS_QueryUIEvents);
-    doscard->RegisterCallback(DBCB_FileIOReq,&XS_FIO);
-}
-
-static void XS_SDLInit()
-{
-    lcd_w = XSHELL_DEF_WND_W;
-    lcd_h = XSHELL_DEF_WND_H;
-    rctrl_down = false;
-
-    pthread_mutex_init(&update_mutex,NULL);
-    pthread_mutex_init(&sound_mutex,NULL);
-}
-
-static void XS_SDLKill()
-{
-    int r;
-
-    if (doscard) doscard->SetQuit();
-
-    if (dosboxthr) {
-        SDL_WaitThread(dosboxthr,&r);
-        dosboxthr = NULL;
-    }
-
-    if (doscard) {
-        delete doscard;
-        doscard = NULL;
-    }
-
-    pthread_mutex_destroy(&update_mutex);
-    pthread_mutex_destroy(&sound_mutex);
-}
-
 int32_t XS_FIO(void* buf, size_t len)
 {
     uint64_t* x;
@@ -306,9 +268,27 @@ int32_t XS_FIO(void* buf, size_t len)
     return 0;
 }
 
+int32_t XS_Delay(void* buf, size_t len)
+{
+    SDL_Delay(len);
+//    printf("Sleeping for %lu ms\n",len);
+    return 0;
+}
+
+static void XS_ldb_register()
+{
+    doscard->RegisterCallback(DBCB_GetTicks,&XS_GetTicks);
+    doscard->RegisterCallback(DBCB_PushScreen,&XS_UpdateScreenBuffer);
+    doscard->RegisterCallback(DBCB_PushSound,&XS_UpdateSoundBuffer);
+    doscard->RegisterCallback(DBCB_PullUIEvents,&XS_QueryUIEvents);
+    doscard->RegisterCallback(DBCB_FileIOReq,&XS_FIO);
+    doscard->RegisterCallback(DBCB_NOPIdle,&XS_Delay);
+}
+
 int wrapperGetSound(uint8_t* stream, int len)
 {
     if (!doscard || !dosboxthr) return 0;
+    if (doscard->GetPause()) return 0;
 
     int i,p;
     int16_t* buf = reinterpret_cast<int16_t*>(stream);
@@ -341,54 +321,84 @@ int DosRun(void* p)
 
 int wrapperInit()
 {
-    // Check previous instance existence
-    if (doscard || dosboxthr) XS_SDLKill();
+    if (!inited) {
+        lcd_w = XSHELL_DEF_WND_W;
+        lcd_h = XSHELL_DEF_WND_H;
+        rctrl_down = false;
 
-    // Create DOSCard class instance
-    XS_SDLInit();
-    doscard = new CDosBox();
-    if (!doscard) return -1;
+        pthread_mutex_init(&update_mutex,NULL);
+        pthread_mutex_init(&sound_mutex,NULL);
 
-    // Register our callbacks to doscard core
-    XS_ldb_register();
+        inited = true;
+    }
 
-    // Request for 64MB RAM
-    LDB_Settings* setts = doscard->GetConfig();
-    setts->mem.total_ram = 64;
-    setts->cpu.core = ALDB_CPU::LDB_CPU_NORMAL;
-//    setts->cpu.cycle_limit = ALDB_CPU::LDB_CPU_CYCLE_MAX;
-    setts->cpu.family = CPU_ARCHTYPE_486NEWSLOW;
-    setts->frameskip = 0;
-    doscard->SetConfig(setts);
+    if (!doscard) {
+        // Create DOSCard class instance
+        doscard = new CDosBox();
+        if (!doscard) return -1;
 
-    // Create SDL2 Thread for DOS and run it
-    dosboxthr = SDL_CreateThread(DosRun,"DosThread",NULL);
-    if (!dosboxthr) return -1;
+        // Register our callbacks to doscard core
+        XS_ldb_register();
+
+        // Request for 64MB RAM
+        LDB_Settings* setts = doscard->GetConfig();
+        setts->mem.total_ram = 64;
+        setts->cpu.core = ALDB_CPU::LDB_CPU_NORMAL;
+    //    setts->cpu.cycle_limit = ALDB_CPU::LDB_CPU_CYCLE_MAX;
+        setts->cpu.family = CPU_ARCHTYPE_486NEWSLOW;
+        setts->frameskip = 0;
+        doscard->SetConfig(setts);
+    }
+
+    if (!dosboxthr) {
+        // Create SDL2 Thread for DOS and run it
+        dosboxthr = SDL_CreateThread(DosRun,"DosThread",NULL);
+        if (!dosboxthr) return -1;
+    }
 
     return 0;
 }
 
 int wrapperKill()
 {
-    XS_SDLKill();
+    if (!inited) return 0;
+
+    if (doscard) doscard->SetQuit();
+
+    if (dosboxthr) {
+        int r;
+        SDL_WaitThread(dosboxthr,&r);
+        dosboxthr = NULL;
+    }
+
+    if (doscard) {
+        delete doscard;
+        doscard = NULL;
+    }
+
+    pthread_mutex_destroy(&update_mutex);
+    pthread_mutex_destroy(&sound_mutex);
+
+    inited = false;
     return 0;
 }
 
-#if 0
-static void reversecolor(uint8_t* buf, size_t len)
+int wrapperPause(bool on)
 {
-    uint32_t* ptr = (uint32_t*)buf;
-    for (size_t i = 0; i < len; i += 4, ++ptr)
-        *ptr = __builtin_bswap32(*ptr);
+    if (doscard && dosboxthr) {
+        doscard->SetPause(on);
+        return 0;
+    }
+
+    return -1;
 }
-#else
+
 static void reversecolor(uint8_t* buf, size_t len)
 {
     for (size_t i = 0; i < len; i += 4) {
         std::swap(buf[i+0],buf[i+2]);
     }
 }
-#endif
 
 static void* revmemcpy(void* dest, void* src, size_t len, size_t unit)
 {
@@ -408,29 +418,6 @@ static void* revmemcpy(void* dest, void* src, size_t len, size_t unit)
 
 osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
 {
-#if 0
-    osg::ref_ptr<osg::Texture2D> txd(new osg::Texture2D());
-
-    if (!doscard || !framebuf) {
-        printf("Unable to render VM frame\n");
-        return txd;
-    }
-
-    osg::ref_ptr<osg::Image> img(new osg::Image());
-
-    pthread_mutex_lock(&update_mutex);
-
-    img.get()->allocateImage(lcd_w,lcd_h,1,GL_RGBA,GL_UNSIGNED_BYTE);
-
-//    memcpy(img.get()->data(),framebuf,lcd_w*lcd_h*4);
-    revmemcpy(img.get()->data(),framebuf,lcd_w*lcd_h*4,lcd_w*4);
-
-    pthread_mutex_unlock(&update_mutex);
-
-    txd->setImage(img);
-
-    return txd;
-#else
     if (!outtex_valid) {
         outtexture = osg::ref_ptr<osg::Texture2D>(new osg::Texture2D());
         outtexture.get()->setFilter(osg::Texture::MIN_FILTER,osg::Texture::LINEAR);
@@ -474,7 +461,6 @@ osg::ref_ptr<osg::Texture2D> wrapperGetFrame()
     }
 
     return outtexture;
-#endif
 }
 
 static void insertEvent(LDB_UIEventE t, KBD_KEYS key, bool pressed, LDB_MOUSEINF* mouse)

@@ -32,6 +32,8 @@
 
 #include <components/version/version.hpp>
 
+#include <extern/xswrapper/xswrapper.hpp>
+
 #include "mwinput/inputmanagerimp.hpp"
 
 #include "mwgui/windowmanagerimp.hpp"
@@ -234,6 +236,8 @@ OMW::Engine::Engine(Files::ConfigurationManager& configurationManager)
 
 OMW::Engine::~Engine()
 {
+    wrapperKill();
+
     mEnvironment.cleanup();
 
     delete mScriptContext;

@@ -51,6 +51,7 @@ int32_t XS_FIO(void* buf, size_t len);
 
 int wrapperInit();
 int wrapperKill();
+int wrapperPause(bool on);
 
 osg::ref_ptr<osg::Texture2D> wrapperGetFrame();
 
